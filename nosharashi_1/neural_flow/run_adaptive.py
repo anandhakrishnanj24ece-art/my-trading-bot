@@ -152,6 +152,11 @@ def run_adaptive_weighted_strategy():
     print(f"Current Portfolio Value: ${current_portfolio_val:.2f}")
     print(f"Total Return from Base: {total_return_pct:.2f}%")
     print(f"Current Leverage: {lev:.2f}x")
+    print("\nActive Portfolio Allocations:")
+    for t in tickers:
+        w = float(target_weights[tickers.index(t)])
+        status = "LONG" if w > 0.01 else ("SHORT" if w < -0.01 else "CASH")
+        print(f"  {t:<10}: {w*100:>6.1f}%  [{status}]  @ ${latest_prices[t]:,.2f}")
 
 if __name__ == '__main__':
     run_adaptive_weighted_strategy()
