@@ -1,3 +1,8 @@
+import os
+import sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import json
+from datetime import datetime, timezone
 import yfinance as yf
 import pandas as pd
 import numpy as np
@@ -5,14 +10,16 @@ from neural_flow.alpha.model import LiquidityAlpha
 from neural_flow.execution.model import StealthExecution
 from neural_flow.risk.model import VolatilitySwitch
 
+STATE_FILE = 'paper_state_adaptive.json'
+BALANCE_FILE = 'paper_balance_adaptive.txt'
+BASE_CAPITAL = 10000.0
+
 def run_adaptive_weighted_strategy():
-    # 1. Setup Data - Using high-liquidity tickers
     tickers = ['BTC-USD', 'ETH-USD', 'SOL-USD', 'BNB-USD', 'XRP-USD', 'ADA-USD', 'DOT-USD', 'LINK-USD', 'AVAX-USD']
 
-    print("Downloading data for Adaptive Strategy...")
-    data_raw = yf.download(tickers, period='1y', interval='1d')
+    print("Downloading latest market data for Adaptive Strategy...")
+    data_raw = yf.download(tickers, period='1y', interval='1d', progress=False)
 
-    # Handle yfinance multi-index columns
     if isinstance(data_raw.columns, pd.MultiIndex):
         close_prices = data_raw['Close'].ffill().dropna()
         volumes = data_raw['Volume'].ffill().dropna()
@@ -20,96 +27,114 @@ def run_adaptive_weighted_strategy():
         close_prices = pd.DataFrame({tickers[0]: data_raw['Close']}).ffill().dropna()
         volumes = pd.DataFrame({tickers[0]: data_raw['Volume']}).ffill().dropna()
 
-    # Filter tickers to only those that actually have data
     tickers = close_prices.columns.tolist()
-
     returns = close_prices.pct_change().dropna()
     common_index = returns.index.intersection(close_prices.index).intersection(volumes.index)
     returns = returns.loc[common_index]
     close_prices = close_prices.loc[common_index]
     volumes = volumes.loc[common_index]
 
-    # 2. System Components
     alpha_engine = LiquidityAlpha()
     execution_engine = StealthExecution()
     risk_engine = VolatilitySwitch(base_leverage=4.0)
 
-    # Starting capital baseline: $10,000
-    start_capital = 10000.0
-    portfolio_value = [start_capital]
-    current_weights = np.zeros(len(tickers))
-
-    print(f"Executing Adaptive Weighted Strategy on {len(tickers)} assets...")
-    for i in range(len(returns)):
-        asset_signals = []
-        asset_confidences = []
-
-        for ticker in tickers:
-            asset_df = pd.DataFrame({
-                'Close': close_prices[ticker],
-                'Volume': volumes[ticker]
-            })
-            res_df = alpha_engine.generate_signal(asset_df)
-            if not res_df.empty and i < len(res_df):
-                res = res_df.iloc[i]
-                asset_signals.append(res['signal'])
-                asset_confidences.append(res['confidence'])
-            else:
-                asset_signals.append(0.0)
-                asset_confidences.append(0.0)
-
-        signals_arr = np.array(asset_signals)
-        conf_arr = np.array(asset_confidences)
-
-        # Adaptive Weighting Logic
-        if np.abs(signals_arr).sum() > 0:
-            weights = np.sign(signals_arr) * (np.abs(signals_arr) / np.abs(signals_arr).sum())
+    # 1. Compute current signals on latest market bar
+    asset_signals = []
+    asset_confidences = []
+    for ticker in tickers:
+        asset_df = pd.DataFrame({
+            'Close': close_prices[ticker],
+            'Volume': volumes[ticker]
+        })
+        res_df = alpha_engine.generate_signal(asset_df)
+        if not res_df.empty:
+            res = res_df.iloc[-1]
+            asset_signals.append(res['signal'])
+            asset_confidences.append(res['confidence'])
         else:
-            weights = np.zeros(len(tickers))
+            asset_signals.append(0.0)
+            asset_confidences.append(0.0)
 
-        # Apply Adaptive Caps based on confidence
-        final_weights_pre_lev = []
-        for j in range(len(weights)):
-            conf = conf_arr[j]
-            if conf < 1.0: cap = 0.05
-            elif conf < 2.0: cap = 0.20
-            else: cap = 0.50
-            final_weights_pre_lev.append(np.clip(weights[j], -cap, cap))
+    signals_arr = np.array(asset_signals)
+    conf_arr = np.array(asset_confidences)
 
-        final_weights_pre_lev = np.array(final_weights_pre_lev)
+    # 2. Adaptive Weighting Logic
+    if np.abs(signals_arr).sum() > 0:
+        raw_weights = np.sign(signals_arr) * (np.abs(signals_arr) / np.abs(signals_arr).sum())
+    else:
+        raw_weights = np.zeros(len(tickers))
 
-        # Normalize exposure to 100%
-        total_exp = np.sum(np.abs(final_weights_pre_lev))
-        if total_exp > 1.0:
-            final_weights_pre_lev = final_weights_pre_lev / total_exp
+    final_weights_pre_lev = []
+    for j in range(len(raw_weights)):
+        conf = conf_arr[j]
+        if conf < 1.0: cap = 0.05
+        elif conf < 2.0: cap = 0.20
+        else: cap = 0.50
+        final_weights_pre_lev.append(np.clip(raw_weights[j], -cap, cap))
 
-        # Dynamic Leverage based on the first available ticker (usually BTC)
-        benchmark_rets = returns.iloc[:, 0]
-        lev = risk_engine.get_leverage(benchmark_rets.iloc[:i+1])
-        final_weights = final_weights_pre_lev * lev
+    final_weights_pre_lev = np.array(final_weights_pre_lev)
+    total_exp = np.sum(np.abs(final_weights_pre_lev))
+    if total_exp > 1.0:
+        final_weights_pre_lev = final_weights_pre_lev / total_exp
 
-        # PnL and Costs
-        period_return = np.sum(final_weights * returns.iloc[i].values)
-        turnover = np.sum(np.abs(final_weights - current_weights))
+    benchmark_rets = returns.iloc[:, 0]
+    lev = risk_engine.get_leverage(benchmark_rets)
+    target_weights = final_weights_pre_lev * lev
+
+    latest_prices = {t: float(close_prices[t].iloc[-1]) for t in tickers}
+
+    # 3. Load or initialize paper trading state
+    state = None
+    if os.path.exists(STATE_FILE):
+        try:
+            with open(STATE_FILE, 'r') as f:
+                state = json.load(f)
+        except Exception:
+            state = None
+
+    if state is not None and 'portfolio_value' in state and 'last_prices' in state:
+        prev_portfolio_val = float(state['portfolio_value'])
+        prev_prices = state['last_prices']
+        prev_weights = state.get('weights', {})
+
+        # Compute period return on held positions
+        period_return = 0.0
+        for i, t in enumerate(tickers):
+            w = prev_weights.get(t, 0.0)
+            if t in prev_prices and prev_prices[t] > 0:
+                asset_ret = (latest_prices[t] - prev_prices[t]) / prev_prices[t]
+                period_return += w * asset_ret
+
+        # Turnover and costs
+        turnover = sum(abs(target_weights[i] - prev_weights.get(t, 0.0)) for i, t in enumerate(tickers))
         costs = execution_engine.calculate_cost(turnover)
+        current_portfolio_val = prev_portfolio_val * (1.0 + period_return - costs)
+    else:
+        # Initial run: reset to clean starting baseline $10,000.00
+        current_portfolio_val = BASE_CAPITAL
+        period_return = 0.0
+        costs = 0.0
 
-        portfolio_value.append(portfolio_value[-1] * (1 + period_return - costs))
-        current_weights = final_weights
+    total_return_pct = ((current_portfolio_val - BASE_CAPITAL) / BASE_CAPITAL) * 100.0
 
-    # Metrics
-    strategy_rets = pd.Series(portfolio_value).pct_change().dropna()
-    final_val = portfolio_value[-1]
-    total_ret = (final_val - 10000.0) / 10000.0 * 100
-    max_dd = (1 - pd.Series(portfolio_value).cummax() / pd.Series(portfolio_value)).max()
+    # 4. Save state and balance
+    new_state = {
+        'portfolio_value': current_portfolio_val,
+        'weights': {t: float(target_weights[i]) for i, t in enumerate(tickers)},
+        'last_prices': latest_prices,
+        'last_updated': datetime.now(timezone.utc).isoformat()
+    }
 
-    # SAVE BALANCE FOR PERSISTENCE
-    with open('paper_balance_adaptive.txt', 'w') as f:
-        f.write(str(final_val))
+    with open(STATE_FILE, 'w') as f:
+        json.dump(new_state, f, indent=2)
 
-    print(f"\n--- ADAPTIVE WEIGHTED STRATEGY RESULTS ---")
-    print(f"Current Portfolio Value: ${final_val:.2f}")
-    print(f"Total Return from Base: {total_ret:.2f}%")
-    print(f"Max Drawdown: {max_dd:.4f}")
+    with open(BALANCE_FILE, 'w') as f:
+        f.write(f"{current_portfolio_val:.2f}")
+
+    print("\n--- ADAPTIVE WEIGHTED STRATEGY RESULTS ---")
+    print(f"Current Portfolio Value: ${current_portfolio_val:.2f}")
+    print(f"Total Return from Base: {total_return_pct:.2f}%")
+    print(f"Current Leverage: {lev:.2f}x")
 
 if __name__ == '__main__':
     run_adaptive_weighted_strategy()

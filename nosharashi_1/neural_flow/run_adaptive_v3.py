@@ -1,3 +1,8 @@
+import os
+import sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import json
+from datetime import datetime, timezone
 import yfinance as yf
 import pandas as pd
 import numpy as np
@@ -6,21 +11,24 @@ from neural_flow.alpha.model import LiquidityAlpha
 from neural_flow.execution.model import StealthExecution
 from neural_flow.risk.model import VolatilitySwitch
 
+STATE_FILE = 'paper_state_v3.json'
+BALANCE_FILE = 'paper_balance_v3.txt'
+LEGACY_BALANCE_FILE = 'paper_balance.txt'
+BASE_CAPITAL = 10000.0
+
 class AdaptiveWeightedV3:
     """
     Hyper-Adaptive v3 Optimizer.
     Implements Square-Root Lasso, Elastic Hysteresis, and Probabilistic Sizing.
     """
-    def __init__(self, lambda_base=0.005, tau_base=0.01, critical_threshold=3.0):
+    def __init__(self, lambda_base=0.005, tau_base=0.01, critical_threshold=3.0, prev_weights=None):
         self.lambda_base = lambda_base
         self.tau_base = tau_base
         self.critical_threshold = critical_threshold
-        self.prev_weights = None
+        self.prev_weights = prev_weights
 
     def optimize(self, signals, confidences, market_vol=0.15):
-        # 1. Square-Root Lasso (Approximate)
-        # Penalty is decoupled from noise sigma, making it more robust to vol spikes.
-        # We scale the penalty inversely to signal strength (SNR)
+        # 1. Square-Root Lasso
         snr = np.mean(np.abs(signals)) / (np.std(signals) + 1e-6)
         lambda_adj = self.lambda_base / (1.0 + snr)
 
@@ -36,11 +44,9 @@ class AdaptiveWeightedV3:
         else:
             weights = np.zeros(len(signals))
 
-        # 2. Probabilistic Sizing (Weight scaling by confidence)
+        # 2. Probabilistic Sizing
         final_weights = []
         for w, conf in zip(weights, confidences):
-            # Linear scaling of exposure based on confidence probability
-            # Conf 0.0 -> 0.05 cap, Conf 3.0+ -> 0.50 cap
             cap = 0.05 + (np.clip(conf, 0, 3) / 3.0) * (0.50 - 0.05)
             final_weights.append(np.clip(w, -cap, cap))
         weights = np.array(final_weights)
@@ -49,10 +55,9 @@ class AdaptiveWeightedV3:
         if total_exp > 1.0:
             weights = weights / total_exp
 
-        # 3. Elastic Band Hysteresis (Volatility-Adaptive Gating)
-        if self.prev_weights is not None:
+        # 3. Elastic Band Hysteresis
+        if self.prev_weights is not None and len(self.prev_weights) == len(weights):
             new_weights = np.copy(self.prev_weights)
-            # Shrink bands during high vol to react faster
             vol_scale = 1.0 / (1.0 + market_vol * 10)
             tau_adj = self.tau_base * vol_scale
 
@@ -62,7 +67,6 @@ class AdaptiveWeightedV3:
                     continue
 
                 diff = weights[i] - self.prev_weights[i]
-                # Fast exit (tau_exit = 0.5 * tau_adj), Slow entry (tau_entry = 1.5 * tau_adj)
                 if diff < 0 and abs(diff) > (0.5 * tau_adj):
                     new_weights[i] = weights[i]
                 elif diff > 0 and abs(diff) > (1.5 * tau_adj):
@@ -91,7 +95,7 @@ class ProRiskManagerV3:
         try:
             lw = LedoitWolf().fit(recent_rets)
             cov_matrix = lw.covariance_ * 252
-        except:
+        except Exception:
             cov_matrix = recent_rets.cov() * 252
 
         port_var = np.dot(weights.T, np.dot(cov_matrix, weights))
@@ -100,15 +104,13 @@ class ProRiskManagerV3:
         if port_vol == 0:
             return self.base_leverage
 
-        # Convexity Scaling: Allow slightly more leverage in low-vol/high-momentum regimes
-        # (Simplified for this implementation as a smooth scaling factor)
         lev = self.target_vol / port_vol
         return min(lev, self.base_leverage)
 
 def run_adaptive_v3():
     tickers = ['BTC-USD', 'ETH-USD', 'SOL-USD', 'BNB-USD', 'XRP-USD', 'ADA-USD', 'DOT-USD', 'LINK-USD', 'AVAX-USD']
-    print("Downloading data for Adaptive v3...")
-    data_raw = yf.download(tickers, period='1y', interval='1d')
+    print("Downloading latest market data for Adaptive v3...")
+    data_raw = yf.download(tickers, period='1y', interval='1d', progress=False)
 
     if isinstance(data_raw.columns, pd.MultiIndex):
         close_prices = data_raw['Close'].ffill().dropna()
@@ -126,56 +128,93 @@ def run_adaptive_v3():
 
     alpha_engine = LiquidityAlpha()
     execution_engine = StealthExecution()
-    optimizer = AdaptiveWeightedV3()
     risk_manager = ProRiskManagerV3()
 
-    # Starting capital baseline: $10,000
-    start_capital = 10000.0
-    portfolio_value = [start_capital]
-    current_weights = np.zeros(len(tickers))
+    # 1. Load state if available
+    state = None
+    if os.path.exists(STATE_FILE):
+        try:
+            with open(STATE_FILE, 'r') as f:
+                state = json.load(f)
+        except Exception:
+            state = None
 
-    print(f"Executing Hyper-Adaptive v3 on {len(tickers)} assets...")
-    for i in range(len(returns)):
-        # Market Vol for Elastic Bands
-        mkt_vol = returns.iloc[:i+1].std().mean() * np.sqrt(252) if i > 20 else 0.15
+    prev_weights_arr = None
+    if state and 'weights' in state:
+        prev_weights_arr = np.array([state['weights'].get(t, 0.0) for t in tickers])
 
-        asset_signals = []
-        asset_confidences = []
-        for ticker in tickers:
-            asset_df = pd.DataFrame({'Close': close_prices[ticker], 'Volume': volumes[ticker]})
-            res_df = alpha_engine.generate_signal(asset_df)
-            if not res_df.empty and i < len(res_df):
-                res = res_df.iloc[i]
-                asset_signals.append(res['signal'])
-                asset_confidences.append(res['confidence'])
-            else:
-                asset_signals.append(0.0)
-                asset_confidences.append(0.0)
+    optimizer = AdaptiveWeightedV3(prev_weights=prev_weights_arr)
 
-        weights = optimizer.optimize(np.array(asset_signals), np.array(asset_confidences), market_vol=mkt_vol)
-        lev = risk_manager.get_portfolio_leverage(weights, returns.iloc[:i+1])
-        final_weights = weights * lev
+    # 2. Compute current signals
+    asset_signals = []
+    asset_confidences = []
+    for ticker in tickers:
+        asset_df = pd.DataFrame({'Close': close_prices[ticker], 'Volume': volumes[ticker]})
+        res_df = alpha_engine.generate_signal(asset_df)
+        if not res_df.empty:
+            res = res_df.iloc[-1]
+            asset_signals.append(res['signal'])
+            asset_confidences.append(res['confidence'])
+        else:
+            asset_signals.append(0.0)
+            asset_confidences.append(0.0)
 
-        period_return = np.sum(final_weights * returns.iloc[i].values)
-        turnover = np.sum(np.abs(final_weights - current_weights))
+    mkt_vol = returns.iloc[:, 0].std() * np.sqrt(252)
+    weights = optimizer.optimize(np.array(asset_signals), np.array(asset_confidences), market_vol=mkt_vol)
+    lev = risk_manager.get_portfolio_leverage(weights, returns)
+    target_weights = weights * lev
+
+    latest_prices = {t: float(close_prices[t].iloc[-1]) for t in tickers}
+
+    # 3. Calculate PnL
+    peak_equity = BASE_CAPITAL
+    if state is not None and 'portfolio_value' in state and 'last_prices' in state:
+        prev_portfolio_val = float(state['portfolio_value'])
+        prev_prices = state['last_prices']
+        prev_weights = state.get('weights', {})
+        peak_equity = max(float(state.get('peak_equity', BASE_CAPITAL)), prev_portfolio_val)
+
+        period_return = 0.0
+        for i, t in enumerate(tickers):
+            w = prev_weights.get(t, 0.0)
+            if t in prev_prices and prev_prices[t] > 0:
+                asset_ret = (latest_prices[t] - prev_prices[t]) / prev_prices[t]
+                period_return += w * asset_ret
+
+        turnover = sum(abs(target_weights[i] - prev_weights.get(t, 0.0)) for i, t in enumerate(tickers))
         costs = execution_engine.calculate_cost(turnover)
+        current_portfolio_val = prev_portfolio_val * (1.0 + period_return - costs)
+        peak_equity = max(peak_equity, current_portfolio_val)
+    else:
+        # Initial run: reset to clean starting baseline $10,000.00
+        current_portfolio_val = BASE_CAPITAL
+        period_return = 0.0
+        costs = 0.0
 
-        portfolio_value.append(portfolio_value[-1] * (1 + period_return - costs))
-        current_weights = final_weights
+    total_return_pct = ((current_portfolio_val - BASE_CAPITAL) / BASE_CAPITAL) * 100.0
+    max_dd = max(0.0, (peak_equity - current_portfolio_val) / peak_equity) if peak_equity > 0 else 0.0
 
-    final_val = portfolio_value[-1]
-    total_ret = (final_val - 1) * 100
-    max_dd = (1 - pd.Series(portfolio_value).cummax() / pd.Series(portfolio_value)).max()
+    # 4. Save state and balance
+    new_state = {
+        'portfolio_value': current_portfolio_val,
+        'peak_equity': peak_equity,
+        'weights': {t: float(target_weights[i]) for i, t in enumerate(tickers)},
+        'last_prices': latest_prices,
+        'last_updated': datetime.now(timezone.utc).isoformat()
+    }
 
-    # Save current balance for persistence
-    with open('paper_balance.txt', 'w') as f:
-        f.write(str(final_val))
-    with open('paper_balance_v3.txt', 'w') as f:
-        f.write(str(final_val))
+    with open(STATE_FILE, 'w') as f:
+        json.dump(new_state, f, indent=2)
 
-    print(f"\n--- ADAPTIVE v3 RESULTS ---")
-    print(f"Current Portfolio Value: ${final_val:.2f}")
-    print(f"Total Return from Base: {((final_val - 10000.0)/10000.0*100):.2f}%")
+    with open(BALANCE_FILE, 'w') as f:
+        f.write(f"{current_portfolio_val:.2f}")
+
+    with open(LEGACY_BALANCE_FILE, 'w') as f:
+        f.write(f"{current_portfolio_val:.2f}")
+
+    print("\n--- ADAPTIVE v3 RESULTS ---")
+    print(f"Current Portfolio Value: ${current_portfolio_val:.2f}")
+    print(f"Total Return from Base: {total_return_pct:.2f}%")
     print(f"Max Drawdown: {max_dd:.4f}")
 
 if __name__ == '__main__':

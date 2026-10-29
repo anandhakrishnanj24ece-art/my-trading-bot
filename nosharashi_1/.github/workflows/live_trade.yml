@@ -39,6 +39,6 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add nosharashi_1/paper_balance*.txt
+          git add nosharashi_1/paper_balance*.txt nosharashi_1/paper_state*.json
           git commit -m "Auto-update paper trading balances [skip ci]" || echo "No balance change to commit"
           git push
