@@ -1,0 +1,125 @@
+import ccxt
+import pandas as pd
+import numpy as np
+import time
+import json
+import os
+from datetime import datetime
+from neural_flow.alpha.model import LiquidityAlpha
+from neural_flow.execution.model import StealthExecution
+from neural_flow.risk.model import VolatilitySwitch
+
+class NeuralFlowLive:
+    def __init__(self, tickers, initial_balance=10000):
+        self.exchange = ccxt.binance()
+        self.tickers = tickers
+        self.balance = initial_balance
+        # Portfolio now tracks UNITS (number of coins), not dollar value
+        self.portfolio = {ticker: 0.0 for ticker in tickers}
+        self.account_file = 'paper_account.json'
+        self.load_account()
+
+        self.alpha_engine = LiquidityAlpha()
+        self.execution_engine = StealthExecution()
+        self.risk_engine = VolatilitySwitch(base_leverage=4.0)
+
+        print(f"🚀 NEURAL-FLOW LIVE STARTUP")
+        print(f"Initial Balance: ${self.balance:.2f}")
+        print(f"Monitoring: {tickers}")
+        print("-" * 30)
+
+    def load_account(self):
+        if os.path.exists(self.account_file):
+            with open(self.account_file, 'r') as f:
+                data = json.load(f)
+                self.balance = data.get('balance', 10000)
+                self.portfolio = data.get('portfolio', {ticker: 0.0 for ticker in self.tickers})
+
+    def save_account(self):
+        with open(self.account_file, 'w') as f:
+            json.dump({'balance': self.balance, 'portfolio': self.portfolio}, f)
+
+    def fetch_data(self, ticker):
+        ohlcv = self.exchange.fetch_ohlcv(ticker, timeframe='1h', limit=100)
+        df = pd.DataFrame(ohlcv, columns=['timestamp', 'Open', 'High', 'Low', 'Close', 'Volume'])
+        return df
+
+    def run(self):
+        while True:
+            try:
+                print(f"\n[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Scanning Market...")
+
+                current_signals = {}
+                current_prices = {}
+
+                for ticker in self.tickers:
+                    df = self.fetch_data(ticker)
+                    price = df['Close'].iloc[-1]
+                    current_prices[ticker] = price
+                    signal = self.alpha_engine.generate_signal(df).iloc[-1]
+                    current_signals[ticker] = signal
+                    print(f" {ticker}: Price ${price:.4f} | Signal: {signal:.4f}")
+
+                # 1. Calculate Total Current Equity (Mark-to-Market)
+                unrealized_pnl = 0
+                for ticker, units in self.portfolio.items():
+                    unrealized_pnl += units * current_prices[ticker]
+
+                total_equity = self.balance + unrealized_pnl
+
+                # 2. Determine Weights
+                signals_arr = np.array(list(current_signals.values()))
+                if np.abs(signals_arr).sum() > 0:
+                    weights = np.sign(signals_arr) * (np.abs(signals_arr) / np.abs(signals_arr).sum())
+                else:
+                    weights = np.zeros(len(self.tickers))
+
+                # 3. Safety Guardrails
+                weights = np.clip(weights, -0.20, 0.20)
+                total_exp = np.sum(np.abs(weights))
+                if total_exp > 1.0:
+                    weights = weights / total_exp
+
+                # 4. Dynamic Leverage
+                btc_df = self.fetch_data('BTC/USDT')
+                btc_rets = btc_df['Close'].pct_change()
+                lev = self.risk_engine.get_leverage(btc_rets)
+                final_weights = weights * lev
+
+                # 5. Execute Trades
+                for i, ticker in enumerate(self.tickers):
+                    target_weight = final_weights[i]
+                    # Current weight = (units * price) / total_equity
+                    current_weight = (self.portfolio[ticker] * current_prices[ticker]) / total_equity if total_equity != 0 else 0
+
+                    diff_weight = target_weight - current_weight
+                    if abs(diff_weight) > 0.01:
+                        # Calculate cost based on absolute dollar turnover
+                        turnover_dollars = abs(diff_weight * total_equity)
+                        cost = self.execution_engine.calculate_cost(turnover_dollars / total_equity if total_equity != 0 else 0)
+
+                        # Calculate units to buy/sell
+                        # units = (diff_weight * total_equity) / price
+                        trade_units = (diff_weight * total_equity) / current_prices[ticker]
+
+                        self.balance -= cost
+                        self.portfolio[ticker] += trade_units
+                        print(f" ⚡ TRADE: {ticker} | Weight: {target_weight:.2%} | Units: {trade_units:.4f} | Cost: ${cost:.4f}")
+
+                self.save_account()
+                print(f"Current Balance: ${self.balance:.2f} | Total Equity: ${total_equity:.2f}")
+
+                if total_equity < 0:
+                    print("❌ MARGIN CALL: Portfolio negative. Stopping bot.")
+                    break
+
+                time.sleep(60)
+
+            except Exception as e:
+                print(f"❌ Error: {e}")
+                time.sleep(10)
+
+if __name__ == '__main__':
+    TICKERS = ['BTC/USDT', 'ETH/USDT', 'SOL/USDT', 'BNB/USDT', 'XRP/USDT']
+    bot = NeuralFlowLive(tickers=TICKERS)
+    bot.run()

@@ -1,0 +1,44 @@
+name: 24x7 Paper Trading Bot
+
+on:
+  schedule:
+    - cron: '0 * * * *' # Runs every hour
+  workflow_dispatch: # Manual trigger
+
+permissions:
+  contents: write
+
+jobs:
+  execute-strategies:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run Adaptive Weighted Strategy
+        run: |
+          cd nosharashi_1
+          export PYTHONPATH=$(pwd)
+          python neural_flow/run_adaptive.py
+
+      - name: Run Adaptive v3 Strategy
+        run: |
+          cd nosharashi_1
+          export PYTHONPATH=$(pwd)
+          python neural_flow/run_adaptive_v3.py
+
+      - name: Commit & Push Balance Updates
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add nosharashi_1/paper_balance.txt
+          git commit -m "Auto-update paper trading balance [skip ci]" || echo "No balance change to commit"
+          git push
