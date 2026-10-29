@@ -34,13 +34,8 @@ def run_adaptive_weighted_strategy():
     execution_engine = StealthExecution()
     risk_engine = VolatilitySwitch(base_leverage=4.0)
 
-    # Persistence: Load starting capital from file
-    try:
-        with open('paper_balance.txt', 'r') as f:
-            start_capital = float(f.read().strip())
-    except:
-        start_capital = 10000.0
-
+    # Starting capital baseline: $10,000
+    start_capital = 10000.0
     portfolio_value = [start_capital]
     current_weights = np.zeros(len(tickers))
 
@@ -108,7 +103,7 @@ def run_adaptive_weighted_strategy():
     max_dd = (1 - pd.Series(portfolio_value).cummax() / pd.Series(portfolio_value)).max()
 
     # SAVE BALANCE FOR PERSISTENCE
-    with open('paper_balance.txt', 'w') as f:
+    with open('paper_balance_adaptive.txt', 'w') as f:
         f.write(str(final_val))
 
     print(f"\n--- ADAPTIVE WEIGHTED STRATEGY RESULTS ---")

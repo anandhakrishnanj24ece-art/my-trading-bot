@@ -129,13 +129,8 @@ def run_adaptive_v3():
     optimizer = AdaptiveWeightedV3()
     risk_manager = ProRiskManagerV3()
 
-    # Persistence: Load starting capital from file
-    try:
-        with open('paper_balance.txt', 'r') as f:
-            start_capital = float(f.read().strip())
-    except:
-        start_capital = 10000.0
-
+    # Starting capital baseline: $10,000
+    start_capital = 10000.0
     portfolio_value = [start_capital]
     current_weights = np.zeros(len(tickers))
 
@@ -174,6 +169,8 @@ def run_adaptive_v3():
 
     # Save current balance for persistence
     with open('paper_balance.txt', 'w') as f:
+        f.write(str(final_val))
+    with open('paper_balance_v3.txt', 'w') as f:
         f.write(str(final_val))
 
     print(f"\n--- ADAPTIVE v3 RESULTS ---")
