@@ -2,7 +2,7 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import json
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import yfinance as yf
 import pandas as pd
 import numpy as np
@@ -211,13 +211,49 @@ def run_adaptive_v3():
     total_return_pct = ((current_portfolio_val - BASE_CAPITAL) / BASE_CAPITAL) * 100.0
     max_dd = max(0.0, (peak_equity - current_portfolio_val) / peak_equity) if peak_equity > 0 else 0.0
 
-    # 4. Save state and balance
+    # 4. Generate IST Timestamp and Action Summary
+    now_utc = datetime.now(timezone.utc)
+    ist_zone = timezone(timedelta(hours=5, minutes=30))
+    now_ist = now_utc.astimezone(ist_zone)
+    ist_str = now_ist.strftime("%d %b %Y, %I:%M:%S %p IST")
+
+    active_positions = []
+    for i, t in enumerate(tickers):
+        w = float(target_weights[i])
+        if abs(w) > 0.01:
+            side = "LONG" if w > 0 else "SHORT"
+            active_positions.append(f"{side} {t} ({abs(w)*100:.1f}%) @ ${latest_prices[t]:,.2f}")
+
+    action_summary = ", ".join(active_positions) if active_positions else "100% CASH (Neutral)"
+
+    # Trade History Persistence
+    trade_history = state.get('trade_history', []) if state else []
+    period_pnl_usd = (current_portfolio_val - prev_portfolio_val) if (state and 'portfolio_value' in state) else 0.0
+
+    trade_entry = {
+        'timestamp_ist': ist_str,
+        'action': action_summary,
+        'period_return_pct': round(period_return * 100.0, 3),
+        'period_pnl_usd': round(period_pnl_usd, 2),
+        'portfolio_value': round(current_portfolio_val, 2),
+        'total_return_pct': round(total_return_pct, 2),
+        'max_dd': round(max_dd, 4)
+    }
+    trade_history.append(trade_entry)
+    if len(trade_history) > 100:
+        trade_history = trade_history[-100:]
+
     new_state = {
         'portfolio_value': current_portfolio_val,
         'peak_equity': peak_equity,
         'weights': {t: float(target_weights[i]) for i, t in enumerate(tickers)},
         'last_prices': latest_prices,
-        'last_updated': datetime.now(timezone.utc).isoformat()
+        'last_updated': now_utc.isoformat(),
+        'last_updated_ist': ist_str,
+        'last_action': action_summary,
+        'last_period_return_pct': round(period_return * 100.0, 3),
+        'last_period_pnl_usd': round(period_pnl_usd, 2),
+        'trade_history': trade_history
     }
 
     with open(STATE_FILE, 'w') as f:

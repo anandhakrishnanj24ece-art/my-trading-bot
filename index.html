@@ -81,8 +81,9 @@
         </div>
         <div class="flex items-center gap-6">
           <div class="text-left md:text-right">
-            <span class="text-xs text-slate-400 block">Last Cycle Executed</span>
-            <span id="lastUpdated" class="text-sm font-semibold mono text-slate-200">Loading...</span>
+            <span class="text-xs text-slate-400 block">Last Cycle Executed (IST)</span>
+            <span id="lastUpdatedIST" class="text-sm font-semibold mono text-emerald-400">Loading...</span>
+            <span id="lastUpdatedUTC" class="text-[11px] font-mono text-slate-500 block"></span>
           </div>
           <div class="h-10 w-px bg-white/10 hidden md:block"></div>
           <div class="text-left md:text-right">
@@ -97,29 +98,50 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
       <!-- Strategy 1: Adaptive Weighted -->
-      <div class="card-glass rounded-2xl p-6 transition duration-200 relative">
-        <div class="flex items-start justify-between">
-          <div>
-            <span class="text-xs font-semibold px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">Strategy 1</span>
-            <h3 class="text-xl font-bold text-white mt-2">Adaptive Weighted</h3>
-            <p class="text-xs text-slate-400 mt-0.5">LiquidityAlpha + Volatility Switch</p>
+      <div class="card-glass rounded-2xl p-6 transition duration-200 relative flex flex-col justify-between">
+        <div>
+          <div class="flex items-start justify-between">
+            <div>
+              <span class="text-xs font-semibold px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">Strategy 1</span>
+              <h3 class="text-xl font-bold text-white mt-2">Adaptive Weighted</h3>
+              <p class="text-xs text-slate-400 mt-0.5">LiquidityAlpha + Volatility Switch</p>
+            </div>
+            <div class="w-9 h-9 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 font-bold text-lg">
+              📊
+            </div>
           </div>
-          <div class="w-9 h-9 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 font-bold text-lg">
-            📊
+
+          <div class="mt-6 flex items-baseline justify-between">
+            <div>
+              <span class="text-xs text-slate-400 block">Current Portfolio Value</span>
+              <span id="s1Balance" class="text-3xl font-extrabold mono text-white tracking-tight">$10,000.00</span>
+            </div>
+            <div id="s1ReturnBadge" class="px-2.5 py-1 rounded-lg text-sm font-bold mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              +0.00%
+            </div>
+          </div>
+
+          <!-- Last Trade Info in IST -->
+          <div class="mt-5 p-3.5 rounded-xl bg-slate-900/80 border border-white/5 space-y-2">
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-slate-400 flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-blue-400 inline-block"></span>
+                <span>Last Trade (IST):</span>
+              </span>
+              <span id="s1LastTimeIST" class="font-mono text-slate-200 font-medium">---</span>
+            </div>
+            <div class="text-xs flex items-center justify-between">
+              <span class="text-slate-400">Position Taken:</span>
+              <span id="s1LastAction" class="font-mono text-emerald-400 font-semibold truncate max-w-[220px]">---</span>
+            </div>
+            <div class="text-xs flex items-center justify-between pt-1 border-t border-white/5">
+              <span class="text-slate-400">Last Period PnL:</span>
+              <span id="s1LastPnL" class="font-mono font-bold text-slate-200">---</span>
+            </div>
           </div>
         </div>
 
-        <div class="mt-6 flex items-baseline justify-between">
-          <div>
-            <span class="text-xs text-slate-400 block">Current Portfolio Value</span>
-            <span id="s1Balance" class="text-3xl font-extrabold mono text-white tracking-tight">$10,000.00</span>
-          </div>
-          <div id="s1ReturnBadge" class="px-2.5 py-1 rounded-lg text-sm font-bold mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-            +0.00%
-          </div>
-        </div>
-
-        <div class="mt-6 pt-5 border-t border-white/5 grid grid-cols-3 gap-4 text-center">
+        <div class="mt-5 pt-4 border-t border-white/5 grid grid-cols-3 gap-2 text-center">
           <div>
             <span class="text-[11px] text-slate-400 block">Dynamic Leverage</span>
             <span id="s1Leverage" class="text-sm font-bold mono text-slate-200">4.00x</span>
@@ -136,36 +158,57 @@
       </div>
 
       <!-- Strategy 2: Hyper-Adaptive v3 -->
-      <div class="card-glass rounded-2xl p-6 transition duration-200 relative">
-        <div class="flex items-start justify-between">
-          <div>
-            <span class="text-xs font-semibold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Strategy 2</span>
-            <h3 class="text-xl font-bold text-white mt-2">Hyper-Adaptive v3</h3>
-            <p class="text-xs text-slate-400 mt-0.5">Square-Root Lasso + Elastic Hysteresis</p>
+      <div class="card-glass rounded-2xl p-6 transition duration-200 relative flex flex-col justify-between">
+        <div>
+          <div class="flex items-start justify-between">
+            <div>
+              <span class="text-xs font-semibold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Strategy 2</span>
+              <h3 class="text-xl font-bold text-white mt-2">Hyper-Adaptive v3</h3>
+              <p class="text-xs text-slate-400 mt-0.5">Square-Root Lasso + Elastic Hysteresis</p>
+            </div>
+            <div class="w-9 h-9 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 font-bold text-lg">
+              ⚡
+            </div>
           </div>
-          <div class="w-9 h-9 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 font-bold text-lg">
-            ⚡
+
+          <div class="mt-6 flex items-baseline justify-between">
+            <div>
+              <span class="text-xs text-slate-400 block">Current Portfolio Value</span>
+              <span id="s2Balance" class="text-3xl font-extrabold mono text-white tracking-tight">$10,000.00</span>
+            </div>
+            <div id="s2ReturnBadge" class="px-2.5 py-1 rounded-lg text-sm font-bold mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              +0.00%
+            </div>
+          </div>
+
+          <!-- Last Trade Info in IST -->
+          <div class="mt-5 p-3.5 rounded-xl bg-slate-900/80 border border-white/5 space-y-2">
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-slate-400 flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 inline-block"></span>
+                <span>Last Trade (IST):</span>
+              </span>
+              <span id="s2LastTimeIST" class="font-mono text-slate-200 font-medium">---</span>
+            </div>
+            <div class="text-xs flex items-center justify-between">
+              <span class="text-slate-400">Position Taken:</span>
+              <span id="s2LastAction" class="font-mono text-emerald-400 font-semibold truncate max-w-[220px]">---</span>
+            </div>
+            <div class="text-xs flex items-center justify-between pt-1 border-t border-white/5">
+              <span class="text-slate-400">Last Period PnL:</span>
+              <span id="s2LastPnL" class="font-mono font-bold text-slate-200">---</span>
+            </div>
           </div>
         </div>
 
-        <div class="mt-6 flex items-baseline justify-between">
-          <div>
-            <span class="text-xs text-slate-400 block">Current Portfolio Value</span>
-            <span id="s2Balance" class="text-3xl font-extrabold mono text-white tracking-tight">$10,000.00</span>
-          </div>
-          <div id="s2ReturnBadge" class="px-2.5 py-1 rounded-lg text-sm font-bold mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-            +0.00%
-          </div>
-        </div>
-
-        <div class="mt-6 pt-5 border-t border-white/5 grid grid-cols-3 gap-4 text-center">
+        <div class="mt-5 pt-4 border-t border-white/5 grid grid-cols-3 gap-2 text-center">
           <div>
             <span class="text-[11px] text-slate-400 block">Max Drawdown</span>
             <span id="s2Drawdown" class="text-sm font-bold mono text-slate-200">0.00%</span>
           </div>
           <div>
             <span class="text-[11px] text-slate-400 block">Risk Matrix</span>
-            <span class="text-xs font-semibold text-slate-300">Ledoit-Wolf Shrinkage</span>
+            <span class="text-xs font-semibold text-slate-300">Ledoit-Wolf</span>
           </div>
           <div>
             <span class="text-[11px] text-slate-400 block">Filter</span>
@@ -176,7 +219,7 @@
 
     </div>
 
-    <!-- Live Asset Allocation & Holdings Table -->
+    <!-- Live Active Holdings Table -->
     <div class="card-glass rounded-2xl p-6">
       <div class="flex items-center justify-between mb-5">
         <div>
@@ -206,7 +249,86 @@
       </div>
     </div>
 
-    <!-- Strategy Mechanics & Intelligence Info -->
+    <!-- Trade History Section (Both Separately) -->
+    <div class="space-y-6">
+      <div class="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-4">
+        <div>
+          <h3 class="text-xl font-bold text-white">Trade History & Activity Log</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Separate audit trails for each autonomous strategy recorded in Indian Standard Time (IST)</p>
+        </div>
+
+        <!-- History Tab Switcher -->
+        <div class="flex items-center gap-2 bg-slate-900 p-1 rounded-xl border border-white/10 text-xs font-semibold">
+          <button id="tabS1" onclick="switchHistoryTab('s1')" class="px-3.5 py-1.5 rounded-lg bg-blue-600 text-white shadow transition">
+            📊 Strategy 1 (Adaptive)
+          </button>
+          <button id="tabS2" onclick="switchHistoryTab('s2')" class="px-3.5 py-1.5 rounded-lg text-slate-400 hover:text-white transition">
+            ⚡ Strategy 2 (v3)
+          </button>
+        </div>
+      </div>
+
+      <!-- Trade History Table: Strategy 1 -->
+      <div id="historyTableS1Container" class="card-glass rounded-2xl p-6">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-blue-400"></span>
+            <h4 class="font-bold text-white text-base">Strategy 1: Adaptive Weighted History</h4>
+          </div>
+          <span class="text-xs text-slate-400 font-mono" id="s1HistoryCount">0 entries</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm">
+            <thead>
+              <tr class="border-b border-white/10 text-xs text-slate-400 uppercase tracking-wider font-semibold">
+                <th class="py-3 px-4">Time (IST)</th>
+                <th class="py-3 px-4">Action / Position</th>
+                <th class="py-3 px-4 text-center">Hourly PnL</th>
+                <th class="py-3 px-4 text-center">Hourly Return</th>
+                <th class="py-3 px-4 text-right">Portfolio Balance</th>
+              </tr>
+            </thead>
+            <tbody id="s1HistoryBody" class="divide-y divide-white/5 mono text-xs">
+              <tr>
+                <td colspan="5" class="py-6 text-center text-slate-400">Loading Strategy 1 trade history...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Trade History Table: Strategy 2 -->
+      <div id="historyTableS2Container" class="card-glass rounded-2xl p-6 hidden">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+            <h4 class="font-bold text-white text-base">Strategy 2: Hyper-Adaptive v3 History</h4>
+          </div>
+          <span class="text-xs text-slate-400 font-mono" id="s2HistoryCount">0 entries</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm">
+            <thead>
+              <tr class="border-b border-white/10 text-xs text-slate-400 uppercase tracking-wider font-semibold">
+                <th class="py-3 px-4">Time (IST)</th>
+                <th class="py-3 px-4">Action / Position</th>
+                <th class="py-3 px-4 text-center">Hourly PnL</th>
+                <th class="py-3 px-4 text-center">Hourly Return</th>
+                <th class="py-3 px-4 text-right">Portfolio Balance</th>
+              </tr>
+            </thead>
+            <tbody id="s2HistoryBody" class="divide-y divide-white/5 mono text-xs">
+              <tr>
+                <td colspan="5" class="py-6 text-center text-slate-400">Loading Strategy 2 trade history...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Strategy Mechanics Info -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <div class="bg-slate-900/40 p-5 rounded-xl border border-white/5">
         <div class="flex items-center gap-2 text-emerald-400 font-semibold text-sm">
@@ -256,13 +378,31 @@
   <script>
     const TICKERS = ['BTC-USD', 'ETH-USD', 'SOL-USD', 'BNB-USD', 'XRP-USD', 'ADA-USD', 'DOT-USD', 'LINK-USD', 'AVAX-USD'];
 
+    function switchHistoryTab(tab) {
+      const tabS1 = document.getElementById('tabS1');
+      const tabS2 = document.getElementById('tabS2');
+      const tableS1 = document.getElementById('historyTableS1Container');
+      const tableS2 = document.getElementById('historyTableS2Container');
+
+      if (tab === 's1') {
+        tabS1.className = 'px-3.5 py-1.5 rounded-lg bg-blue-600 text-white shadow transition';
+        tabS2.className = 'px-3.5 py-1.5 rounded-lg text-slate-400 hover:text-white transition';
+        tableS1.classList.remove('hidden');
+        tableS2.classList.add('hidden');
+      } else {
+        tabS2.className = 'px-3.5 py-1.5 rounded-lg bg-emerald-600 text-white shadow transition';
+        tabS1.className = 'px-3.5 py-1.5 rounded-lg text-slate-400 hover:text-white transition';
+        tableS2.classList.remove('hidden');
+        tableS1.classList.add('hidden');
+      }
+    }
+
     async function loadDashboardData() {
       const icon = document.getElementById('refreshIcon');
       icon.classList.add('rotate-180');
       setTimeout(() => icon.classList.remove('rotate-180'), 600);
 
       try {
-        // Try fetching dashboard_data.json, with fallback to individual states
         let feed = null;
         try {
           const res = await fetch('./dashboard_data.json?t=' + Date.now());
@@ -274,10 +414,14 @@
             fetch('./nosharashi_1/paper_state_adaptive.json?t=' + Date.now()),
             fetch('./nosharashi_1/paper_state_v3.json?t=' + Date.now())
           ]);
+          const s1 = res1.ok ? await res1.json() : {};
+          const s2 = res2.ok ? await res2.json() : {};
           feed = {
             updated_at: new Date().toUTCString(),
-            adaptive: res1.ok ? await res1.json() : {},
-            v3: res2.ok ? await res2.json() : {}
+            adaptive: s1,
+            v3: s2,
+            history_adaptive: s1.trade_history || [],
+            history_v3: s2.trade_history || []
           };
         }
 
@@ -291,9 +435,12 @@
       const s1 = data.adaptive || {};
       const s2 = data.v3 || {};
 
-      // Timestamp
+      // Global Timestamp
+      if (data.updated_at_ist || s1.last_updated_ist || s2.last_updated_ist) {
+        document.getElementById('lastUpdatedIST').innerText = data.updated_at_ist || s1.last_updated_ist || s2.last_updated_ist;
+      }
       if (data.updated_at) {
-        document.getElementById('lastUpdated').innerText = data.updated_at;
+        document.getElementById('lastUpdatedUTC').innerText = '(' + data.updated_at + ')';
       }
 
       // Strategy 1 Metrics
@@ -306,6 +453,16 @@
       s1Badge.className = s1Ret >= 0 
         ? 'px-2.5 py-1 rounded-lg text-sm font-bold mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
         : 'px-2.5 py-1 rounded-lg text-sm font-bold mono bg-rose-500/10 text-rose-400 border border-rose-500/20';
+
+      // S1 Last Trade Info
+      document.getElementById('s1LastTimeIST').innerText = s1.last_updated_ist || '---';
+      document.getElementById('s1LastAction').innerText = s1.last_action || '100% CASH';
+      
+      const s1Pnl = s1.last_period_pnl_usd || 0.0;
+      const s1PnlPct = s1.last_period_return_pct || 0.0;
+      const s1PnlEl = document.getElementById('s1LastPnL');
+      s1PnlEl.innerText = (s1Pnl >= 0 ? '+$' : '-$') + Math.abs(s1Pnl).toFixed(2) + ` (${s1PnlPct >= 0 ? '+' : ''}${s1PnlPct.toFixed(2)}%)`;
+      s1PnlEl.className = 'font-mono font-bold ' + (s1Pnl >= 0 ? 'text-emerald-400' : 'text-rose-400');
 
       // Strategy 2 Metrics
       const s2Val = s2.portfolio_value || 10000.0;
@@ -323,7 +480,17 @@
         document.getElementById('s2Drawdown').innerText = dd.toFixed(2) + '%';
       }
 
-      // Assets Table
+      // S2 Last Trade Info
+      document.getElementById('s2LastTimeIST').innerText = s2.last_updated_ist || '---';
+      document.getElementById('s2LastAction').innerText = s2.last_action || '100% CASH';
+      
+      const s2Pnl = s2.last_period_pnl_usd || 0.0;
+      const s2PnlPct = s2.last_period_return_pct || 0.0;
+      const s2PnlEl = document.getElementById('s2LastPnL');
+      s2PnlEl.innerText = (s2Pnl >= 0 ? '+$' : '-$') + Math.abs(s2Pnl).toFixed(2) + ` (${s2PnlPct >= 0 ? '+' : ''}${s2PnlPct.toFixed(2)}%)`;
+      s2PnlEl.className = 'font-mono font-bold ' + (s2Pnl >= 0 ? 'text-emerald-400' : 'text-rose-400');
+
+      // Live Assets Table
       const prices = s1.last_prices || s2.last_prices || {};
       const s1Weights = s1.weights || {};
       const s2Weights = s2.weights || {};
@@ -357,11 +524,69 @@
         `;
         tbody.appendChild(tr);
       });
+
+      // Trade History Render
+      const history1 = data.history_adaptive || s1.trade_history || [];
+      const history2 = data.history_v3 || s2.trade_history || [];
+
+      renderHistoryTable('s1HistoryBody', 's1HistoryCount', history1);
+      renderHistoryTable('s2HistoryBody', 's2HistoryCount', history2);
     }
 
-    // Auto-fetch on load, then poll every 60s
+    function renderHistoryTable(tbodyId, countId, history) {
+      const tbody = document.getElementById(tbodyId);
+      const countEl = document.getElementById(countId);
+      tbody.innerHTML = '';
+
+      if (!history || history.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="py-6 text-center text-slate-500">No trade cycles recorded yet.</td></tr>';
+        countEl.innerText = '0 entries';
+        return;
+      }
+
+      countEl.innerText = `${history.length} cycle${history.length > 1 ? 's' : ''}`;
+
+      // Show newest first
+      const reversed = [...history].reverse();
+
+      reversed.forEach((entry, idx) => {
+        const pnl = entry.period_pnl_usd || 0.0;
+        const ret = entry.period_return_pct || 0.0;
+        const bal = entry.portfolio_value || 10000.0;
+
+        let statusBadge = '<span class="px-2 py-0.5 rounded bg-slate-700/50 text-slate-300">FLAT</span>';
+        if (pnl > 0.01) {
+          statusBadge = '<span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold">PROFIT</span>';
+        } else if (pnl < -0.01) {
+          statusBadge = '<span class="px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 font-bold">LOSS</span>';
+        }
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-white/[0.02] transition';
+        tr.innerHTML = `
+          <td class="py-3 px-4 text-slate-300 whitespace-nowrap">${entry.timestamp_ist || '---'}</td>
+          <td class="py-3 px-4 text-white font-medium">
+            <div class="flex items-center gap-2">
+              ${statusBadge}
+              <span class="truncate max-w-xs text-slate-200" title="${entry.action}">${entry.action || 'Hold'}</span>
+            </div>
+          </td>
+          <td class="py-3 px-4 text-center font-bold ${pnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}">
+            ${pnl >= 0 ? '+$' : '-$'}${Math.abs(pnl).toFixed(2)}
+          </td>
+          <td class="py-3 px-4 text-center font-bold ${ret >= 0 ? 'text-emerald-400' : 'text-rose-400'}">
+            ${ret >= 0 ? '+' : ''}${ret.toFixed(2)}%
+          </td>
+          <td class="py-3 px-4 text-right font-bold text-white">
+            $${bal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
     loadDashboardData();
-    setInterval(loadDashboardData, 60000);
+    setInterval(loadDashboardData, 30000);
   </script>
 </body>
 </html>

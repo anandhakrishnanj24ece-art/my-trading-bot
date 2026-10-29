@@ -48,8 +48,11 @@ jobs:
           except: s2 = {}
           feed = {
               'updated_at': datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC'),
+              'updated_at_ist': datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=5, minutes=30))).strftime('%d %b %Y, %I:%M:%S %p IST'),
               'adaptive': s1,
-              'v3': s2
+              'v3': s2,
+              'history_adaptive': s1.get('trade_history', []),
+              'history_v3': s2.get('trade_history', [])
           }
           with open('../dashboard_data.json', 'w') as f:
               json.dump(feed, f, indent=2)

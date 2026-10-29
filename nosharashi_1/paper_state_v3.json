@@ -1,11 +1,11 @@
 {
-  "portfolio_value": 10037.305147432431,
-  "peak_equity": 10037.305147432431,
+  "portfolio_value": 10063.065825888167,
+  "peak_equity": 10063.065825888167,
   "weights": {
     "BTC-USD": 0.0,
     "ETH-USD": 0.0,
     "SOL-USD": 0.0,
-    "BNB-USD": 0.664969915314943,
+    "BNB-USD": 0.6698663014366438,
     "XRP-USD": 0.0,
     "ADA-USD": 0.0,
     "DOT-USD": 0.0,
@@ -13,15 +13,30 @@
     "AVAX-USD": 0.0
   },
   "last_prices": {
-    "BTC-USD": 81198.8828125,
-    "ETH-USD": 2343.510009765625,
-    "SOL-USD": 101.68000030517578,
-    "BNB-USD": 747.8800048828125,
-    "XRP-USD": 1.301900029182434,
-    "ADA-USD": 0.2034900039434433,
-    "DOT-USD": 1.0013999938964844,
-    "LINK-USD": 11.803999900817871,
-    "AVAX-USD": 8.88700008392334
+    "BTC-USD": 81431.0390625,
+    "ETH-USD": 2356.909912109375,
+    "SOL-USD": 102.02999877929688,
+    "BNB-USD": 750.77001953125,
+    "XRP-USD": 1.305400013923645,
+    "ADA-USD": 0.20462000370025635,
+    "DOT-USD": 1.0081000328063965,
+    "LINK-USD": 11.848999977111816,
+    "AVAX-USD": 8.942999839782715
   },
-  "last_updated": "2026-10-29T15:05:09.003372+00:00"
+  "last_updated": "2026-10-29T15:25:18.974443+00:00",
+  "last_updated_ist": "29 Oct 2026, 08:55:18 PM IST",
+  "last_action": "LONG BNB-USD (67.0%) @ $750.77",
+  "last_period_return_pct": 0.257,
+  "last_period_pnl_usd": 25.76,
+  "trade_history": [
+    {
+      "timestamp_ist": "29 Oct 2026, 08:55:18 PM IST",
+      "action": "LONG BNB-USD (67.0%) @ $750.77",
+      "period_return_pct": 0.257,
+      "period_pnl_usd": 25.76,
+      "portfolio_value": 10063.07,
+      "total_return_pct": 0.63,
+      "max_dd": 0.0
+    }
+  ]
 }
