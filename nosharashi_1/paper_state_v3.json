@@ -1,27 +1,27 @@
 {
-  "portfolio_value": 10000.0,
-  "peak_equity": 10000.0,
-  "weights": {
-    "ADA-USD": 0.0,
-    "AVAX-USD": 0.0,
-    "BNB-USD": 0.651242103926574,
-    "BTC-USD": 0.0,
-    "DOT-USD": 0.0,
-    "ETH-USD": 0.0,
-    "LINK-USD": 0.0,
-    "SOL-USD": 0.0,
-    "XRP-USD": 0.0
-  },
-  "last_prices": {
-    "ADA-USD": 0.20162999629974365,
-    "AVAX-USD": 8.824999809265137,
-    "BNB-USD": 742.27001953125,
-    "BTC-USD": 80301.7578125,
-    "DOT-USD": 0.9972000122070312,
-    "ETH-USD": 2324.8701171875,
-    "LINK-USD": 11.65999984741211,
-    "SOL-USD": 100.58000183105469,
-    "XRP-USD": 1.2898000478744507
-  },
-  "last_updated": "2026-10-29T14:13:22.952566"
+    "portfolio_value":  10000,
+    "peak_equity":  10000,
+    "weights":  {
+                    "BTC-USD":  0.0,
+                    "ETH-USD":  0.0,
+                    "SOL-USD":  0.0,
+                    "BNB-USD":  0.6556352335034866,
+                    "XRP-USD":  0.0,
+                    "ADA-USD":  0.0,
+                    "DOT-USD":  0.0,
+                    "LINK-USD":  0.0,
+                    "AVAX-USD":  0.0
+                },
+    "last_prices":  {
+                        "BTC-USD":  80339.703125,
+                        "ETH-USD":  2327.31005859375,
+                        "SOL-USD":  100.73999786376953,
+                        "BNB-USD":  743.6400146484375,
+                        "XRP-USD":  1.2908999919891357,
+                        "ADA-USD":  0.20192000269889832,
+                        "DOT-USD":  0.9987000226974487,
+                        "LINK-USD":  11.654999732971191,
+                        "AVAX-USD":  8.836999893188477
+                    },
+    "last_updated":  "2026-10-29T14:19:01.933342+00:00"
 }

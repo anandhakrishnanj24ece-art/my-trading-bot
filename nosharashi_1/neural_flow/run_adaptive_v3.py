@@ -110,14 +110,31 @@ class ProRiskManagerV3:
 def run_adaptive_v3():
     tickers = ['BTC-USD', 'ETH-USD', 'SOL-USD', 'BNB-USD', 'XRP-USD', 'ADA-USD', 'DOT-USD', 'LINK-USD', 'AVAX-USD']
     print("Downloading latest market data for Adaptive v3...")
-    data_raw = yf.download(tickers, period='1y', interval='1d', progress=False)
+    data_raw = pd.DataFrame()
+    for _ in range(3):
+        try:
+            data_raw = yf.download(tickers, period='1y', interval='1d', progress=False, threads=False)
+            if not data_raw.empty:
+                break
+        except Exception:
+            pass
+
+    if data_raw.empty:
+        print("Warning: Market data download returned empty. Retrying with fallback...")
+        data_raw = yf.download(tickers, period='1y', interval='1d', progress=False)
 
     if isinstance(data_raw.columns, pd.MultiIndex):
-        close_prices = data_raw['Close'].ffill().dropna()
-        volumes = data_raw['Volume'].ffill().dropna()
+        close_prices = data_raw['Close'].ffill().dropna(how='all')
+        volumes = data_raw['Volume'].ffill().dropna(how='all')
     else:
-        close_prices = data_raw.ffill().dropna()
-        volumes = data_raw.ffill().dropna()
+        close_prices = pd.DataFrame({tickers[0]: data_raw['Close']}).ffill().dropna(how='all')
+        volumes = pd.DataFrame({tickers[0]: data_raw['Volume']}).ffill().dropna(how='all')
+
+    close_prices = close_prices.dropna(axis=1, how='all').ffill().bfill()
+    volumes = volumes.dropna(axis=1, how='all').ffill().bfill()
+    valid_tickers = [t for t in tickers if t in close_prices.columns and t in volumes.columns]
+    close_prices = close_prices[valid_tickers]
+    volumes = volumes[valid_tickers]
 
     tickers = close_prices.columns.tolist()
     returns = close_prices.pct_change().dropna()
