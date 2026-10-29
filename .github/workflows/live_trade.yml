@@ -35,10 +35,30 @@ jobs:
           export PYTHONPATH=$(pwd)
           python neural_flow/run_adaptive_v3.py
 
+      - name: Generate Live Dashboard Feed
+        run: |
+          cd nosharashi_1
+          python -c "
+          import json, datetime
+          try:
+              with open('paper_state_adaptive.json') as f: s1 = json.load(f)
+          except: s1 = {}
+          try:
+              with open('paper_state_v3.json') as f: s2 = json.load(f)
+          except: s2 = {}
+          feed = {
+              'updated_at': datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC'),
+              'adaptive': s1,
+              'v3': s2
+          }
+          with open('../dashboard_data.json', 'w') as f:
+              json.dump(feed, f, indent=2)
+          "
+
       - name: Commit & Push Balance Updates
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add nosharashi_1/paper_balance*.txt nosharashi_1/paper_state*.json
-          git commit -m "Auto-update paper trading balances [skip ci]" || echo "No balance change to commit"
+          git add nosharashi_1/paper_balance*.txt nosharashi_1/paper_state*.json dashboard_data.json index.html
+          git commit -m "Auto-update paper trading balances and live dashboard [skip ci]" || echo "No balance change to commit"
           git push

@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Neural-Flow | 24/7 Live Paper Trading Hub</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0B0F19; }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+    .card-glass {
+      background: rgba(17, 24, 39, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .card-glass:hover {
+      border-color: rgba(16, 185, 129, 0.25);
+    }
+    .pulse-dot {
+      box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+      animation: pulse-green 2s infinite;
+    }
+    @keyframes pulse-green {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+  </style>
+</head>
+<body class="text-slate-100 min-h-screen flex flex-col justify-between">
+
+  <!-- Top Navigation -->
+  <header class="border-b border-white/10 bg-slate-900/60 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-emerald-500/20 font-black text-xl text-black">
+          ⚡
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-extrabold text-xl tracking-tight text-white">Neural-Flow</h1>
+            <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold uppercase tracking-wider">Quant Live</span>
+          </div>
+          <p class="text-xs text-slate-400">24/7 Autonomous Cryptocurrency Paper Trading</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2 bg-slate-800/80 px-3 py-1.5 rounded-lg border border-white/5 text-xs">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 pulse-dot inline-block"></span>
+          <span class="text-slate-300 font-medium">Auto-Pilot: Active</span>
+        </div>
+        <button id="refreshBtn" onclick="loadDashboardData()" class="flex items-center gap-1.5 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold transition active:scale-95">
+          <svg id="refreshIcon" class="w-3.5 h-3.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+          </svg>
+          <span>Refresh</span>
+        </button>
+        <a href="https://github.com/anandhakrishnanj24ece-art/my-trading-bot/actions" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg text-xs font-semibold border border-white/5 transition flex items-center gap-1">
+          <span>Actions</span>
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-8">
+
+    <!-- Hero / Cycle Banner -->
+    <div class="card-glass rounded-2xl p-6 relative overflow-hidden">
+      <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <span class="text-xs uppercase font-bold tracking-widest text-emerald-400">Execution Frequency</span>
+          <h2 class="text-2xl font-bold text-white mt-1">Hourly Autonomous Rebalancing</h2>
+          <p class="text-sm text-slate-400 mt-1">Evaluates order flow toxicity, liquidity imbalances, and volatility switches across 9 assets every hour.</p>
+        </div>
+        <div class="flex items-center gap-6">
+          <div class="text-left md:text-right">
+            <span class="text-xs text-slate-400 block">Last Cycle Executed</span>
+            <span id="lastUpdated" class="text-sm font-semibold mono text-slate-200">Loading...</span>
+          </div>
+          <div class="h-10 w-px bg-white/10 hidden md:block"></div>
+          <div class="text-left md:text-right">
+            <span class="text-xs text-slate-400 block">Baseline Starting Capital</span>
+            <span class="text-sm font-bold text-emerald-400 mono">$10,000.00 / strategy</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Strategy Comparison Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+      <!-- Strategy 1: Adaptive Weighted -->
+      <div class="card-glass rounded-2xl p-6 transition duration-200 relative">
+        <div class="flex items-start justify-between">
+          <div>
+            <span class="text-xs font-semibold px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">Strategy 1</span>
+            <h3 class="text-xl font-bold text-white mt-2">Adaptive Weighted</h3>
+            <p class="text-xs text-slate-400 mt-0.5">LiquidityAlpha + Volatility Switch</p>
+          </div>
+          <div class="w-9 h-9 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 font-bold text-lg">
+            📊
+          </div>
+        </div>
+
+        <div class="mt-6 flex items-baseline justify-between">
+          <div>
+            <span class="text-xs text-slate-400 block">Current Portfolio Value</span>
+            <span id="s1Balance" class="text-3xl font-extrabold mono text-white tracking-tight">$10,000.00</span>
+          </div>
+          <div id="s1ReturnBadge" class="px-2.5 py-1 rounded-lg text-sm font-bold mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+            +0.00%
+          </div>
+        </div>
+
+        <div class="mt-6 pt-5 border-t border-white/5 grid grid-cols-3 gap-4 text-center">
+          <div>
+            <span class="text-[11px] text-slate-400 block">Dynamic Leverage</span>
+            <span id="s1Leverage" class="text-sm font-bold mono text-slate-200">4.00x</span>
+          </div>
+          <div>
+            <span class="text-[11px] text-slate-400 block">Risk Engine</span>
+            <span class="text-xs font-semibold text-slate-300">VolSwitch (4x/1x)</span>
+          </div>
+          <div>
+            <span class="text-[11px] text-slate-400 block">Execution</span>
+            <span class="text-xs font-semibold text-emerald-400">Stealth Iceberg</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Strategy 2: Hyper-Adaptive v3 -->
+      <div class="card-glass rounded-2xl p-6 transition duration-200 relative">
+        <div class="flex items-start justify-between">
+          <div>
+            <span class="text-xs font-semibold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Strategy 2</span>
+            <h3 class="text-xl font-bold text-white mt-2">Hyper-Adaptive v3</h3>
+            <p class="text-xs text-slate-400 mt-0.5">Square-Root Lasso + Elastic Hysteresis</p>
+          </div>
+          <div class="w-9 h-9 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 font-bold text-lg">
+            ⚡
+          </div>
+        </div>
+
+        <div class="mt-6 flex items-baseline justify-between">
+          <div>
+            <span class="text-xs text-slate-400 block">Current Portfolio Value</span>
+            <span id="s2Balance" class="text-3xl font-extrabold mono text-white tracking-tight">$10,000.00</span>
+          </div>
+          <div id="s2ReturnBadge" class="px-2.5 py-1 rounded-lg text-sm font-bold mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+            +0.00%
+          </div>
+        </div>
+
+        <div class="mt-6 pt-5 border-t border-white/5 grid grid-cols-3 gap-4 text-center">
+          <div>
+            <span class="text-[11px] text-slate-400 block">Max Drawdown</span>
+            <span id="s2Drawdown" class="text-sm font-bold mono text-slate-200">0.00%</span>
+          </div>
+          <div>
+            <span class="text-[11px] text-slate-400 block">Risk Matrix</span>
+            <span class="text-xs font-semibold text-slate-300">Ledoit-Wolf Shrinkage</span>
+          </div>
+          <div>
+            <span class="text-[11px] text-slate-400 block">Filter</span>
+            <span class="text-xs font-semibold text-emerald-400">Elastic Bands</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Live Asset Allocation & Holdings Table -->
+    <div class="card-glass rounded-2xl p-6">
+      <div class="flex items-center justify-between mb-5">
+        <div>
+          <h3 class="text-lg font-bold text-white">Active Portfolio Allocations</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Asset weights and current market prices monitored by the alpha engine</p>
+        </div>
+        <span class="text-xs bg-slate-800 text-slate-300 px-3 py-1 rounded-full border border-white/5 font-mono">9 Monitored Pairs</span>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm">
+          <thead>
+            <tr class="border-b border-white/10 text-xs text-slate-400 uppercase tracking-wider font-semibold">
+              <th class="py-3 px-4">Asset</th>
+              <th class="py-3 px-4">Latest Price</th>
+              <th class="py-3 px-4 text-center">Strategy 1 Allocation</th>
+              <th class="py-3 px-4 text-center">Strategy 2 Allocation</th>
+              <th class="py-3 px-4 text-right">Status</th>
+            </tr>
+          </thead>
+          <tbody id="assetsTableBody" class="divide-y divide-white/5 mono">
+            <tr>
+              <td colspan="5" class="py-6 text-center text-slate-400 text-sm">Loading market asset positions...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Strategy Mechanics & Intelligence Info -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="bg-slate-900/40 p-5 rounded-xl border border-white/5">
+        <div class="flex items-center gap-2 text-emerald-400 font-semibold text-sm">
+          <span>🎯</span>
+          <h4>Dual-Trend Guards</h4>
+        </div>
+        <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+          Trades only take place when the 200 SMA (macro directional guard) and 20 SMA (momentum guard) mutually agree.
+        </p>
+      </div>
+
+      <div class="bg-slate-900/40 p-5 rounded-xl border border-white/5">
+        <div class="flex items-center gap-2 text-cyan-400 font-semibold text-sm">
+          <span>🛡️</span>
+          <h4>RSI 30/70 Protection</h4>
+        </div>
+        <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+          Prohibits entering long positions above RSI 70 (overbought) or short positions below RSI 30 (oversold) to prevent buying local tops.
+        </p>
+      </div>
+
+      <div class="bg-slate-900/40 p-5 rounded-xl border border-white/5">
+        <div class="flex items-center gap-2 text-purple-400 font-semibold text-sm">
+          <span>⚡</span>
+          <h4>Stealth Execution</h4>
+        </div>
+        <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+          Simulates institutional iceberg order slices, reducing turnover fees and modeling a 30% reduction in market slippage.
+        </p>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-white/10 bg-slate-900/60 py-6 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+      <p>Powered by GitHub Actions 24/7 Serverless Cloud Engine</p>
+      <div class="flex items-center gap-4">
+        <a href="https://github.com/anandhakrishnanj24ece-art/my-trading-bot" target="_blank" class="hover:text-emerald-400 transition">GitHub Repo</a>
+        <span>•</span>
+        <a href="https://github.com/anandhakrishnanj24ece-art/my-trading-bot/actions" target="_blank" class="hover:text-emerald-400 transition">Actions History</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const TICKERS = ['BTC-USD', 'ETH-USD', 'SOL-USD', 'BNB-USD', 'XRP-USD', 'ADA-USD', 'DOT-USD', 'LINK-USD', 'AVAX-USD'];
+
+    async function loadDashboardData() {
+      const icon = document.getElementById('refreshIcon');
+      icon.classList.add('rotate-180');
+      setTimeout(() => icon.classList.remove('rotate-180'), 600);
+
+      try {
+        // Try fetching dashboard_data.json, with fallback to individual states
+        let feed = null;
+        try {
+          const res = await fetch('./dashboard_data.json?t=' + Date.now());
+          if (res.ok) feed = await res.json();
+        } catch (e) {}
+
+        if (!feed) {
+          const [res1, res2] = await Promise.all([
+            fetch('./nosharashi_1/paper_state_adaptive.json?t=' + Date.now()),
+            fetch('./nosharashi_1/paper_state_v3.json?t=' + Date.now())
+          ]);
+          feed = {
+            updated_at: new Date().toUTCString(),
+            adaptive: res1.ok ? await res1.json() : {},
+            v3: res2.ok ? await res2.json() : {}
+          };
+        }
+
+        renderDashboard(feed);
+      } catch (err) {
+        console.error("Error loading dashboard data:", err);
+      }
+    }
+
+    function renderDashboard(data) {
+      const s1 = data.adaptive || {};
+      const s2 = data.v3 || {};
+
+      // Timestamp
+      if (data.updated_at) {
+        document.getElementById('lastUpdated').innerText = data.updated_at;
+      }
+
+      // Strategy 1 Metrics
+      const s1Val = s1.portfolio_value || 10000.0;
+      const s1Ret = ((s1Val - 10000.0) / 10000.0) * 100.0;
+      document.getElementById('s1Balance').innerText = '$' + s1Val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      
+      const s1Badge = document.getElementById('s1ReturnBadge');
+      s1Badge.innerText = (s1Ret >= 0 ? '+' : '') + s1Ret.toFixed(2) + '%';
+      s1Badge.className = s1Ret >= 0 
+        ? 'px-2.5 py-1 rounded-lg text-sm font-bold mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+        : 'px-2.5 py-1 rounded-lg text-sm font-bold mono bg-rose-500/10 text-rose-400 border border-rose-500/20';
+
+      // Strategy 2 Metrics
+      const s2Val = s2.portfolio_value || 10000.0;
+      const s2Ret = ((s2Val - 10000.0) / 10000.0) * 100.0;
+      document.getElementById('s2Balance').innerText = '$' + s2Val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      
+      const s2Badge = document.getElementById('s2ReturnBadge');
+      s2Badge.innerText = (s2Ret >= 0 ? '+' : '') + s2Ret.toFixed(2) + '%';
+      s2Badge.className = s2Ret >= 0 
+        ? 'px-2.5 py-1 rounded-lg text-sm font-bold mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+        : 'px-2.5 py-1 rounded-lg text-sm font-bold mono bg-rose-500/10 text-rose-400 border border-rose-500/20';
+
+      if (s2.peak_equity && s2.portfolio_value) {
+        const dd = Math.max(0, (s2.peak_equity - s2.portfolio_value) / s2.peak_equity) * 100.0;
+        document.getElementById('s2Drawdown').innerText = dd.toFixed(2) + '%';
+      }
+
+      // Assets Table
+      const prices = s1.last_prices || s2.last_prices || {};
+      const s1Weights = s1.weights || {};
+      const s2Weights = s2.weights || {};
+
+      const tbody = document.getElementById('assetsTableBody');
+      tbody.innerHTML = '';
+
+      TICKERS.forEach(t => {
+        const price = prices[t] ? '$' + Number(prices[t]).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '---';
+        const w1 = (s1Weights[t] || 0.0) * 100;
+        const w2 = (s2Weights[t] || 0.0) * 100;
+
+        let status = '<span class="text-slate-500">CASH</span>';
+        if (w1 > 1 || w2 > 1) {
+          status = '<span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold text-xs">LONG</span>';
+        } else if (w1 < -1 || w2 < -1) {
+          status = '<span class="px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 font-bold text-xs">SHORT</span>';
+        }
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-white/[0.02] transition';
+        tr.innerHTML = `
+          <td class="py-3 px-4 font-semibold text-white flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full ${w1 !== 0 || w2 !== 0 ? 'bg-emerald-400' : 'bg-slate-600'}"></span>
+            ${t}
+          </td>
+          <td class="py-3 px-4 text-slate-300 font-mono">${price}</td>
+          <td class="py-3 px-4 text-center ${w1 > 0 ? 'text-emerald-400 font-bold' : 'text-slate-400'}">${w1 > 0 ? '+' : ''}${w1.toFixed(1)}%</td>
+          <td class="py-3 px-4 text-center ${w2 > 0 ? 'text-emerald-400 font-bold' : 'text-slate-400'}">${w2 > 0 ? '+' : ''}${w2.toFixed(1)}%</td>
+          <td class="py-3 px-4 text-right">${status}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Auto-fetch on load, then poll every 60s
+    loadDashboardData();
+    setInterval(loadDashboardData, 60000);
+  </script>
+</body>
+</html>
