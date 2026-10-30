@@ -57,11 +57,12 @@ jobs:
           with open('../dashboard_data.json', 'w') as f:
               json.dump(feed, f, indent=2)
           "
+          python update_history_md.py
 
       - name: Commit & Push Balance Updates
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add nosharashi_1/paper_balance*.txt nosharashi_1/paper_state*.json dashboard_data.json index.html
+          git add nosharashi_1/paper_balance*.txt nosharashi_1/paper_state*.json dashboard_data.json index.html TRADE_HISTORY.md
           git commit -m "Auto-update paper trading balances and live dashboard [skip ci]" || echo "No balance change to commit"
           git push
