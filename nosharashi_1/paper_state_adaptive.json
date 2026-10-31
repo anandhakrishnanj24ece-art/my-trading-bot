@@ -12,18 +12,18 @@
     "AVAX-USD": 0.0
   },
   "last_prices": {
-    "BTC-USD": 76822.4375,
-    "ETH-USD": 2234.010009765625,
-    "SOL-USD": 95.69000244140625,
-    "BNB-USD": 698.8099975585938,
-    "XRP-USD": 1.2515000104904175,
-    "ADA-USD": 0.19426000118255615,
-    "DOT-USD": 0.9703999757766724,
-    "LINK-USD": 11.32800006866455,
-    "AVAX-USD": 8.468000411987305
+    "BTC-USD": 77239.7265625,
+    "ETH-USD": 2241.5,
+    "SOL-USD": 96.37999725341797,
+    "BNB-USD": 703.9500122070312,
+    "XRP-USD": 1.2524000406265259,
+    "ADA-USD": 0.1938599944114685,
+    "DOT-USD": 0.9624000191688538,
+    "LINK-USD": 11.557000160217285,
+    "AVAX-USD": 8.583999633789062
   },
-  "last_updated": "2026-10-30T22:51:23.536970+00:00",
-  "last_updated_ist": "31 Oct 2026, 04:21:23 AM IST",
+  "last_updated": "2026-10-31T02:08:06.330742+00:00",
+  "last_updated_ist": "31 Oct 2026, 07:38:06 AM IST",
   "last_action": "100% CASH (Neutral)",
   "last_period_return_pct": 0.0,
   "last_period_pnl_usd": 0.0,
@@ -84,6 +84,15 @@
     },
     {
       "timestamp_ist": "31 Oct 2026, 04:21:23 AM IST",
+      "action": "100% CASH (Neutral)",
+      "period_return_pct": 0.0,
+      "period_pnl_usd": 0.0,
+      "portfolio_value": 8755.33,
+      "total_return_pct": -12.45,
+      "leverage": 4.0
+    },
+    {
+      "timestamp_ist": "31 Oct 2026, 07:38:06 AM IST",
       "action": "100% CASH (Neutral)",
       "period_return_pct": 0.0,
       "period_pnl_usd": 0.0,
