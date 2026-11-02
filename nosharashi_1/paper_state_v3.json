@@ -1,33 +1,33 @@
 {
-  "portfolio_value": 9617.158948964994,
+  "portfolio_value": 9585.793710740052,
   "peak_equity": 10063.065825888167,
   "weights": {
     "BTC-USD": 0.0,
     "ETH-USD": 0.0,
     "SOL-USD": 0.0,
     "BNB-USD": 0.0,
-    "XRP-USD": -0.4179022012450014,
+    "XRP-USD": -0.4168028179972426,
     "ADA-USD": 0.0,
     "DOT-USD": 0.0,
     "LINK-USD": 0.0,
     "AVAX-USD": 0.0
   },
   "last_prices": {
-    "BTC-USD": 77679.25,
-    "ETH-USD": 2255.7099609375,
-    "SOL-USD": 93.61000061035156,
-    "BNB-USD": 704.780029296875,
-    "XRP-USD": 1.2431999444961548,
-    "ADA-USD": 0.19095000624656677,
-    "DOT-USD": 0.944599986076355,
-    "LINK-USD": 11.253000259399414,
-    "AVAX-USD": 8.593999862670898
+    "BTC-USD": 78309.4296875,
+    "ETH-USD": 2289.18994140625,
+    "SOL-USD": 94.80000305175781,
+    "BNB-USD": 712.4500122070312,
+    "XRP-USD": 1.2529000043869019,
+    "ADA-USD": 0.19329999387264252,
+    "DOT-USD": 0.9495999813079834,
+    "LINK-USD": 11.331999778747559,
+    "AVAX-USD": 8.637999534606934
   },
-  "last_updated": "2026-11-01T22:38:29.654040+00:00",
-  "last_updated_ist": "02 Nov 2026, 04:08:29 AM IST",
-  "last_action": "SHORT XRP-USD (41.8%) @ $1.24",
-  "last_period_return_pct": 0.091,
-  "last_period_pnl_usd": 8.7,
+  "last_updated": "2026-11-02T02:11:25.426359+00:00",
+  "last_updated_ist": "02 Nov 2026, 07:41:25 AM IST",
+  "last_action": "SHORT XRP-USD (41.7%) @ $1.25",
+  "last_period_return_pct": -0.326,
+  "last_period_pnl_usd": -31.37,
   "trade_history": [
     {
       "timestamp_ist": "29 Oct 2026, 08:55:18 PM IST",
@@ -172,6 +172,15 @@
       "portfolio_value": 9617.16,
       "total_return_pct": -3.83,
       "max_dd": 0.0443
+    },
+    {
+      "timestamp_ist": "02 Nov 2026, 07:41:25 AM IST",
+      "action": "SHORT XRP-USD (41.7%) @ $1.25",
+      "period_return_pct": -0.326,
+      "period_pnl_usd": -31.37,
+      "portfolio_value": 9585.79,
+      "total_return_pct": -4.14,
+      "max_dd": 0.0474
     }
   ]
 }
