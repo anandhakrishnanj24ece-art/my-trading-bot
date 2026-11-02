@@ -8,10 +8,10 @@
 ## 🚀 Strategy 1: Adaptive v3 Strategy (Hyper-Adaptive Optimizer)
 * **Model:** LiquidityAlpha + Square-Root Lasso + Elastic Hysteresis + Ledoit-Wolf Volatility Target
 * **Initial Capital:** `$10,000.00`
-* **Current Portfolio Value:** `$9,585.79`
+* **Current Portfolio Value:** `$9,605.82`
 * **Peak Equity (HWM):** `$10,063.07`
-* **Net Return:** `-4.14%`
-* **Current Status:** `SHORT XRP-USD (41.7%) @ $1.25`
+* **Net Return:** `-3.94%`
+* **Current Status:** `SHORT XRP-USD (42.6%) @ $1.25`
 
 ### Trade History Log
 | # | Timestamp (IST) | Action / Position | Asset | Entry / Exit Price | Size (%) | Period PnL ($) | Period Return | Portfolio Balance | Total Return | Max DD | Result |
@@ -33,15 +33,16 @@
 | 15 | 01 Nov 2026, 11:49:39 PM IST | SHORT XRP-USD (41.8%) @ $1.25 | XRP-USD | $1.25 | 41.8% | **+$8.03** | **+0.08%** | $9,608.45 | -3.92% | 4.52% | 🟢 PROFIT |
 | 16 | 02 Nov 2026, 04:08:29 AM IST | SHORT XRP-USD (41.8%) @ $1.24 | XRP-USD | $1.24 | 41.8% | **+$8.70** | **+0.09%** | $9,617.16 | -3.83% | 4.43% | 🟢 PROFIT |
 | 17 | 02 Nov 2026, 07:41:25 AM IST | SHORT XRP-USD (41.7%) @ $1.25 | XRP-USD | $1.25 | 41.7% | **-$31.37** | **-0.33%** | $9,585.79 | -4.14% | 4.74% | 🔴 LOSS |
+| 18 | 02 Nov 2026, 04:13:58 PM IST | SHORT XRP-USD (42.6%) @ $1.25 | XRP-USD | $1.25 | 42.6% | **+$20.03** | **+0.21%** | $9,605.82 | -3.94% | 4.54% | 🟢 PROFIT |
 
 ---
 
 ## 📈 Strategy 2: Adaptive Weighted Strategy (Base Adaptive Model)
 * **Model:** LiquidityAlpha + Dynamic Confidence Capping + Volatility Switch Leverage (4.0x)
 * **Initial Capital:** `$10,000.00`
-* **Current Portfolio Value:** `$8,734.47`
-* **Net Return:** `-12.66%`
-* **Current Status:** `SHORT XRP-USD (80.0%) @ $1.25`
+* **Current Portfolio Value:** `$8,766.26`
+* **Net Return:** `-12.34%`
+* **Current Status:** `SHORT XRP-USD (20.0%) @ $1.25`
 
 ### Trade History Log
 | # | Timestamp (IST) | Action / Position | Asset | Entry / Exit Price | Size (%) | Period PnL ($) | Period Return | Portfolio Balance | Total Return | Leverage | Result |
@@ -63,6 +64,7 @@
 | 15 | 01 Nov 2026, 11:49:37 PM IST | SHORT XRP-USD (80.0%) @ $1.25 | XRP-USD | $1.25 | 80.0% | **+$14.03** | **+0.16%** | $8,774.13 | -12.26% | 4.0x | 🟢 PROFIT |
 | 16 | 02 Nov 2026, 04:08:27 AM IST | SHORT XRP-USD (80.0%) @ $1.24 | XRP-USD | $1.24 | 80.0% | **+$15.21** | **+0.17%** | $8,789.34 | -12.11% | 4.0x | 🟢 PROFIT |
 | 17 | 02 Nov 2026, 07:41:23 AM IST | SHORT XRP-USD (80.0%) @ $1.25 | XRP-USD | $1.25 | 80.0% | **-$54.86** | **-0.62%** | $8,734.47 | -12.66% | 4.0x | 🔴 LOSS |
+| 18 | 02 Nov 2026, 04:13:56 PM IST | SHORT XRP-USD (20.0%) @ $1.25 | XRP-USD | $1.25 | 20.0% | **+$31.78** | **+0.40%** | $8,766.26 | -12.34% | 4.0x | 🟢 PROFIT |
 
 ---
 
