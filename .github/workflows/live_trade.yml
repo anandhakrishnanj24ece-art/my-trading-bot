@@ -2,7 +2,7 @@ name: 24x7 Paper Trading Bot
 
 on:
   schedule:
-    - cron: '0 * * * *' # Runs every hour
+    - cron: '*/6 * * * *' # Runs every 6 minutes
   workflow_dispatch: # Manual trigger
 
 permissions:
