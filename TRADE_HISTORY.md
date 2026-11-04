@@ -8,10 +8,10 @@
 ## 🚀 Strategy 1: Adaptive v3 Strategy (Hyper-Adaptive Optimizer)
 * **Model:** LiquidityAlpha + Square-Root Lasso + Elastic Hysteresis + Ledoit-Wolf Volatility Target
 * **Initial Capital:** `$10,000.00`
-* **Current Portfolio Value:** `$9,486.19`
+* **Current Portfolio Value:** `$9,483.01`
 * **Peak Equity (HWM):** `$10,063.07`
-* **Net Return:** `-5.14%`
-* **Current Status:** `100% CASH (Neutral)`
+* **Net Return:** `-5.17%`
+* **Current Status:** `LONG BTC-USD (15.5%) @ $80,336.73, LONG ETH-USD (22.4%) @ $2,423.90, LONG XRP-USD (14.4%) @ $1.31`
 
 ### Trade History Log
 | # | Timestamp (IST) | Action / Position | Asset | Entry / Exit Price | Size (%) | Period PnL ($) | Period Return | Portfolio Balance | Total Return | Max DD | Result |
@@ -41,15 +41,16 @@
 | 23 | 04 Nov 2026, 05:08:49 AM IST | 100% CASH (Neutral) | - | - | 0.0% | **+$0.00** | **+0.00%** | $9,486.19 | -5.14% | 5.73% | ⚪ CASH EXIT |
 | 24 | 04 Nov 2026, 08:47:52 AM IST | 100% CASH (Neutral) | - | - | 0.0% | **+$0.00** | **+0.00%** | $9,486.19 | -5.14% | 5.73% | ⚪ CASH EXIT |
 | 25 | 04 Nov 2026, 04:42:45 PM IST | 100% CASH (Neutral) | - | - | 0.0% | **+$0.00** | **+0.00%** | $9,486.19 | -5.14% | 5.73% | ⚪ CASH EXIT |
+| 26 | 05 Nov 2026, 12:10:49 AM IST | LONG BTC-USD (15.5%) @ $80,336.73, LONG ETH-USD (22.4%) @ $2,423.90, LONG XRP-USD (14.4%) @ $1.31 | BTC-USD | $80,336.73, | 15.5% | **-$3.18** | **+0.00%** | $9,483.01 | -5.17% | 5.76% | 🔴 LOSS |
 
 ---
 
 ## 📈 Strategy 2: Adaptive Weighted Strategy (Base Adaptive Model)
 * **Model:** LiquidityAlpha + Dynamic Confidence Capping + Volatility Switch Leverage (4.0x)
 * **Initial Capital:** `$10,000.00`
-* **Current Portfolio Value:** `$8,715.39`
-* **Net Return:** `-12.85%`
-* **Current Status:** `100% CASH (Neutral)`
+* **Current Portfolio Value:** `$8,696.32`
+* **Net Return:** `-13.04%`
+* **Current Status:** `LONG BTC-USD (80.0%) @ $80,345.72, LONG ETH-USD (181.8%) @ $2,423.90, LONG XRP-USD (80.0%) @ $1.31`
 
 ### Trade History Log
 | # | Timestamp (IST) | Action / Position | Asset | Entry / Exit Price | Size (%) | Period PnL ($) | Period Return | Portfolio Balance | Total Return | Leverage | Result |
@@ -79,6 +80,7 @@
 | 23 | 04 Nov 2026, 05:08:47 AM IST | 100% CASH (Neutral) | - | - | 0.0% | **+$0.00** | **+0.00%** | $8,715.39 | -12.85% | 4.0x | ⚪ CASH EXIT |
 | 24 | 04 Nov 2026, 08:47:50 AM IST | 100% CASH (Neutral) | - | - | 0.0% | **+$0.00** | **+0.00%** | $8,715.39 | -12.85% | 4.0x | ⚪ CASH EXIT |
 | 25 | 04 Nov 2026, 04:42:43 PM IST | 100% CASH (Neutral) | - | - | 0.0% | **+$0.00** | **+0.00%** | $8,715.39 | -12.85% | 4.0x | ⚪ CASH EXIT |
+| 26 | 05 Nov 2026, 12:10:48 AM IST | LONG BTC-USD (80.0%) @ $80,345.72, LONG ETH-USD (181.8%) @ $2,423.90, LONG XRP-USD (80.0%) @ $1.31 | BTC-USD | $80,345.72, | 80.0% | **-$19.07** | **+0.00%** | $8,696.32 | -13.04% | 4.0x | 🔴 LOSS |
 
 ---
 
