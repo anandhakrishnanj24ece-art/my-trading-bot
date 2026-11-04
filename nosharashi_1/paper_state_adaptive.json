@@ -1,8 +1,8 @@
 {
-  "portfolio_value": 8696.322392987015,
+  "portfolio_value": 8676.886196834415,
   "weights": {
-    "BTC-USD": 0.8,
-    "ETH-USD": 1.8182327839675847,
+    "BTC-USD": 1.2269677476586824,
+    "ETH-USD": 1.8297184546054512,
     "SOL-USD": 0.0,
     "BNB-USD": 0.0,
     "XRP-USD": 0.8,
@@ -12,21 +12,21 @@
     "AVAX-USD": 0.0
   },
   "last_prices": {
-    "BTC-USD": 80345.71875,
-    "ETH-USD": 2423.89990234375,
-    "SOL-USD": 95.41999816894531,
-    "BNB-USD": 716.4400024414062,
-    "XRP-USD": 1.308500051498413,
-    "ADA-USD": 0.19651000201702118,
-    "DOT-USD": 0.9585999846458435,
-    "LINK-USD": 11.48799991607666,
-    "AVAX-USD": 8.807000160217285
+    "BTC-USD": 80453.5078125,
+    "ETH-USD": 2423.449951171875,
+    "SOL-USD": 95.47000122070312,
+    "BNB-USD": 719.52001953125,
+    "XRP-USD": 1.3041000366210938,
+    "ADA-USD": 0.19738000631332397,
+    "DOT-USD": 0.9541000127792358,
+    "LINK-USD": 11.4399995803833,
+    "AVAX-USD": 8.730999946594238
   },
-  "last_updated": "2026-11-04T18:40:48.034658+00:00",
-  "last_updated_ist": "05 Nov 2026, 12:10:48 AM IST",
-  "last_action": "LONG BTC-USD (80.0%) @ $80,345.72, LONG ETH-USD (181.8%) @ $2,423.90, LONG XRP-USD (80.0%) @ $1.31",
-  "last_period_return_pct": 0.0,
-  "last_period_pnl_usd": -19.07,
+  "last_updated": "2026-11-04T23:56:46.916303+00:00",
+  "last_updated_ist": "05 Nov 2026, 05:26:46 AM IST",
+  "last_action": "LONG BTC-USD (122.7%) @ $80,453.51, LONG ETH-USD (183.0%) @ $2,423.45, LONG XRP-USD (80.0%) @ $1.30",
+  "last_period_return_pct": -0.195,
+  "last_period_pnl_usd": -19.44,
   "trade_history": [
     {
       "timestamp_ist": "29 Oct 2026, 08:55:03 PM IST",
@@ -260,6 +260,15 @@
       "period_pnl_usd": -19.07,
       "portfolio_value": 8696.32,
       "total_return_pct": -13.04,
+      "leverage": 4.0
+    },
+    {
+      "timestamp_ist": "05 Nov 2026, 05:26:46 AM IST",
+      "action": "LONG BTC-USD (122.7%) @ $80,453.51, LONG ETH-USD (183.0%) @ $2,423.45, LONG XRP-USD (80.0%) @ $1.30",
+      "period_return_pct": -0.195,
+      "period_pnl_usd": -19.44,
+      "portfolio_value": 8676.89,
+      "total_return_pct": -13.23,
       "leverage": 4.0
     }
   ]

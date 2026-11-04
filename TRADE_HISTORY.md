@@ -8,10 +8,10 @@
 ## 🚀 Strategy 1: Adaptive v3 Strategy (Hyper-Adaptive Optimizer)
 * **Model:** LiquidityAlpha + Square-Root Lasso + Elastic Hysteresis + Ledoit-Wolf Volatility Target
 * **Initial Capital:** `$10,000.00`
-* **Current Portfolio Value:** `$9,483.01`
+* **Current Portfolio Value:** `$9,480.14`
 * **Peak Equity (HWM):** `$10,063.07`
-* **Net Return:** `-5.17%`
-* **Current Status:** `LONG BTC-USD (15.5%) @ $80,336.73, LONG ETH-USD (22.4%) @ $2,423.90, LONG XRP-USD (14.4%) @ $1.31`
+* **Net Return:** `-5.20%`
+* **Current Status:** `LONG BTC-USD (16.5%) @ $80,453.52, LONG ETH-USD (23.3%) @ $2,423.43, LONG XRP-USD (12.7%) @ $1.30`
 
 ### Trade History Log
 | # | Timestamp (IST) | Action / Position | Asset | Entry / Exit Price | Size (%) | Period PnL ($) | Period Return | Portfolio Balance | Total Return | Max DD | Result |
@@ -42,15 +42,16 @@
 | 24 | 04 Nov 2026, 08:47:52 AM IST | 100% CASH (Neutral) | - | - | 0.0% | **+$0.00** | **+0.00%** | $9,486.19 | -5.14% | 5.73% | ⚪ CASH EXIT |
 | 25 | 04 Nov 2026, 04:42:45 PM IST | 100% CASH (Neutral) | - | - | 0.0% | **+$0.00** | **+0.00%** | $9,486.19 | -5.14% | 5.73% | ⚪ CASH EXIT |
 | 26 | 05 Nov 2026, 12:10:49 AM IST | LONG BTC-USD (15.5%) @ $80,336.73, LONG ETH-USD (22.4%) @ $2,423.90, LONG XRP-USD (14.4%) @ $1.31 | BTC-USD | $80,336.73, | 15.5% | **-$3.18** | **+0.00%** | $9,483.01 | -5.17% | 5.76% | 🔴 LOSS |
+| 27 | 05 Nov 2026, 05:26:48 AM IST | LONG BTC-USD (16.5%) @ $80,453.52, LONG ETH-USD (23.3%) @ $2,423.43, LONG XRP-USD (12.7%) @ $1.30 | BTC-USD | $80,453.52, | 16.5% | **-$2.87** | **-0.03%** | $9,480.14 | -5.20% | 5.79% | 🔴 LOSS |
 
 ---
 
 ## 📈 Strategy 2: Adaptive Weighted Strategy (Base Adaptive Model)
 * **Model:** LiquidityAlpha + Dynamic Confidence Capping + Volatility Switch Leverage (4.0x)
 * **Initial Capital:** `$10,000.00`
-* **Current Portfolio Value:** `$8,696.32`
-* **Net Return:** `-13.04%`
-* **Current Status:** `LONG BTC-USD (80.0%) @ $80,345.72, LONG ETH-USD (181.8%) @ $2,423.90, LONG XRP-USD (80.0%) @ $1.31`
+* **Current Portfolio Value:** `$8,676.89`
+* **Net Return:** `-13.23%`
+* **Current Status:** `LONG BTC-USD (122.7%) @ $80,453.51, LONG ETH-USD (183.0%) @ $2,423.45, LONG XRP-USD (80.0%) @ $1.30`
 
 ### Trade History Log
 | # | Timestamp (IST) | Action / Position | Asset | Entry / Exit Price | Size (%) | Period PnL ($) | Period Return | Portfolio Balance | Total Return | Leverage | Result |
@@ -81,6 +82,7 @@
 | 24 | 04 Nov 2026, 08:47:50 AM IST | 100% CASH (Neutral) | - | - | 0.0% | **+$0.00** | **+0.00%** | $8,715.39 | -12.85% | 4.0x | ⚪ CASH EXIT |
 | 25 | 04 Nov 2026, 04:42:43 PM IST | 100% CASH (Neutral) | - | - | 0.0% | **+$0.00** | **+0.00%** | $8,715.39 | -12.85% | 4.0x | ⚪ CASH EXIT |
 | 26 | 05 Nov 2026, 12:10:48 AM IST | LONG BTC-USD (80.0%) @ $80,345.72, LONG ETH-USD (181.8%) @ $2,423.90, LONG XRP-USD (80.0%) @ $1.31 | BTC-USD | $80,345.72, | 80.0% | **-$19.07** | **+0.00%** | $8,696.32 | -13.04% | 4.0x | 🔴 LOSS |
+| 27 | 05 Nov 2026, 05:26:46 AM IST | LONG BTC-USD (122.7%) @ $80,453.51, LONG ETH-USD (183.0%) @ $2,423.45, LONG XRP-USD (80.0%) @ $1.30 | BTC-USD | $80,453.51, | 122.7% | **-$19.44** | **-0.20%** | $8,676.89 | -13.23% | 4.0x | 🔴 LOSS |
 
 ---
 

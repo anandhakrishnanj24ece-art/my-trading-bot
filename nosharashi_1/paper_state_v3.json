@@ -1,33 +1,33 @@
 {
-  "portfolio_value": 9483.008521009124,
+  "portfolio_value": 9480.137907974293,
   "peak_equity": 10063.065825888167,
   "weights": {
-    "BTC-USD": 0.15497365236295074,
-    "ETH-USD": 0.22447511139142545,
+    "BTC-USD": 0.16517925381636975,
+    "ETH-USD": 0.23294474384184277,
     "SOL-USD": 0.0,
     "BNB-USD": 0.0,
-    "XRP-USD": 0.1438995604044966,
+    "XRP-USD": 0.12726622484921268,
     "ADA-USD": 0.0,
     "DOT-USD": 0.0,
     "LINK-USD": 0.0,
     "AVAX-USD": 0.0
   },
   "last_prices": {
-    "BTC-USD": 80336.7265625,
-    "ETH-USD": 2423.89990234375,
-    "SOL-USD": 95.37000274658203,
-    "BNB-USD": 716.4400024414062,
-    "XRP-USD": 1.308500051498413,
-    "ADA-USD": 0.19659000635147095,
-    "DOT-USD": 0.9585999846458435,
-    "LINK-USD": 11.48799991607666,
-    "AVAX-USD": 8.8100004196167
+    "BTC-USD": 80453.5234375,
+    "ETH-USD": 2423.429931640625,
+    "SOL-USD": 95.47000122070312,
+    "BNB-USD": 719.52001953125,
+    "XRP-USD": 1.3042999505996704,
+    "ADA-USD": 0.19738000631332397,
+    "DOT-USD": 0.9541000127792358,
+    "LINK-USD": 11.4399995803833,
+    "AVAX-USD": 8.730999946594238
   },
-  "last_updated": "2026-11-04T18:40:49.959963+00:00",
-  "last_updated_ist": "05 Nov 2026, 12:10:49 AM IST",
-  "last_action": "LONG BTC-USD (15.5%) @ $80,336.73, LONG ETH-USD (22.4%) @ $2,423.90, LONG XRP-USD (14.4%) @ $1.31",
-  "last_period_return_pct": 0.0,
-  "last_period_pnl_usd": -3.18,
+  "last_updated": "2026-11-04T23:56:48.685279+00:00",
+  "last_updated_ist": "05 Nov 2026, 05:26:48 AM IST",
+  "last_action": "LONG BTC-USD (16.5%) @ $80,453.52, LONG ETH-USD (23.3%) @ $2,423.43, LONG XRP-USD (12.7%) @ $1.30",
+  "last_period_return_pct": -0.028,
+  "last_period_pnl_usd": -2.87,
   "trade_history": [
     {
       "timestamp_ist": "29 Oct 2026, 08:55:18 PM IST",
@@ -262,6 +262,15 @@
       "portfolio_value": 9483.01,
       "total_return_pct": -5.17,
       "max_dd": 0.0576
+    },
+    {
+      "timestamp_ist": "05 Nov 2026, 05:26:48 AM IST",
+      "action": "LONG BTC-USD (16.5%) @ $80,453.52, LONG ETH-USD (23.3%) @ $2,423.43, LONG XRP-USD (12.7%) @ $1.30",
+      "period_return_pct": -0.028,
+      "period_pnl_usd": -2.87,
+      "portfolio_value": 9480.14,
+      "total_return_pct": -5.2,
+      "max_dd": 0.0579
     }
   ]
 }
