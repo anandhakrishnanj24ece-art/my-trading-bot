@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-11-03 23:38:50 UTC",
-  "updated_at_ist": "04 Nov 2026, 05:08:50 AM IST",
+  "updated_at": "2026-11-04 03:17:52 UTC",
+  "updated_at_ist": "04 Nov 2026, 08:47:52 AM IST",
   "adaptive": {
     "portfolio_value": 8715.388778681936,
     "weights": {
@@ -15,18 +15,18 @@
       "AVAX-USD": 0.0
     },
     "last_prices": {
-      "BTC-USD": 77789.2109375,
-      "ETH-USD": 2285.68994140625,
-      "SOL-USD": 93.25,
-      "BNB-USD": 700.72998046875,
-      "XRP-USD": 1.2798999547958374,
-      "ADA-USD": 0.190870001912117,
-      "DOT-USD": 0.942799985408783,
-      "LINK-USD": 11.081000328063965,
-      "AVAX-USD": 8.553999900817871
+      "BTC-USD": 75792.03125,
+      "ETH-USD": 2232.840087890625,
+      "SOL-USD": 90.4000015258789,
+      "BNB-USD": 683.5999755859375,
+      "XRP-USD": 1.2489999532699585,
+      "ADA-USD": 0.18425999581813812,
+      "DOT-USD": 0.9176999926567078,
+      "LINK-USD": 10.689000129699707,
+      "AVAX-USD": 8.333000183105469
     },
-    "last_updated": "2026-11-03T23:38:47.548831+00:00",
-    "last_updated_ist": "04 Nov 2026, 05:08:47 AM IST",
+    "last_updated": "2026-11-04T03:17:50.667411+00:00",
+    "last_updated_ist": "04 Nov 2026, 08:47:50 AM IST",
     "last_action": "100% CASH (Neutral)",
     "last_period_return_pct": 0.0,
     "last_period_pnl_usd": 0.0,
@@ -237,6 +237,15 @@
         "portfolio_value": 8715.39,
         "total_return_pct": -12.85,
         "leverage": 4.0
+      },
+      {
+        "timestamp_ist": "04 Nov 2026, 08:47:50 AM IST",
+        "action": "100% CASH (Neutral)",
+        "period_return_pct": 0.0,
+        "period_pnl_usd": 0.0,
+        "portfolio_value": 8715.39,
+        "total_return_pct": -12.85,
+        "leverage": 4.0
       }
     ]
   },
@@ -255,18 +264,18 @@
       "AVAX-USD": 0.0
     },
     "last_prices": {
-      "BTC-USD": 77790.5703125,
-      "ETH-USD": 2285.7099609375,
-      "SOL-USD": 93.25,
-      "BNB-USD": 700.72998046875,
-      "XRP-USD": 1.2798999547958374,
-      "ADA-USD": 0.1909399926662445,
-      "DOT-USD": 0.942799985408783,
-      "LINK-USD": 11.081000328063965,
-      "AVAX-USD": 8.553999900817871
+      "BTC-USD": 75792.03125,
+      "ETH-USD": 2232.0,
+      "SOL-USD": 90.4000015258789,
+      "BNB-USD": 683.5999755859375,
+      "XRP-USD": 1.2489999532699585,
+      "ADA-USD": 0.18411999940872192,
+      "DOT-USD": 0.9176999926567078,
+      "LINK-USD": 10.689000129699707,
+      "AVAX-USD": 8.333000183105469
     },
-    "last_updated": "2026-11-03T23:38:49.945311+00:00",
-    "last_updated_ist": "04 Nov 2026, 05:08:49 AM IST",
+    "last_updated": "2026-11-04T03:17:52.388730+00:00",
+    "last_updated_ist": "04 Nov 2026, 08:47:52 AM IST",
     "last_action": "100% CASH (Neutral)",
     "last_period_return_pct": 0.0,
     "last_period_pnl_usd": 0.0,
@@ -471,6 +480,15 @@
       },
       {
         "timestamp_ist": "04 Nov 2026, 05:08:49 AM IST",
+        "action": "100% CASH (Neutral)",
+        "period_return_pct": 0.0,
+        "period_pnl_usd": 0.0,
+        "portfolio_value": 9486.19,
+        "total_return_pct": -5.14,
+        "max_dd": 0.0573
+      },
+      {
+        "timestamp_ist": "04 Nov 2026, 08:47:52 AM IST",
         "action": "100% CASH (Neutral)",
         "period_return_pct": 0.0,
         "period_pnl_usd": 0.0,
@@ -687,6 +705,15 @@
       "portfolio_value": 8715.39,
       "total_return_pct": -12.85,
       "leverage": 4.0
+    },
+    {
+      "timestamp_ist": "04 Nov 2026, 08:47:50 AM IST",
+      "action": "100% CASH (Neutral)",
+      "period_return_pct": 0.0,
+      "period_pnl_usd": 0.0,
+      "portfolio_value": 8715.39,
+      "total_return_pct": -12.85,
+      "leverage": 4.0
     }
   ],
   "history_v3": [
@@ -890,6 +917,15 @@
     },
     {
       "timestamp_ist": "04 Nov 2026, 05:08:49 AM IST",
+      "action": "100% CASH (Neutral)",
+      "period_return_pct": 0.0,
+      "period_pnl_usd": 0.0,
+      "portfolio_value": 9486.19,
+      "total_return_pct": -5.14,
+      "max_dd": 0.0573
+    },
+    {
+      "timestamp_ist": "04 Nov 2026, 08:47:52 AM IST",
       "action": "100% CASH (Neutral)",
       "period_return_pct": 0.0,
       "period_pnl_usd": 0.0,
