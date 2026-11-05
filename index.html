@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Neural-Flow | 24/7 Live Paper Trading Hub</title>
+  <title>Neural-Flow & AMD | 24/7 Live Paper Trading Hub</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -41,10 +41,10 @@
         </div>
         <div>
           <div class="flex items-center gap-2">
-            <h1 class="font-extrabold text-xl tracking-tight text-white">Neural-Flow</h1>
-            <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold uppercase tracking-wider">Quant Live</span>
+            <h1 class="font-extrabold text-xl tracking-tight text-white">Neural-Flow & AMD</h1>
+            <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold uppercase tracking-wider">Quant Live Hub</span>
           </div>
-          <p class="text-xs text-slate-400">24/7 Autonomous Cryptocurrency Paper Trading</p>
+          <p class="text-xs text-slate-400">24/7 Autonomous Multi-Strategy Crypto Paper Trading</p>
         </div>
       </div>
 
@@ -75,27 +75,22 @@
       <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <span class="text-xs uppercase font-bold tracking-widest text-emerald-400">Execution Frequency</span>
-          <h2 class="text-2xl font-bold text-white mt-1">Hourly Autonomous Rebalancing</h2>
-          <p class="text-sm text-slate-400 mt-1">Evaluates order flow toxicity, liquidity imbalances, and volatility switches across 9 assets every hour.</p>
+          <span class="text-xs font-semibold uppercase tracking-wider text-emerald-400">Continuous Execution Stream</span>
+          <h2 class="text-2xl font-extrabold text-white mt-1">Autonomous Multi-Strategy Execution Hub</h2>
+          <p class="text-sm text-slate-400 mt-1 max-w-2xl">
+            Live paper-trading environment executing 3 quantitative architectures in parallel: Adaptive Weighted, Hyper-Adaptive v3, and the AMD (Accumulation / Manipulation / Distribution) Smart Money Futures engine.
+          </p>
         </div>
-        <div class="flex items-center gap-6">
-          <div class="text-left md:text-right">
-            <span class="text-xs text-slate-400 block">Last Cycle Executed (IST)</span>
-            <span id="lastUpdatedIST" class="text-sm font-semibold mono text-emerald-400">Loading...</span>
-            <span id="lastUpdatedUTC" class="text-[11px] font-mono text-slate-500 block"></span>
-          </div>
-          <div class="h-10 w-px bg-white/10 hidden md:block"></div>
-          <div class="text-left md:text-right">
-            <span class="text-xs text-slate-400 block">Baseline Starting Capital</span>
-            <span class="text-sm font-bold text-emerald-400 mono">$10,000.00 / strategy</span>
-          </div>
+        <div class="flex flex-col sm:items-end justify-center bg-slate-900/60 p-4 rounded-xl border border-white/5 text-right">
+          <span class="text-xs text-slate-400">Last Telemetry Sync</span>
+          <span id="lastUpdatedIST" class="text-sm font-bold text-slate-200 mt-0.5">Fetching latest state...</span>
+          <span id="lastUpdatedUTC" class="text-[11px] font-mono text-slate-500">---</span>
         </div>
       </div>
     </div>
 
-    <!-- Strategy Comparison Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Strategy Comparison Cards (3 Columns) -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
       <!-- Strategy 1: Adaptive Weighted -->
       <div class="card-glass rounded-2xl p-6 transition duration-200 relative flex flex-col justify-between">
@@ -132,7 +127,7 @@
             </div>
             <div class="text-xs flex items-center justify-between">
               <span class="text-slate-400">Position Taken:</span>
-              <span id="s1LastAction" class="font-mono text-emerald-400 font-semibold truncate max-w-[220px]">---</span>
+              <span id="s1LastAction" class="font-mono text-emerald-400 font-semibold truncate max-w-[200px]">---</span>
             </div>
             <div class="text-xs flex items-center justify-between pt-1 border-t border-white/5">
               <span class="text-slate-400">Last Period PnL:</span>
@@ -192,7 +187,7 @@
             </div>
             <div class="text-xs flex items-center justify-between">
               <span class="text-slate-400">Position Taken:</span>
-              <span id="s2LastAction" class="font-mono text-emerald-400 font-semibold truncate max-w-[220px]">---</span>
+              <span id="s2LastAction" class="font-mono text-emerald-400 font-semibold truncate max-w-[200px]">---</span>
             </div>
             <div class="text-xs flex items-center justify-between pt-1 border-t border-white/5">
               <span class="text-slate-400">Last Period PnL:</span>
@@ -217,14 +212,74 @@
         </div>
       </div>
 
+      <!-- Strategy 3: AMD Smart Money (PO3) Futures -->
+      <div class="card-glass rounded-2xl p-6 transition duration-200 relative flex flex-col justify-between">
+        <div>
+          <div class="flex items-start justify-between">
+            <div>
+              <span class="text-xs font-semibold px-2 py-0.5 rounded bg-purple-500/10 text-purple-400 border border-purple-500/20">Strategy 3</span>
+              <h3 class="text-xl font-bold text-white mt-2">AMD Smart Money</h3>
+              <p class="text-xs text-slate-400 mt-0.5">PO3 BOS / CHoCH + Order Blocks + FVG</p>
+            </div>
+            <div class="w-9 h-9 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 font-bold text-lg">
+              🎯
+            </div>
+          </div>
+
+          <div class="mt-6 flex items-baseline justify-between">
+            <div>
+              <span class="text-xs text-slate-400 block">Total AMD Equity</span>
+              <span id="s3Balance" class="text-3xl font-extrabold mono text-white tracking-tight">$50,000.00</span>
+            </div>
+            <div id="s3ReturnBadge" class="px-2.5 py-1 rounded-lg text-sm font-bold mono bg-purple-500/10 text-purple-400 border border-purple-500/20">
+              +0.00%
+            </div>
+          </div>
+
+          <!-- Last Trade Info in IST -->
+          <div class="mt-5 p-3.5 rounded-xl bg-slate-900/80 border border-white/5 space-y-2">
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-slate-400 flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-purple-400 inline-block"></span>
+                <span>Active Positions:</span>
+              </span>
+              <span id="s3ActivePositions" class="font-mono text-slate-200 font-medium">0 Open</span>
+            </div>
+            <div class="text-xs flex items-center justify-between">
+              <span class="text-slate-400">Top Symbol Status:</span>
+              <span id="s3TopStatus" class="font-mono text-purple-400 font-semibold truncate max-w-[200px]">Scanning Market</span>
+            </div>
+            <div class="text-xs flex items-center justify-between pt-1 border-t border-white/5">
+              <span class="text-slate-400">Total AMD Trades:</span>
+              <span id="s3TotalTrades" class="font-mono font-bold text-slate-200">0</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-5 pt-4 border-t border-white/5 grid grid-cols-3 gap-2 text-center">
+          <div>
+            <span class="text-[11px] text-slate-400 block">Per-Symbol Baseline</span>
+            <span class="text-sm font-bold mono text-slate-200">$10,000</span>
+          </div>
+          <div>
+            <span class="text-[11px] text-slate-400 block">Risk Per Trade</span>
+            <span class="text-xs font-semibold text-slate-300">1.0% | 3:1 RR</span>
+          </div>
+          <div>
+            <span class="text-[11px] text-slate-400 block">Protection</span>
+            <span class="text-xs font-semibold text-purple-400">20% Halt Breaker</span>
+          </div>
+        </div>
+      </div>
+
     </div>
 
     <!-- Live Active Holdings Table -->
     <div class="card-glass rounded-2xl p-6">
       <div class="flex items-center justify-between mb-5">
         <div>
-          <h3 class="text-lg font-bold text-white">Active Portfolio Allocations</h3>
-          <p class="text-xs text-slate-400 mt-0.5">Asset weights and current market prices monitored by the alpha engine</p>
+          <h3 class="text-lg font-bold text-white">Active Portfolio & Multi-Strategy Allocations</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Asset weights and current market prices monitored across all active quantitative engines</p>
         </div>
         <span class="text-xs bg-slate-800 text-slate-300 px-3 py-1 rounded-full border border-white/5 font-mono">9 Monitored Pairs</span>
       </div>
@@ -235,21 +290,22 @@
             <tr class="border-b border-white/10 text-xs text-slate-400 uppercase tracking-wider font-semibold">
               <th class="py-3 px-4">Asset</th>
               <th class="py-3 px-4">Latest Price</th>
-              <th class="py-3 px-4 text-center">Strategy 1 Allocation</th>
-              <th class="py-3 px-4 text-center">Strategy 2 Allocation</th>
+              <th class="py-3 px-4 text-center">Strategy 1 (Adaptive)</th>
+              <th class="py-3 px-4 text-center">Strategy 2 (v3)</th>
+              <th class="py-3 px-4 text-center">Strategy 3 (AMD PO3)</th>
               <th class="py-3 px-4 text-right">Status</th>
             </tr>
           </thead>
           <tbody id="assetsTableBody" class="divide-y divide-white/5 mono">
             <tr>
-              <td colspan="5" class="py-6 text-center text-slate-400 text-sm">Loading market asset positions...</td>
+              <td colspan="6" class="py-6 text-center text-slate-400 text-sm">Loading market asset positions...</td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
 
-    <!-- Trade History Section (Both Separately) -->
+    <!-- Trade History Section (All 3 Separately) -->
     <div class="space-y-6">
       <div class="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-4">
         <div>
@@ -264,6 +320,9 @@
           </button>
           <button id="tabS2" onclick="switchHistoryTab('s2')" class="px-3.5 py-1.5 rounded-lg text-slate-400 hover:text-white transition">
             ⚡ Strategy 2 (v3)
+          </button>
+          <button id="tabS3" onclick="switchHistoryTab('s3')" class="px-3.5 py-1.5 rounded-lg text-slate-400 hover:text-white transition">
+            🎯 Strategy 3 (AMD PO3)
           </button>
         </div>
       </div>
@@ -326,14 +385,44 @@
         </div>
       </div>
 
+      <!-- Trade History Table: Strategy 3 (AMD) -->
+      <div id="historyTableS3Container" class="card-glass rounded-2xl p-6 hidden">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-purple-400"></span>
+            <h4 class="font-bold text-white text-base">Strategy 3: AMD Smart Money (PO3) History</h4>
+          </div>
+          <span class="text-xs text-slate-400 font-mono" id="s3HistoryCount">0 entries</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm">
+            <thead>
+              <tr class="border-b border-white/10 text-xs text-slate-400 uppercase tracking-wider font-semibold">
+                <th class="py-3 px-4">Time / Timestamp</th>
+                <th class="py-3 px-4">Symbol</th>
+                <th class="py-3 px-4">Action / Type</th>
+                <th class="py-3 px-4 text-center">Fill Price</th>
+                <th class="py-3 px-4 text-center">Realized PnL</th>
+                <th class="py-3 px-4 text-right">Running Equity</th>
+              </tr>
+            </thead>
+            <tbody id="s3HistoryBody" class="divide-y divide-white/5 mono text-xs">
+              <tr>
+                <td colspan="6" class="py-6 text-center text-slate-400">Loading Strategy 3 (AMD) trade history...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
     </div>
 
     <!-- Strategy Mechanics Info -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <div class="bg-slate-900/40 p-5 rounded-xl border border-white/5">
         <div class="flex items-center gap-2 text-emerald-400 font-semibold text-sm">
-          <span>🎯</span>
-          <h4>Dual-Trend Guards</h4>
+          <span>🛡️</span>
+          <h4>Dual-Trend Guards (Adaptive)</h4>
         </div>
         <p class="text-xs text-slate-400 mt-2 leading-relaxed">
           Trades only take place when the 200 SMA (macro directional guard) and 20 SMA (momentum guard) mutually agree.
@@ -342,21 +431,21 @@
 
       <div class="bg-slate-900/40 p-5 rounded-xl border border-white/5">
         <div class="flex items-center gap-2 text-cyan-400 font-semibold text-sm">
-          <span>🛡️</span>
-          <h4>RSI 30/70 Protection</h4>
+          <span>⚡</span>
+          <h4>Elastic Hysteresis (v3)</h4>
         </div>
         <p class="text-xs text-slate-400 mt-2 leading-relaxed">
-          Prohibits entering long positions above RSI 70 (overbought) or short positions below RSI 30 (oversold) to prevent buying local tops.
+          Square-root Lasso with elastic band hysteresis limits portfolio turnover friction and eliminates churn.
         </p>
       </div>
 
       <div class="bg-slate-900/40 p-5 rounded-xl border border-white/5">
         <div class="flex items-center gap-2 text-purple-400 font-semibold text-sm">
-          <span>⚡</span>
-          <h4>Stealth Execution</h4>
+          <span>🎯</span>
+          <h4>PO3 Smart Money (AMD)</h4>
         </div>
         <p class="text-xs text-slate-400 mt-2 leading-relaxed">
-          Simulates institutional iceberg order slices, reducing turnover fees and modeling a 30% reduction in market slippage.
+          Accumulation range compression, stop-sweep manipulation wicks, and order-block distribution with 3:1 R:R targets and fee/slippage modeling.
         </p>
       </div>
     </div>
@@ -381,19 +470,28 @@
     function switchHistoryTab(tab) {
       const tabS1 = document.getElementById('tabS1');
       const tabS2 = document.getElementById('tabS2');
+      const tabS3 = document.getElementById('tabS3');
       const tableS1 = document.getElementById('historyTableS1Container');
       const tableS2 = document.getElementById('historyTableS2Container');
+      const tableS3 = document.getElementById('historyTableS3Container');
+
+      tabS1.className = 'px-3.5 py-1.5 rounded-lg text-slate-400 hover:text-white transition';
+      tabS2.className = 'px-3.5 py-1.5 rounded-lg text-slate-400 hover:text-white transition';
+      tabS3.className = 'px-3.5 py-1.5 rounded-lg text-slate-400 hover:text-white transition';
+
+      tableS1.classList.add('hidden');
+      tableS2.classList.add('hidden');
+      tableS3.classList.add('hidden');
 
       if (tab === 's1') {
         tabS1.className = 'px-3.5 py-1.5 rounded-lg bg-blue-600 text-white shadow transition';
-        tabS2.className = 'px-3.5 py-1.5 rounded-lg text-slate-400 hover:text-white transition';
         tableS1.classList.remove('hidden');
-        tableS2.classList.add('hidden');
-      } else {
+      } else if (tab === 's2') {
         tabS2.className = 'px-3.5 py-1.5 rounded-lg bg-emerald-600 text-white shadow transition';
-        tabS1.className = 'px-3.5 py-1.5 rounded-lg text-slate-400 hover:text-white transition';
         tableS2.classList.remove('hidden');
-        tableS1.classList.add('hidden');
+      } else if (tab === 's3') {
+        tabS3.className = 'px-3.5 py-1.5 rounded-lg bg-purple-600 text-white shadow transition';
+        tableS3.classList.remove('hidden');
       }
     }
 
@@ -410,16 +508,19 @@
         } catch (e) {}
 
         if (!feed) {
-          const [res1, res2] = await Promise.all([
+          const [res1, res2, res3] = await Promise.all([
             fetch('./nosharashi_1/paper_state_adaptive.json?t=' + Date.now()),
-            fetch('./nosharashi_1/paper_state_v3.json?t=' + Date.now())
+            fetch('./nosharashi_1/paper_state_v3.json?t=' + Date.now()),
+            fetch('./paper_state.json?t=' + Date.now())
           ]);
           const s1 = res1.ok ? await res1.json() : {};
           const s2 = res2.ok ? await res2.json() : {};
+          const s3 = res3.ok ? await res3.json() : {};
           feed = {
             updated_at: new Date().toUTCString(),
             adaptive: s1,
             v3: s2,
+            amd: s3,
             history_adaptive: s1.trade_history || [],
             history_v3: s2.trade_history || []
           };
@@ -434,6 +535,7 @@
     function renderDashboard(data) {
       const s1 = data.adaptive || {};
       const s2 = data.v3 || {};
+      const s3 = data.amd || {};
 
       // Global Timestamp
       if (data.updated_at_ist || s1.last_updated_ist || s2.last_updated_ist) {
@@ -454,7 +556,6 @@
         ? 'px-2.5 py-1 rounded-lg text-sm font-bold mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
         : 'px-2.5 py-1 rounded-lg text-sm font-bold mono bg-rose-500/10 text-rose-400 border border-rose-500/20';
 
-      // S1 Last Trade Info
       document.getElementById('s1LastTimeIST').innerText = s1.last_updated_ist || '---';
       document.getElementById('s1LastAction').innerText = s1.last_action || '100% CASH';
       
@@ -480,7 +581,6 @@
         document.getElementById('s2Drawdown').innerText = dd.toFixed(2) + '%';
       }
 
-      // S2 Last Trade Info
       document.getElementById('s2LastTimeIST').innerText = s2.last_updated_ist || '---';
       document.getElementById('s2LastAction').innerText = s2.last_action || '100% CASH';
       
@@ -489,6 +589,46 @@
       const s2PnlEl = document.getElementById('s2LastPnL');
       s2PnlEl.innerText = (s2Pnl >= 0 ? '+$' : '-$') + Math.abs(s2Pnl).toFixed(2) + ` (${s2PnlPct >= 0 ? '+' : ''}${s2PnlPct.toFixed(2)}%)`;
       s2PnlEl.className = 'font-mono font-bold ' + (s2Pnl >= 0 ? 'text-emerald-400' : 'text-rose-400');
+
+      // Strategy 3 (AMD) Metrics
+      let s3TotalEquity = 0;
+      let s3InitialCapital = 0;
+      let s3OpenPositions = 0;
+      let s3TotalTrades = 0;
+      let s3TradeLogCombined = [];
+      const amdSymbols = Object.keys(s3);
+
+      if (amdSymbols.length > 0) {
+        amdSymbols.forEach(sym => {
+          const symState = s3[sym] || {};
+          const eq = Number(symState.equity || 10000);
+          s3TotalEquity += eq;
+          s3InitialCapital += 10000;
+          if (symState.position_shares && symState.position_shares !== 0) {
+            s3OpenPositions++;
+          }
+          const logs = symState.trade_log || [];
+          s3TotalTrades += logs.length;
+          logs.forEach(l => {
+            s3TradeLogCombined.push({ ...l, symbol: sym });
+          });
+        });
+      } else {
+        s3TotalEquity = 50000.0;
+        s3InitialCapital = 50000.0;
+      }
+
+      const s3Ret = s3InitialCapital > 0 ? ((s3TotalEquity - s3InitialCapital) / s3InitialCapital) * 100.0 : 0.0;
+      document.getElementById('s3Balance').innerText = '$' + s3TotalEquity.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      const s3Badge = document.getElementById('s3ReturnBadge');
+      s3Badge.innerText = (s3Ret >= 0 ? '+' : '') + s3Ret.toFixed(2) + '%';
+      s3Badge.className = s3Ret >= 0
+        ? 'px-2.5 py-1 rounded-lg text-sm font-bold mono bg-purple-500/10 text-purple-400 border border-purple-500/20'
+        : 'px-2.5 py-1 rounded-lg text-sm font-bold mono bg-rose-500/10 text-rose-400 border border-rose-500/20';
+
+      document.getElementById('s3ActivePositions').innerText = `${s3OpenPositions} Active`;
+      document.getElementById('s3TopStatus').innerText = s3OpenPositions > 0 ? `${s3OpenPositions} open perp position(s)` : 'Scanning Range (PO3)';
+      document.getElementById('s3TotalTrades').innerText = s3TotalTrades.toString();
 
       // Live Assets Table
       const prices = s1.last_prices || s2.last_prices || {};
@@ -503,23 +643,38 @@
         const w1 = (s1Weights[t] || 0.0) * 100;
         const w2 = (s2Weights[t] || 0.0) * 100;
 
+        let amdSide = 'CASH';
+        let amdBadge = '<span class="text-slate-500">NEUTRAL</span>';
+        if (s3[t]) {
+          const posShares = s3[t].position_shares || 0;
+          const posSide = s3[t].position_side || 0;
+          if (posShares > 0 || posSide === 1) {
+            amdSide = 'LONG';
+            amdBadge = '<span class="px-2 py-0.5 rounded bg-purple-500/10 text-purple-400 border border-purple-500/20 font-bold text-xs">LONG 1R</span>';
+          } else if (posShares < 0 || posSide === -1) {
+            amdSide = 'SHORT';
+            amdBadge = '<span class="px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 font-bold text-xs">SHORT 1R</span>';
+          }
+        }
+
         let status = '<span class="text-slate-500">CASH</span>';
-        if (w1 > 1 || w2 > 1) {
-          status = '<span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold text-xs">LONG</span>';
-        } else if (w1 < -1 || w2 < -1) {
-          status = '<span class="px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 font-bold text-xs">SHORT</span>';
+        if (w1 > 1 || w2 > 1 || amdSide === 'LONG') {
+          status = '<span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold text-xs">ACTIVE</span>';
+        } else if (w1 < -1 || w2 < -1 || amdSide === 'SHORT') {
+          status = '<span class="px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 font-bold text-xs">HEDGED</span>';
         }
 
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-white/[0.02] transition';
         tr.innerHTML = `
           <td class="py-3 px-4 font-semibold text-white flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full ${w1 !== 0 || w2 !== 0 ? 'bg-emerald-400' : 'bg-slate-600'}"></span>
+            <span class="w-2 h-2 rounded-full ${w1 !== 0 || w2 !== 0 || amdSide !== 'CASH' ? 'bg-emerald-400' : 'bg-slate-600'}"></span>
             ${t}
           </td>
           <td class="py-3 px-4 text-slate-300 font-mono">${price}</td>
-          <td class="py-3 px-4 text-center ${w1 > 0 ? 'text-emerald-400 font-bold' : 'text-slate-400'}">${w1 > 0 ? '+' : ''}${w1.toFixed(1)}%</td>
-          <td class="py-3 px-4 text-center ${w2 > 0 ? 'text-emerald-400 font-bold' : 'text-slate-400'}">${w2 > 0 ? '+' : ''}${w2.toFixed(1)}%</td>
+          <td class="py-3 px-4 text-center ${w1 > 0 ? 'text-emerald-400 font-bold' : (w1 < 0 ? 'text-rose-400 font-bold' : 'text-slate-400')}">${w1 > 0 ? '+' : ''}${w1.toFixed(1)}%</td>
+          <td class="py-3 px-4 text-center ${w2 > 0 ? 'text-emerald-400 font-bold' : (w2 < 0 ? 'text-rose-400 font-bold' : 'text-slate-400')}">${w2 > 0 ? '+' : ''}${w2.toFixed(1)}%</td>
+          <td class="py-3 px-4 text-center">${amdBadge}</td>
           <td class="py-3 px-4 text-right">${status}</td>
         `;
         tbody.appendChild(tr);
@@ -531,6 +686,7 @@
 
       renderHistoryTable('s1HistoryBody', 's1HistoryCount', history1);
       renderHistoryTable('s2HistoryBody', 's2HistoryCount', history2);
+      renderAMDHistoryTable('s3HistoryBody', 's3HistoryCount', s3TradeLogCombined);
     }
 
     function renderHistoryTable(tbodyId, countId, history) {
@@ -545,41 +701,58 @@
       }
 
       countEl.innerText = `${history.length} cycle${history.length > 1 ? 's' : ''}`;
-
-      // Show newest first
       const reversed = [...history].reverse();
 
-      reversed.forEach((entry, idx) => {
-        const pnl = entry.period_pnl_usd || 0.0;
-        const ret = entry.period_return_pct || 0.0;
-        const bal = entry.portfolio_value || 10000.0;
+      reversed.forEach((t, i) => {
+        const pnl = t.period_pnl_usd || 0.0;
+        const pnlClass = pnl > 0 ? 'text-emerald-400 font-semibold' : (pnl < 0 ? 'text-rose-400 font-semibold' : 'text-slate-400');
+        const pnlSign = pnl > 0 ? '+$' : (pnl < 0 ? '-$' : '$');
 
-        let statusBadge = '<span class="px-2 py-0.5 rounded bg-slate-700/50 text-slate-300">FLAT</span>';
-        if (pnl > 0.01) {
-          statusBadge = '<span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold">PROFIT</span>';
-        } else if (pnl < -0.01) {
-          statusBadge = '<span class="px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 font-bold">LOSS</span>';
-        }
+        const ret = t.period_return_pct || 0.0;
+        const retClass = ret > 0 ? 'text-emerald-400' : (ret < 0 ? 'text-rose-400' : 'text-slate-400');
+        const retSign = ret > 0 ? '+' : '';
 
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-white/[0.02] transition';
         tr.innerHTML = `
-          <td class="py-3 px-4 text-slate-300 whitespace-nowrap">${entry.timestamp_ist || '---'}</td>
-          <td class="py-3 px-4 text-white font-medium">
-            <div class="flex items-center gap-2">
-              ${statusBadge}
-              <span class="truncate max-w-xs text-slate-200" title="${entry.action}">${entry.action || 'Hold'}</span>
-            </div>
-          </td>
-          <td class="py-3 px-4 text-center font-bold ${pnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}">
-            ${pnl >= 0 ? '+$' : '-$'}${Math.abs(pnl).toFixed(2)}
-          </td>
-          <td class="py-3 px-4 text-center font-bold ${ret >= 0 ? 'text-emerald-400' : 'text-rose-400'}">
-            ${ret >= 0 ? '+' : ''}${ret.toFixed(2)}%
-          </td>
-          <td class="py-3 px-4 text-right font-bold text-white">
-            $${bal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          </td>
+          <td class="py-3 px-4 text-slate-300 font-mono">${t.timestamp_ist || '---'}</td>
+          <td class="py-3 px-4 font-semibold text-white">${t.action || '---'}</td>
+          <td class="py-3 px-4 text-center ${pnlClass}">${pnlSign}${Math.abs(pnl).toFixed(2)}</td>
+          <td class="py-3 px-4 text-center ${retClass}">${retSign}${ret.toFixed(2)}%</td>
+          <td class="py-3 px-4 text-right text-slate-200 font-mono font-bold">$${Number(t.portfolio_value || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderAMDHistoryTable(tbodyId, countId, history) {
+      const tbody = document.getElementById(tbodyId);
+      const countEl = document.getElementById(countId);
+      tbody.innerHTML = '';
+
+      if (!history || history.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="py-6 text-center text-slate-500">No AMD Smart Money trades recorded yet.</td></tr>';
+        countEl.innerText = '0 entries';
+        return;
+      }
+
+      countEl.innerText = `${history.length} trade${history.length > 1 ? 's' : ''}`;
+      const reversed = [...history].reverse();
+
+      reversed.forEach((t) => {
+        const pnl = Number(t.pnl || t.realized_pnl || 0.0);
+        const pnlClass = pnl > 0 ? 'text-emerald-400 font-semibold' : (pnl < 0 ? 'text-rose-400 font-semibold' : 'text-slate-400');
+        const pnlSign = pnl > 0 ? '+$' : (pnl < 0 ? '-$' : '$');
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-white/[0.02] transition';
+        tr.innerHTML = `
+          <td class="py-3 px-4 text-slate-300 font-mono">${t.timestamp || t.date || '---'}</td>
+          <td class="py-3 px-4 font-bold text-purple-300">${t.symbol || '---'}</td>
+          <td class="py-3 px-4 font-semibold text-white">${t.action || t.type || 'EXECUTION'}</td>
+          <td class="py-3 px-4 text-center text-slate-300 font-mono">$${Number(t.price || t.entry_price || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+          <td class="py-3 px-4 text-center ${pnlClass}">${pnlSign}${Math.abs(pnl).toFixed(2)}</td>
+          <td class="py-3 px-4 text-right text-slate-200 font-mono font-bold">$${Number(t.equity || 10000).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
         `;
         tbody.appendChild(tr);
       });
