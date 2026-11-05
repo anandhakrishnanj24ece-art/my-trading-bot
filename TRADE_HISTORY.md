@@ -8,10 +8,10 @@
 ## 🚀 Strategy 1: Adaptive v3 Strategy (Hyper-Adaptive Optimizer)
 * **Model:** LiquidityAlpha + Square-Root Lasso + Elastic Hysteresis + Ledoit-Wolf Volatility Target
 * **Initial Capital:** `$10,000.00`
-* **Current Portfolio Value:** `$9,479.87`
+* **Current Portfolio Value:** `$9,424.99`
 * **Peak Equity (HWM):** `$10,063.07`
-* **Net Return:** `-5.20%`
-* **Current Status:** `LONG BTC-USD (15.1%) @ $80,384.90, LONG ETH-USD (23.4%) @ $2,420.92, LONG XRP-USD (13.9%) @ $1.31`
+* **Net Return:** `-5.75%`
+* **Current Status:** `LONG ETH-USD (30.4%) @ $2,383.48, LONG XRP-USD (18.1%) @ $1.30`
 
 ### Trade History Log
 | # | Timestamp (IST) | Action / Position | Asset | Entry / Exit Price | Size (%) | Period PnL ($) | Period Return | Portfolio Balance | Total Return | Max DD | Result |
@@ -44,15 +44,16 @@
 | 26 | 05 Nov 2026, 12:10:49 AM IST | LONG BTC-USD (15.5%) @ $80,336.73, LONG ETH-USD (22.4%) @ $2,423.90, LONG XRP-USD (14.4%) @ $1.31 | BTC-USD | $80,336.73, | 15.5% | **-$3.18** | **+0.00%** | $9,483.01 | -5.17% | 5.76% | 🔴 LOSS |
 | 27 | 05 Nov 2026, 05:26:48 AM IST | LONG BTC-USD (16.5%) @ $80,453.52, LONG ETH-USD (23.3%) @ $2,423.43, LONG XRP-USD (12.7%) @ $1.30 | BTC-USD | $80,453.52, | 16.5% | **-$2.87** | **-0.03%** | $9,480.14 | -5.20% | 5.79% | 🔴 LOSS |
 | 28 | 05 Nov 2026, 11:13:53 AM IST | LONG BTC-USD (15.1%) @ $80,384.90, LONG ETH-USD (23.4%) @ $2,420.92, LONG XRP-USD (13.9%) @ $1.31 | BTC-USD | $80,384.90, | 15.1% | **-$0.27** | **-0.00%** | $9,479.87 | -5.20% | 5.80% | 🔴 LOSS |
+| 29 | 05 Nov 2026, 07:01:54 PM IST | LONG ETH-USD (30.4%) @ $2,383.48, LONG XRP-USD (18.1%) @ $1.30 | ETH-USD | $2,383.48, | 30.4% | **-$54.87** | **-0.56%** | $9,424.99 | -5.75% | 6.34% | 🔴 LOSS |
 
 ---
 
 ## 📈 Strategy 2: Adaptive Weighted Strategy (Base Adaptive Model)
 * **Model:** LiquidityAlpha + Dynamic Confidence Capping + Volatility Switch Leverage (4.0x)
 * **Initial Capital:** `$10,000.00`
-* **Current Portfolio Value:** `$8,674.97`
-* **Net Return:** `-13.25%`
-* **Current Status:** `LONG BTC-USD (80.0%) @ $80,384.90, LONG ETH-USD (200.0%) @ $2,421.80, LONG XRP-USD (80.0%) @ $1.31`
+* **Current Portfolio Value:** `$8,297.12`
+* **Net Return:** `-17.03%`
+* **Current Status:** `LONG ETH-USD (80.0%) @ $2,383.68, LONG XRP-USD (78.9%) @ $1.30, SHORT ADA-USD (2.5%) @ $0.19`
 
 ### Trade History Log
 | # | Timestamp (IST) | Action / Position | Asset | Entry / Exit Price | Size (%) | Period PnL ($) | Period Return | Portfolio Balance | Total Return | Leverage | Result |
@@ -85,6 +86,7 @@
 | 26 | 05 Nov 2026, 12:10:48 AM IST | LONG BTC-USD (80.0%) @ $80,345.72, LONG ETH-USD (181.8%) @ $2,423.90, LONG XRP-USD (80.0%) @ $1.31 | BTC-USD | $80,345.72, | 80.0% | **-$19.07** | **+0.00%** | $8,696.32 | -13.04% | 4.0x | 🔴 LOSS |
 | 27 | 05 Nov 2026, 05:26:46 AM IST | LONG BTC-USD (122.7%) @ $80,453.51, LONG ETH-USD (183.0%) @ $2,423.45, LONG XRP-USD (80.0%) @ $1.30 | BTC-USD | $80,453.51, | 122.7% | **-$19.44** | **-0.20%** | $8,676.89 | -13.23% | 4.0x | 🔴 LOSS |
 | 28 | 05 Nov 2026, 11:13:51 AM IST | LONG BTC-USD (80.0%) @ $80,384.90, LONG ETH-USD (200.0%) @ $2,421.80, LONG XRP-USD (80.0%) @ $1.31 | BTC-USD | $80,384.90, | 80.0% | **-$1.91** | **+0.02%** | $8,674.97 | -13.25% | 4.0x | 🔴 LOSS |
+| 29 | 05 Nov 2026, 07:01:51 PM IST | LONG ETH-USD (80.0%) @ $2,383.68, LONG XRP-USD (78.9%) @ $1.30, SHORT ADA-USD (2.5%) @ $0.19 | ETH-USD | $2,383.68, | 80.0% | **-$377.85** | **-4.22%** | $8,297.12 | -17.03% | 4.0x | 🔴 LOSS |
 
 ---
 

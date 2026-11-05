@@ -1,32 +1,32 @@
 {
-  "portfolio_value": 8674.972992183473,
+  "portfolio_value": 8297.124143295345,
   "weights": {
-    "BTC-USD": 0.8,
-    "ETH-USD": 2.0,
+    "BTC-USD": 0.0,
+    "ETH-USD": 0.8,
     "SOL-USD": 0.0,
     "BNB-USD": 0.0,
-    "XRP-USD": 0.8,
-    "ADA-USD": 0.0,
+    "XRP-USD": 0.7890558752856804,
+    "ADA-USD": -0.02480353955046573,
     "DOT-USD": 0.0,
     "LINK-USD": 0.0,
     "AVAX-USD": 0.0
   },
   "last_prices": {
-    "BTC-USD": 80384.8984375,
-    "ETH-USD": 2421.800048828125,
-    "SOL-USD": 95.94999694824219,
-    "BNB-USD": 713.510009765625,
-    "XRP-USD": 1.3080999851226807,
-    "ADA-USD": 0.19683000445365906,
-    "DOT-USD": 0.9422000050544739,
-    "LINK-USD": 11.527999877929688,
-    "AVAX-USD": 8.748000144958496
+    "BTC-USD": 79511.3984375,
+    "ETH-USD": 2383.679931640625,
+    "SOL-USD": 95.1500015258789,
+    "BNB-USD": 710.0999755859375,
+    "XRP-USD": 1.3047000169754028,
+    "ADA-USD": 0.1947299987077713,
+    "DOT-USD": 0.9351999759674072,
+    "LINK-USD": 11.388999938964844,
+    "AVAX-USD": 8.649999618530273
   },
-  "last_updated": "2026-11-05T05:43:51.088136+00:00",
-  "last_updated_ist": "05 Nov 2026, 11:13:51 AM IST",
-  "last_action": "LONG BTC-USD (80.0%) @ $80,384.90, LONG ETH-USD (200.0%) @ $2,421.80, LONG XRP-USD (80.0%) @ $1.31",
-  "last_period_return_pct": 0.016,
-  "last_period_pnl_usd": -1.91,
+  "last_updated": "2026-11-05T13:31:51.354641+00:00",
+  "last_updated_ist": "05 Nov 2026, 07:01:51 PM IST",
+  "last_action": "LONG ETH-USD (80.0%) @ $2,383.68, LONG XRP-USD (78.9%) @ $1.30, SHORT ADA-USD (2.5%) @ $0.19",
+  "last_period_return_pct": -4.225,
+  "last_period_pnl_usd": -377.85,
   "trade_history": [
     {
       "timestamp_ist": "29 Oct 2026, 08:55:03 PM IST",
@@ -278,6 +278,15 @@
       "period_pnl_usd": -1.91,
       "portfolio_value": 8674.97,
       "total_return_pct": -13.25,
+      "leverage": 4.0
+    },
+    {
+      "timestamp_ist": "05 Nov 2026, 07:01:51 PM IST",
+      "action": "LONG ETH-USD (80.0%) @ $2,383.68, LONG XRP-USD (78.9%) @ $1.30, SHORT ADA-USD (2.5%) @ $0.19",
+      "period_return_pct": -4.225,
+      "period_pnl_usd": -377.85,
+      "portfolio_value": 8297.12,
+      "total_return_pct": -17.03,
       "leverage": 4.0
     }
   ]
