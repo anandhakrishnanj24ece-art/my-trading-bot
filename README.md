@@ -81,7 +81,7 @@ You can also run the trader manually from the Actions tab → "AMD Paper Trader"
 - **GitHub Actions free tier**: 2,000 minutes/month. A 6-minute cron running 5 symbols should stay well within limits.
 - **Each job has a 10-minute timeout** — if data fetching takes longer, the job will fail.
 - **State persistence**: `paper_state.json` is committed back after each run, so positions, stops, and equity persist across cron executions.
-- **Capital**: Each symbol starts with `$10,000` (set via `--capital 10000` in the workflow). The state persists per-symbol.
+- **Capital**: The AMD portfolio starts with a unified `$10,000.00` baseline (allocated across the monitored symbols, set via `--capital 10000` in the workflow). State persists across cron executions.
 
 ## Customizing
 
@@ -95,3 +95,4 @@ Edit `.github/workflows/paper_trade.yml` to:
 To stop, either:
 1. Disable the workflow in the Actions tab, or
 2. Remove the `.github/workflows/paper_trade.yml` file and push
+

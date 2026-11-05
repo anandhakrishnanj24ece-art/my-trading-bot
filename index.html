@@ -228,8 +228,8 @@
 
           <div class="mt-6 flex items-baseline justify-between">
             <div>
-              <span class="text-xs text-slate-400 block">Total AMD Equity</span>
-              <span id="s3Balance" class="text-3xl font-extrabold mono text-white tracking-tight">$50,000.00</span>
+              <span class="text-xs text-slate-400 block">Total Portfolio Baseline</span>
+              <span id="s3Balance" class="text-3xl font-extrabold mono text-white tracking-tight">$10,000.00</span>
             </div>
             <div id="s3ReturnBadge" class="px-2.5 py-1 rounded-lg text-sm font-bold mono bg-purple-500/10 text-purple-400 border border-purple-500/20">
               +0.00%
@@ -258,7 +258,7 @@
 
         <div class="mt-5 pt-4 border-t border-white/5 grid grid-cols-3 gap-2 text-center">
           <div>
-            <span class="text-[11px] text-slate-400 block">Per-Symbol Baseline</span>
+            <span class="text-[11px] text-slate-400 block">Portfolio Baseline</span>
             <span class="text-sm font-bold mono text-slate-200">$10,000</span>
           </div>
           <div>
@@ -601,9 +601,9 @@
       if (amdSymbols.length > 0) {
         amdSymbols.forEach(sym => {
           const symState = s3[sym] || {};
-          const eq = Number(symState.equity || 10000);
+          const eq = Number(symState.equity || (10000 / amdSymbols.length));
           s3TotalEquity += eq;
-          s3InitialCapital += 10000;
+          s3InitialCapital += (10000 / amdSymbols.length);
           if (symState.position_shares && symState.position_shares !== 0) {
             s3OpenPositions++;
           }
@@ -614,8 +614,8 @@
           });
         });
       } else {
-        s3TotalEquity = 50000.0;
-        s3InitialCapital = 50000.0;
+        s3TotalEquity = 10000.0;
+        s3InitialCapital = 10000.0;
       }
 
       const s3Ret = s3InitialCapital > 0 ? ((s3TotalEquity - s3InitialCapital) / s3InitialCapital) * 100.0 : 0.0;
@@ -763,3 +763,4 @@
   </script>
 </body>
 </html>
+

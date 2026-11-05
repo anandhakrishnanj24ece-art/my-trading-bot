@@ -363,6 +363,8 @@ class PaperTrader:
 
 def run_paper_all(symbols: list[str], lookback_days: int = 30,
                   initial_capital: float = INITIAL_CAPITAL) -> None:
+    # Allocate total initial portfolio capital equally across symbols so total portfolio baseline is initial_capital ($10,000)
+    per_symbol_capital = float(initial_capital) / max(1, len(symbols))
     print("\n" + "=" * 60)
     print(" AMD PAPER TRADER — ALL ASSETS")
     print(" Smart Money Concepts | Paper Mode | Fees + Slippage + Funding")
@@ -372,7 +374,7 @@ def run_paper_all(symbols: list[str], lookback_days: int = 30,
         try:
             trader = PaperTrader(
                 symbol,
-                initial_capital=initial_capital,
+                initial_capital=per_symbol_capital,
                 risk_per_trade_pct=RISK_PER_TRADE_PCT,
                 rr_target=3.0,
                 max_drawdown_pct=0.20,
@@ -388,9 +390,10 @@ def run_paper_all(symbols: list[str], lookback_days: int = 30,
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="AMD Paper Trader")
     parser.add_argument("--live", action="store_true", help="Live/paper trading mode")
-    parser.add_argument("--capital", type=float, default=INITIAL_CAPITAL, help="Initial capital per symbol")
+    parser.add_argument("--capital", type=float, default=INITIAL_CAPITAL, help="Total initial portfolio capital allocated across symbols")
     parser.add_argument("--symbols", nargs="+", default=FUTURES_ASSETS, help="Symbols to trade")
     parser.add_argument("--lookback", type=int, default=30, help="Lookback days")
     args = parser.parse_args()
 
     run_paper_all(args.symbols, lookback_days=args.lookback, initial_capital=args.capital)
+
