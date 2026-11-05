@@ -3,6 +3,7 @@ import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import json
 from datetime import datetime, timezone, timedelta
+from pathlib import Path
 import yfinance as yf
 import pandas as pd
 import numpy as np
@@ -178,6 +179,28 @@ def run_adaptive_weighted_strategy():
         'trade_history': trade_history
     }
 
+    # Save price snapshot after each run
+    snapshot_dir = Path("price_snapshots")
+    snapshot_dir.mkdir(exist_ok=True)
+
+    snapshot = {
+        "strategy": "adaptive",
+        "timestamp": now_utc.isoformat(),
+        "tickers": tickers,
+        "dates": [str(d) for d in close_prices.index],
+        "close": {t: close_prices[t].tolist() for t in tickers},
+        "volume": {t: volumes[t].tolist() for t in tickers},
+        "signals": asset_signals,
+        "confidences": asset_confidences,
+        "weights": {t: float(target_weights[i]) for i, t in enumerate(tickers)},
+        "last_prices": latest_prices,
+        "portfolio_value": current_portfolio_val
+    }
+
+    snap_file = snapshot_dir / f"adaptive_{now_utc.strftime('%Y%m%d_%H%M%S')}.json"
+    with open(snap_file, "w") as f:
+        json.dump(snapshot, f)
+
     with open(STATE_FILE, 'w') as f:
         json.dump(new_state, f, indent=2)
 
@@ -196,3 +219,4 @@ def run_adaptive_weighted_strategy():
 
 if __name__ == '__main__':
     run_adaptive_weighted_strategy()
+
