@@ -3,11 +3,11 @@
   "peak_equity": 10000.0,
   "weights": {
     "BTC-USD": 0.0,
-    "ETH-USD": 0.3036716835091935,
+    "ETH-USD": 0.0,
     "SOL-USD": 0.0,
     "BNB-USD": 0.0,
-    "XRP-USD": 0.1807436697512539,
-    "ADA-USD": -0.00578498333621551,
+    "XRP-USD": 0.0,
+    "ADA-USD": 0.0,
     "DOT-USD": 0.0,
     "LINK-USD": 0.0,
     "AVAX-USD": 0.0
@@ -25,7 +25,7 @@
   },
   "last_updated": "2026-11-05T13:31:54.422940+00:00",
   "last_updated_ist": "05 Nov 2026, 07:01:54 PM IST",
-  "last_action": "LONG ETH-USD (30.4%) @ $2,383.48, LONG XRP-USD (18.1%) @ $1.30",
+  "last_action": "100% CASH (Neutral)",
   "last_period_return_pct": -0.562,
   "last_period_pnl_usd": -54.87,
   "trade_history": [

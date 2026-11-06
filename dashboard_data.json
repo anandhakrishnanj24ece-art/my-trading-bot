@@ -5,11 +5,11 @@
     "portfolio_value": 10000.0,
     "weights": {
       "BTC-USD": 0.0,
-      "ETH-USD": 0.8,
+      "ETH-USD": 0.0,
       "SOL-USD": 0.0,
       "BNB-USD": 0.0,
-      "XRP-USD": 0.7890558752856804,
-      "ADA-USD": -0.02480353955046573,
+      "XRP-USD": 0.0,
+      "ADA-USD": 0.0,
       "DOT-USD": 0.0,
       "LINK-USD": 0.0,
       "AVAX-USD": 0.0
@@ -27,7 +27,7 @@
     },
     "last_updated": "2026-11-05T13:31:51.354641+00:00",
     "last_updated_ist": "05 Nov 2026, 07:01:51 PM IST",
-    "last_action": "LONG ETH-USD (80.0%) @ $2,383.68, LONG XRP-USD (78.9%) @ $1.30, SHORT ADA-USD (2.5%) @ $0.19",
+    "last_action": "100% CASH (Neutral)",
     "last_period_return_pct": -4.225,
     "last_period_pnl_usd": -377.85,
     "trade_history": [
@@ -299,11 +299,11 @@
     "peak_equity": 10000.0,
     "weights": {
       "BTC-USD": 0.0,
-      "ETH-USD": 0.3036716835091935,
+      "ETH-USD": 0.0,
       "SOL-USD": 0.0,
       "BNB-USD": 0.0,
-      "XRP-USD": 0.1807436697512539,
-      "ADA-USD": -0.00578498333621551,
+      "XRP-USD": 0.0,
+      "ADA-USD": 0.0,
       "DOT-USD": 0.0,
       "LINK-USD": 0.0,
       "AVAX-USD": 0.0
