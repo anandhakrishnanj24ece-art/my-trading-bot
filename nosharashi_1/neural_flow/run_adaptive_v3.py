@@ -144,6 +144,14 @@ def run_adaptive_v3():
     close_prices = close_prices.loc[common_index]
     volumes = volumes.loc[common_index]
 
+    # Candle-close safety check (Crypto daily closes at 00:00 UTC; allow run after 01:00 UTC)
+    now_utc = datetime.now(timezone.utc)
+    last_bar_date = close_prices.index[-1].date() if hasattr(close_prices.index[-1], 'date') else pd.to_datetime(close_prices.index[-1]).date()
+
+    if last_bar_date == now_utc.date() and now_utc.hour < 1:
+        print(f"[{now_utc.isoformat()}] Daily candle not closed yet (current hour: {now_utc.hour} UTC, last bar date: {last_bar_date}). Skipping trade.")
+        return
+
     alpha_engine = LiquidityAlpha()
     execution_engine = StealthExecution()
     risk_manager = ProRiskManagerV3()

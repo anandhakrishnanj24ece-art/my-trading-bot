@@ -2,7 +2,7 @@ name: 24x7 Paper Trading Bot
 
 on:
   schedule:
-    - cron: '0 * * * *' # Runs every hour
+    - cron: '0 1 * * *' # Runs daily at 01:00 UTC (after crypto daily candle closes at 00:00 UTC)
   workflow_dispatch: # Manual trigger
 
 permissions:
