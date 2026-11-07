@@ -42,7 +42,7 @@ def run_ytd_test():
     # Keep track of stats for the final report
     daily_rets = []
 
-    for i in range(len(returns)):
+    for i in range(len(returns) - 1):
         asset_signals = []
         for ticker in tickers:
             if ticker not in close_prices.columns:
@@ -80,7 +80,7 @@ def run_ytd_test():
         lev = risk_engine.get_leverage(btc_rets.iloc[:i+1])
         final_weights = weights * lev
         
-        day_return = (returns.iloc[i] @ final_weights)
+        day_return = (returns.iloc[i + 1] @ final_weights)
         turnover = np.sum(np.abs(final_weights - current_weights))
         costs = execution_engine.calculate_cost(turnover)
         
@@ -94,7 +94,7 @@ def run_ytd_test():
     
     strategy_rets = pd.Series(daily_rets)
     sharpe = (strategy_rets.mean()/strategy_rets.std() * np.sqrt(252)) if strategy_rets.std() != 0 else 0
-    mdd = (1 - pd.Series(portfolio_value).cummax()/pd.Series(portfolio_value)).max()
+    mdd = (1 - pd.Series(portfolio_value) / pd.Series(portfolio_value).cummax()).max()
 
     print("\n" + "="*40)
     print(f"YTD RESULTS (Jan 1 - Now)")

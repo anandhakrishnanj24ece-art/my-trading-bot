@@ -36,7 +36,7 @@ def run_lifecycle_analysis():
     # We only simulate the last 15 days to keep the log readable
     test_start_idx = max(0, len(returns) - 15)
     
-    for i in range(test_start_idx, len(returns)):
+    for i in range(test_start_idx, len(returns) - 1):
         asset_signals = []
         for ticker in tickers:
             asset_data = pd.DataFrame({'Close': close_prices[ticker], 'Volume': volumes[ticker]})
@@ -77,7 +77,7 @@ def run_lifecycle_analysis():
                 print(f"{returns.index[i].date():<12} | {ticker[:3]:<8} | {signals[idx]:>8.2f} | {confs[idx]:>6.2f} | {new_w:>9.2%} | {action}")
         
         current_weights = final_weights
-        day_return = (returns.iloc[i] @ final_weights)
+        day_return = (returns.iloc[i + 1] @ final_weights)
         portfolio_value.append(portfolio_value[-1] * (1 + day_return))
 
 if __name__ == '__main__':

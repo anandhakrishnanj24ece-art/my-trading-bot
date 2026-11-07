@@ -1,5 +1,6 @@
 __pycache__/
 *.py[cod]
 *$py.class
+*.pkl
 .DS_Store
 Thumbs.db

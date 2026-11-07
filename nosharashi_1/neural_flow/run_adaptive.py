@@ -118,6 +118,11 @@ def run_adaptive_weighted_strategy():
         except Exception:
             state = None
 
+    # Idempotency guard: never process the same daily bar twice.
+    if state and state.get('last_bar_date') == str(last_bar_date):
+        print(f"[{now_utc.isoformat()}] No new daily bar since last run ({last_bar_date}). Skipping.")
+        return
+
     if state is not None and 'portfolio_value' in state and 'last_prices' in state:
         prev_portfolio_val = float(state['portfolio_value'])
         prev_prices = state['last_prices']
@@ -160,7 +165,9 @@ def run_adaptive_weighted_strategy():
 
     # Trade History Persistence
     trade_history = state.get('trade_history', []) if state else []
-    period_pnl_usd = (current_portfolio_val - prev_portfolio_val) if (state and 'portfolio_value' in state) else 0.0
+    period_pnl_usd = 0.0
+    if state is not None and 'portfolio_value' in state and 'last_prices' in state:
+        period_pnl_usd = current_portfolio_val - prev_portfolio_val
 
     trade_entry = {
         'timestamp_ist': ist_str,
@@ -179,6 +186,7 @@ def run_adaptive_weighted_strategy():
         'portfolio_value': current_portfolio_val,
         'weights': {t: float(target_weights[i]) for i, t in enumerate(tickers)},
         'last_prices': latest_prices,
+        'last_bar_date': str(last_bar_date),
         'last_updated': now_utc.isoformat(),
         'last_updated_ist': ist_str,
         'last_action': action_summary,

@@ -232,6 +232,9 @@ if __name__ == "__main__":
 
     snap_path = Path(args.snapshots)
     if not snap_path.is_absolute():
-        snap_path = CURRENT_DIR / args.snapshots
+        # Snapshot writers place the directory at the repo package root
+        # (e.g. nosharashi_1/price_snapshots), i.e. one level above neural_flow/.
+        candidates = [CURRENT_DIR / args.snapshots, CURRENT_DIR.parent / args.snapshots]
+        snap_path = next((c for c in candidates if c.exists()), candidates[-1])
 
     backtest_from_snapshot_archive(snap_path, initial_capital=args.capital, strategy=args.strategy)

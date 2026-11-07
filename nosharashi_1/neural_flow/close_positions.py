@@ -42,7 +42,11 @@ def close_positions(state_file='paper_state_adaptive.json',
     # Assemble new state – weights set to zero, balance unchanged
     new_state = {
         'portfolio_value': current_val,
+        # Preserve the high-water mark; dropping it silently resets the
+        # drawdown guard/peak on the next run.
+        'peak_equity': float(state.get('peak_equity', current_val)) if state else current_val,
         'weights': zero_weights,
+        'weights_raw': zero_weights,
         'last_prices': state.get('last_prices', {}) if state else {},
         'last_updated': now_utc.isoformat(),
         'last_updated_ist': ist_str,
@@ -51,6 +55,8 @@ def close_positions(state_file='paper_state_adaptive.json',
         'last_period_pnl_usd': 0.0,
         'trade_history': trade_history
     }
+    if state and 'last_bar_date' in state:
+        new_state['last_bar_date'] = state['last_bar_date']
     # Persist state (overwrites previous file)
     with open(state_file, 'w') as f:
         json.dump(new_state, f, indent=2)

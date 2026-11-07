@@ -47,7 +47,7 @@ def run_past_year_backtest():
     portfolio_value = [1.0]
     current_weights = np.zeros(len(valid_tickers))
     
-    for i in range(len(returns)):
+    for i in range(len(returns) - 1):
         asset_signals = []
         for ticker in valid_tickers:
             asset_data = pd.DataFrame({
@@ -80,7 +80,7 @@ def run_past_year_backtest():
         lev = risk_engine.get_leverage(btc_rets.iloc[:i+1])
         final_weights = weights * lev
         
-        period_return = (returns.iloc[i] @ final_weights)
+        period_return = (returns.iloc[i + 1] @ final_weights)
         turnover = np.sum(np.abs(final_weights - current_weights))
         costs = execution_engine.calculate_cost(turnover)
         
@@ -96,7 +96,7 @@ def run_past_year_backtest():
     print(f"Total Return: {(portfolio_value[-1]-1)*100:.2f}%")
     if len(strategy_rets) > 1 and strategy_rets.std() != 0:
         print(f"Sharpe Ratio: {(strategy_rets.mean()/strategy_rets.std()) * np.sqrt(252):.4f}")
-    print(f"Max Drawdown: {(1 - pd.Series(portfolio_value).cummax()/pd.Series(portfolio_value)).max():.4f}")
+    print(f"Max Drawdown: {(1 - pd.Series(portfolio_value) / pd.Series(portfolio_value).cummax()).max():.4f}")
     
     # Monte Carlo
     mc_results = []

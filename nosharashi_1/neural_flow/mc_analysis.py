@@ -26,7 +26,7 @@ class StrategyRunner:
         portfolio_value = [1.0]
         current_weights = np.zeros(len(tickers))
 
-        for i in range(len(returns)):
+        for i in range(len(returns) - 1):
             asset_signals = []
             for ticker in tickers:
                 asset_data = pd.DataFrame({
@@ -49,7 +49,7 @@ class StrategyRunner:
 
             final_lev = min(vol_lev, kelly_lev) * dd_mult
             final_weights = weights * final_lev
-            period_return = (returns.iloc[i] @ final_weights)
+            period_return = (returns.iloc[i + 1] @ final_weights)
 
             turnover = np.sum(np.abs(final_weights - current_weights))
             costs = self.execution_engine.calculate_cost(turnover)

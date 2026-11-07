@@ -23,7 +23,8 @@ def run_audit(name):
     curr_w = np.zeros(len(tickers))
     daily_rets = []
 
-    for i in range(len(rets)):
+    # No look-ahead: weights formed on bar i earn bar i+1's return.
+    for i in range(len(rets) - 1):
         signals, confs = [], []
         for t in tickers:
             df = pd.DataFrame({'Close': close[t], 'Volume': vol[t]})
@@ -70,7 +71,8 @@ def run_audit(name):
             if np.sum(np.abs(final_w_pre)) > 1.0: final_w_pre /= np.sum(np.abs(final_w_pre))
             
             # v3 Risk
-            recent = rets.tail(20) if i > 20 else rets.iloc[:i+1]
+            # Only data available up to bar i (was rets.tail(20) = future leak).
+            recent = rets.iloc[:i+1].tail(20)
             try:
                 cov = LedoitWolf().fit(recent).covariance_ * 252
             except: cov = recent.cov() * 252
@@ -78,7 +80,7 @@ def run_audit(name):
             lev = min(0.15 / p_vol, 4.0) if p_vol > 0 else 4.0
             final_w = final_w_pre * lev
 
-        day_ret = np.sum(final_w * rets.iloc[i].values)
+        day_ret = np.sum(final_w * rets.iloc[i + 1].values)
         cost = exec_engine.calculate_cost(np.sum(np.abs(final_w - curr_w)))
         net = day_ret - cost
         daily_rets.append(net)
@@ -86,12 +88,13 @@ def run_audit(name):
         curr_w = final_w
 
     s_rets = pd.Series(daily_rets)
-    ann_ret = (np.prod(1 + s_rets) - 1)
+    total_ret = (np.prod(1 + s_rets) - 1)
+    ann_ret = ((1 + total_ret) ** (252.0 / len(s_rets)) - 1) if len(s_rets) else 0.0
     ann_vol = s_rets.std() * np.sqrt(252)
     sharpe = (ann_ret / ann_vol) if ann_vol != 0 else 0
-    mdd = (1 - pd.Series(p_val).cummax() / pd.Series(p_val)).max()
+    mdd = (1 - pd.Series(p_val) / pd.Series(p_val).cummax()).max()
     
-    return {"Strategy": name, "Ret": f"{ann_ret*100:.2f}%", "Vol": f"{ann_vol*100:.2f}%", "Sharpe": f"{sharpe:.4f}", "MDD": f"{mdd*100:.2f}%"}
+    return {"Strategy": name, "Ret": f"{total_ret*100:.2f}%", "Vol": f"{ann_vol*100:.2f}%", "Sharpe": f"{sharpe:.4f}", "MDD": f"{mdd*100:.2f}%"}
 
 if __name__ == "__main__":
     print(pd.DataFrame([run_audit("Weighted"), run_audit("v3")]).to_string(index=False))

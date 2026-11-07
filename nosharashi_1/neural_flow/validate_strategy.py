@@ -39,7 +39,7 @@ def run_validation_suite():
     test_close = close_prices.tail(365)
     test_vol = volumes.tail(365)
 
-    for i in range(len(test_returns)):
+    for i in range(len(test_returns) - 1):
         asset_signals = []
         asset_confidences = []
         for ticker in tickers:
@@ -79,7 +79,7 @@ def run_validation_suite():
         lev = risk_engine.get_leverage(benchmark_rets.iloc[:i+1])
         final_weights = final_weights_pre_lev * lev
 
-        period_return = np.sum(final_weights * test_returns.iloc[i].values)
+        period_return = np.sum(final_weights * test_returns.iloc[i + 1].values)
         costs = execution_engine.calculate_cost(np.sum(np.abs(final_weights - current_weights)))
 
         portfolio_value.append(portfolio_value[-1] * (1 + period_return - costs))
@@ -104,14 +104,14 @@ def run_validation_suite():
         risk_engine_sweep = VolatilitySwitch(base_leverage=lev_val)
         pv_sweep = [1.0]
         cw_sweep = np.zeros(len(tickers))
-        for i in range(len(test_returns)):
+        for i in range(len(test_returns) - 1):
             # Use benchmark asset returns for the leverage sweep as well
             benchmark_rets_sweep = test_returns.iloc[:, 0]
             lev_sweep = risk_engine_sweep.get_leverage(benchmark_rets_sweep.iloc[:i+1])
             # Using weights from the base run log
             w = trade_log[i]['weights'] / (trade_log[i]['lev'] if trade_log[i]['lev'] != 0 else 1)
             final_w = w * lev_sweep
-            p_ret = np.sum(final_w * test_returns.iloc[i].values)
+            p_ret = np.sum(final_w * test_returns.iloc[i + 1].values)
             c = execution_engine.calculate_cost(np.sum(np.abs(final_w - cw_sweep)))
             pv_sweep.append(pv_sweep[-1] * (1 + p_ret - c))
             cw_sweep = final_w
@@ -129,7 +129,7 @@ def run_validation_suite():
     # using the logic trained/defined on the first half.
     pv_wf = [1.0]
     cw_wf = np.zeros(len(tickers))
-    for i in range(len(test_rets_wf)):
+    for i in range(len(test_rets_wf) - 1):
         # Re-calculate signals for the a-priori window
         # Using the logic from the loop above
         # Simplified for script: using existing signals from the log
@@ -141,7 +141,7 @@ def run_validation_suite():
         lev_wf = risk_engine.get_leverage(benchmark_rets_wf.iloc[:mid+i])
 
         final_w = w * lev_wf
-        p_ret = np.sum(final_w * test_rets_wf.iloc[i].values)
+        p_ret = np.sum(final_w * test_rets_wf.iloc[i + 1].values)
         c = execution_engine.calculate_cost(np.sum(np.abs(final_w - cw_wf)))
         pv_wf.append(pv_wf[-1] * (1 + p_ret - c))
         cw_wf = final_w

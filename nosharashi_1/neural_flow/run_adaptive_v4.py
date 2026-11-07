@@ -19,9 +19,9 @@ class AdaptiveWeightedV4:
         self.prev_weights = None
 
     def _sigmoid_scaling(self, p):
-        # S-Curve scaling for conviction
+        # S-Curve scaling for conviction (range [0,1] so cap reaches 50%)
         alpha = 10.0
-        return 0.5 * (1 / (1 + np.exp(-alpha * (p - 0.5))))
+        return 1 / (1 + np.exp(-alpha * (p - 0.5)))
 
     def optimize(self, signals, confidences, market_vol=0.15, anchor_signal=1.0):
         effective_signals = signals * np.sign(anchor_signal)
@@ -127,9 +127,10 @@ def run_adaptive_v4():
     current_weights = np.zeros(len(tickers_list))
 
     print(f"Executing Hyper-Adaptive v4 on {len(tickers_list)} assets...")
-    for i in range(len(returns)):
-        # Macro Anchor: 20-day trend
-        anchor_sig = 1.0 if returns.iloc[max(0, i-20):i+1].mean().mean() > 0 else -1.0
+    # No look-ahead: weights formed on bar i earn bar i+1's return.
+    for i in range(len(returns) - 1):
+        # Macro Anchor: 20-day trend using only bars strictly before i.
+        anchor_sig = 1.0 if (i > 0 and returns.iloc[max(0, i-20):i].mean().mean() > 0) else -1.0
         mkt_vol = returns.iloc[:i+1].std().mean() * np.sqrt(252) if i > 20 else 0.15
 
         asset_signals = []
@@ -149,7 +150,7 @@ def run_adaptive_v4():
         lev = risk_manager.get_portfolio_leverage(weights, returns.iloc[:i+1], len(tickers_list))
         final_weights = weights * lev
 
-        period_return = np.sum(final_weights * returns.iloc[i].values)
+        period_return = np.sum(final_weights * returns.iloc[i + 1].values)
         turnover = np.sum(np.abs(final_weights - current_weights))
         costs = execution_engine.calculate_cost(turnover)
 
@@ -158,7 +159,7 @@ def run_adaptive_v4():
 
     final_val = portfolio_value[-1]
     total_ret = (final_val - 1) * 100
-    max_dd = (1 - pd.Series(portfolio_value).cummax() / pd.Series(portfolio_value)).max()
+    max_dd = (1 - pd.Series(portfolio_value) / pd.Series(portfolio_value).cummax()).max()
 
     print(f"\n--- ADAPTIVE v4 RESULTS ---")
     print(f"Final Portfolio Value: {final_val:.4f}")

@@ -117,7 +117,7 @@ def run_camp2_backtest():
 
     print(f"Final Portfolio Value: {portfolio_value[-1]:.4f}")
     print(f"Sharpe Ratio: { (strategy_rets.mean()/strategy_rets.std()) * np.sqrt(252):.4f}")
-    print(f"Max Drawdown: { (1 - pd.Series(portfolio_value).cummax()/pd.Series(portfolio_value)).max():.4f}")
+    print(f"Max Drawdown: { (1 - pd.Series(portfolio_value) / pd.Series(portfolio_value).cummax()).max():.4f}")
     print(f"MC 5% VaR (1y): {np.percentile(mc_results, 5):.4f}")
 
 if __name__ == '__main__':

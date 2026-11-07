@@ -70,7 +70,7 @@ def run_strategy(mode='adaptive', tickers=[], close_prices=None, volumes=None):
         optimizer = None
         risk_manager = VolatilitySwitch(base_leverage=4.0)
 
-    for i in range(len(returns)):
+    for i in range(len(returns) - 1):
         asset_signals = []
         asset_confidences = []
         for ticker in tickers:
@@ -109,7 +109,7 @@ def run_strategy(mode='adaptive', tickers=[], close_prices=None, volumes=None):
             lev = risk_manager.get_leverage(benchmark_rets.iloc[:i+1])
 
         final_weights = weights * lev
-        period_return = np.sum(final_weights * returns.iloc[i].values)
+        period_return = np.sum(final_weights * returns.iloc[i + 1].values)
         turnover = np.sum(np.abs(final_weights - current_weights))
         costs = execution_engine.calculate_cost(turnover)
 
@@ -142,7 +142,8 @@ def run_audit():
     p_rets, p_turn, p_pv = run_strategy('pro', tickers, close_prices, volumes)
 
     def get_metrics(rets, pv):
-        ann_ret = (np.prod(1 + rets) - 1)
+        total_ret = (np.prod(1 + rets) - 1)
+        ann_ret = ((1 + total_ret) ** (252.0 / len(rets)) - 1) if len(rets) else 0.0
         ann_vol = rets.std() * np.sqrt(252)
         sharpe = (ann_ret / ann_vol) if ann_vol != 0 else 0
 
@@ -150,7 +151,7 @@ def run_audit():
         downside_vol = downside_rets.std() * np.sqrt(252) if not downside_rets.empty else 0
         sortino = (ann_ret / downside_vol) if downside_vol != 0 else np.inf
 
-        mdd = (1 - pd.Series(pv).cummax() / pd.Series(pv)).max()
+        mdd = (1 - pd.Series(pv) / pd.Series(pv).cummax()).max()
         calmar = (ann_ret / mdd) if mdd != 0 else np.inf
         return ann_ret, sharpe, sortino, mdd, calmar
 

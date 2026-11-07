@@ -1,3 +1,10 @@
+"""
+LEGACY AUDIT (pre-improvement).
+
+This script reproduces the old LiquidityAlpha-based v3 and shows why it lost
+money after the look-ahead fix. The improved, live v3 is in
+`run_adaptive_v3.py`; its honest backtest is `backtest_v3_improved.py`.
+"""
 import yfinance as yf
 import pandas as pd
 import numpy as np
@@ -98,7 +105,8 @@ def run_deep_validation():
     equity_curve = [1.0]
 
     print(f"Executing Deep Validation on {len(tickers_list)} assets...")
-    for i in range(len(returns)):
+    # No look-ahead: weights formed on bar i earn bar i+1's return.
+    for i in range(len(returns) - 1):
         mkt_vol = returns.iloc[:i+1].std().mean() * np.sqrt(252) if i > 20 else 0.15
         asset_signals, asset_confidences = [], []
         for ticker in tickers_list:
@@ -116,7 +124,7 @@ def run_deep_validation():
         lev = risk_manager.get_portfolio_leverage(weights, returns.iloc[:i+1])
         final_weights = weights * lev
 
-        period_return = np.sum(final_weights * returns.iloc[i].values)
+        period_return = np.sum(final_weights * returns.iloc[i + 1].values)
         turnover = np.sum(np.abs(final_weights - current_weights))
         costs = execution_engine.calculate_cost(turnover)
 
@@ -130,7 +138,8 @@ def run_deep_validation():
     pv_series = pd.Series(portfolio_value)
 
     # --- QUANT METRICS ---
-    ann_ret = (np.prod(1 + strat_rets) - 1)
+    total_ret = (np.prod(1 + strat_rets) - 1)
+    ann_ret = ((1 + total_ret) ** (252.0 / len(strat_rets)) - 1) if len(strat_rets) else 0.0
     ann_vol = strat_rets.std() * np.sqrt(252)
     sharpe = (ann_ret / ann_vol) if ann_vol != 0 else 0
 
@@ -138,13 +147,14 @@ def run_deep_validation():
     downside_vol = downside_rets.std() * np.sqrt(252) if not downside_rets.empty else 0
     sortino = (ann_ret / downside_vol) if downside_vol != 0 else np.inf
 
-    mdd = (1 - pv_series.cummax() / pv_series).max()
+    mdd = (1 - pv_series / pv_series.cummax()).max()
     calmar = (ann_ret / mdd) if mdd != 0 else np.inf
 
     print("\n" + "="*50)
     print("   DEEP QUANT VALIDATION: ADAPTIVE V3")
     print("="*50)
-    print(f"Total Return:       {ann_ret*100:.2f}%")
+    print(f"Total Return:       {total_ret*100:.2f}%")
+    print(f"Annualized Return:  {ann_ret*100:.2f}%")
     print(f"Annualized Vol:     {ann_vol*100:.2f}%")
     print(f"Sharpe Ratio:       {sharpe:.4f}")
     print(f"Sortino Ratio:      {sortino:.4f}")

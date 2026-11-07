@@ -44,7 +44,7 @@ def run_yearly_analysis():
         portfolio_value = [1.0]
         current_weights = np.zeros(len(tickers))
 
-        for i in range(len(y_ret)):
+        for i in range(len(y_ret) - 1):
             # 1. Signals
             asset_signals = []
             asset_confidences = []
@@ -86,7 +86,7 @@ def run_yearly_analysis():
             fw = fw_pre * lev
 
             # 4. PnL
-            p_ret = np.sum(fw * y_ret.iloc[i].values)
+            p_ret = np.sum(fw * y_ret.iloc[i + 1].values)
             turnover = np.sum(np.abs(fw - current_weights))
             costs = execution_engine.calculate_cost(turnover)
 
@@ -98,7 +98,7 @@ def run_yearly_analysis():
         final_val = portfolio_value[-1]
         ret = (final_val - 1) * 100
         sharpe = (y_strat_rets.mean() / y_strat_rets.std() * np.sqrt(252)) if y_strat_rets.std() != 0 else 0
-        mdd = (1 - pd.Series(portfolio_value).cummax() / pd.Series(portfolio_value)).max()
+        mdd = (1 - pd.Series(portfolio_value) / pd.Series(portfolio_value).cummax()).max()
 
         overall_results.append({
             'Year': year,

@@ -4,292 +4,64 @@
   "weights": {
     "BTC-USD": 0.0,
     "ETH-USD": 0.0,
-    "SOL-USD": 0.0,
     "BNB-USD": 0.0,
     "XRP-USD": 0.0,
     "ADA-USD": 0.0,
+    "SOL-USD": 0.0,
     "DOT-USD": 0.0,
     "LINK-USD": 0.0,
-    "AVAX-USD": 0.0
+    "LTC-USD": 0.0,
+    "DOGE-USD": 0.0,
+    "AVAX-USD": 0.0,
+    "ATOM-USD": 0.0,
+    "NEAR-USD": 0.0,
+    "ALGO-USD": 0.0,
+    "FIL-USD": 0.0
   },
+  "weights_raw": {
+    "BTC-USD": 0.0,
+    "ETH-USD": 0.0,
+    "BNB-USD": 0.0,
+    "XRP-USD": 0.0,
+    "ADA-USD": 0.0,
+    "SOL-USD": 0.0,
+    "DOT-USD": 0.0,
+    "LINK-USD": 0.0,
+    "LTC-USD": 0.0,
+    "DOGE-USD": 0.0,
+    "AVAX-USD": 0.0,
+    "ATOM-USD": 0.0,
+    "NEAR-USD": 0.0,
+    "ALGO-USD": 0.0,
+    "FIL-USD": 0.0
+  },
+  "signal_model": "trend50",
+  "universe": "v3_15",
+  "no_trade_band": 0.02,
+  "regime_on": true,
+  "regime_sma": 150,
   "last_prices": {
-    "BTC-USD": 79527.3671875,
-    "ETH-USD": 2383.47998046875,
-    "SOL-USD": 95.1500015258789,
-    "BNB-USD": 710.0999755859375,
-    "XRP-USD": 1.3044999837875366,
-    "ADA-USD": 0.19479000568389893,
-    "DOT-USD": 0.9351000189781189,
-    "LINK-USD": 11.388999938964844,
-    "AVAX-USD": 8.649999618530273
+    "BTC-USD": 75746.9296875,
+    "ETH-USD": 2235.04736328125,
+    "BNB-USD": 693.1176147460938,
+    "XRP-USD": 1.178078055381775,
+    "ADA-USD": 0.1838890016078949,
+    "SOL-USD": 90.0594253540039,
+    "DOT-USD": 0.9122650027275085,
+    "LINK-USD": 10.844606399536133,
+    "LTC-USD": 52.536251068115234,
+    "DOGE-USD": 0.0723399966955185,
+    "AVAX-USD": 8.329465866088867,
+    "ATOM-USD": 1.3874980211257935,
+    "NEAR-USD": 3.7096400260925293,
+    "ALGO-USD": 0.09542500227689743,
+    "FIL-USD": 0.8159279823303223
   },
-  "last_updated": "2026-11-05T13:31:54.422940+00:00",
-  "last_updated_ist": "05 Nov 2026, 07:01:54 PM IST",
-  "last_action": "100% CASH (Neutral)",
-  "last_period_return_pct": -0.562,
-  "last_period_pnl_usd": -54.87,
-  "trade_history": [
-    {
-      "timestamp_ist": "29 Oct 2026, 08:55:18 PM IST",
-      "action": "LONG BNB-USD (67.0%) @ $750.77",
-      "period_return_pct": 0.257,
-      "period_pnl_usd": 25.76,
-      "portfolio_value": 10063.07,
-      "total_return_pct": 0.63,
-      "max_dd": 0.0
-    },
-    {
-      "timestamp_ist": "30 Oct 2026, 12:57:57 AM IST",
-      "action": "LONG BNB-USD (65.5%) @ $743.06",
-      "period_return_pct": -0.688,
-      "period_pnl_usd": -69.32,
-      "portfolio_value": 9993.74,
-      "total_return_pct": -0.06,
-      "max_dd": 0.0069
-    },
-    {
-      "timestamp_ist": "30 Oct 2026, 05:21:28 AM IST",
-      "action": "100% CASH (Neutral)",
-      "period_return_pct": -3.957,
-      "period_pnl_usd": -399.61,
-      "portfolio_value": 9594.14,
-      "total_return_pct": -4.06,
-      "max_dd": 0.0466
-    },
-    {
-      "timestamp_ist": "30 Oct 2026, 10:30:35 AM IST",
-      "action": "100% CASH (Neutral)",
-      "period_return_pct": 0.0,
-      "period_pnl_usd": 0.0,
-      "portfolio_value": 9594.14,
-      "total_return_pct": -4.06,
-      "max_dd": 0.0466
-    },
-    {
-      "timestamp_ist": "30 Oct 2026, 05:56:20 PM IST",
-      "action": "100% CASH (Neutral)",
-      "period_return_pct": 0.0,
-      "period_pnl_usd": 0.0,
-      "portfolio_value": 9594.14,
-      "total_return_pct": -4.06,
-      "max_dd": 0.0466
-    },
-    {
-      "timestamp_ist": "30 Oct 2026, 11:58:44 PM IST",
-      "action": "100% CASH (Neutral)",
-      "period_return_pct": 0.0,
-      "period_pnl_usd": 0.0,
-      "portfolio_value": 9594.14,
-      "total_return_pct": -4.06,
-      "max_dd": 0.0466
-    },
-    {
-      "timestamp_ist": "31 Oct 2026, 04:21:25 AM IST",
-      "action": "100% CASH (Neutral)",
-      "period_return_pct": 0.0,
-      "period_pnl_usd": 0.0,
-      "portfolio_value": 9594.14,
-      "total_return_pct": -4.06,
-      "max_dd": 0.0466
-    },
-    {
-      "timestamp_ist": "31 Oct 2026, 07:38:08 AM IST",
-      "action": "100% CASH (Neutral)",
-      "period_return_pct": 0.0,
-      "period_pnl_usd": 0.0,
-      "portfolio_value": 9594.14,
-      "total_return_pct": -4.06,
-      "max_dd": 0.0466
-    },
-    {
-      "timestamp_ist": "31 Oct 2026, 02:54:51 PM IST",
-      "action": "100% CASH (Neutral)",
-      "period_return_pct": 0.0,
-      "period_pnl_usd": 0.0,
-      "portfolio_value": 9594.14,
-      "total_return_pct": -4.06,
-      "max_dd": 0.0466
-    },
-    {
-      "timestamp_ist": "31 Oct 2026, 09:08:56 PM IST",
-      "action": "SHORT XRP-USD (38.6%) @ $1.25",
-      "period_return_pct": 0.0,
-      "period_pnl_usd": -2.37,
-      "portfolio_value": 9591.76,
-      "total_return_pct": -4.08,
-      "max_dd": 0.0468
-    },
-    {
-      "timestamp_ist": "01 Nov 2026, 01:18:03 AM IST",
-      "action": "SHORT XRP-USD (38.6%) @ $1.25",
-      "period_return_pct": 0.031,
-      "period_pnl_usd": 2.96,
-      "portfolio_value": 9594.72,
-      "total_return_pct": -4.05,
-      "max_dd": 0.0465
-    },
-    {
-      "timestamp_ist": "01 Nov 2026, 04:42:38 AM IST",
-      "action": "SHORT XRP-USD (38.6%) @ $1.25",
-      "period_return_pct": 0.018,
-      "period_pnl_usd": 1.77,
-      "portfolio_value": 9596.49,
-      "total_return_pct": -4.04,
-      "max_dd": 0.0464
-    },
-    {
-      "timestamp_ist": "01 Nov 2026, 10:41:36 AM IST",
-      "action": "SHORT XRP-USD (38.5%) @ $1.25",
-      "period_return_pct": -0.009,
-      "period_pnl_usd": -0.89,
-      "portfolio_value": 9595.6,
-      "total_return_pct": -4.04,
-      "max_dd": 0.0465
-    },
-    {
-      "timestamp_ist": "01 Nov 2026, 06:24:48 PM IST",
-      "action": "SHORT XRP-USD (41.8%) @ $1.25",
-      "period_return_pct": 0.052,
-      "period_pnl_usd": 4.82,
-      "portfolio_value": 9600.42,
-      "total_return_pct": -4.0,
-      "max_dd": 0.046
-    },
-    {
-      "timestamp_ist": "01 Nov 2026, 11:49:39 PM IST",
-      "action": "SHORT XRP-USD (41.8%) @ $1.25",
-      "period_return_pct": 0.084,
-      "period_pnl_usd": 8.03,
-      "portfolio_value": 9608.45,
-      "total_return_pct": -3.92,
-      "max_dd": 0.0452
-    },
-    {
-      "timestamp_ist": "02 Nov 2026, 04:08:29 AM IST",
-      "action": "SHORT XRP-USD (41.8%) @ $1.24",
-      "period_return_pct": 0.091,
-      "period_pnl_usd": 8.7,
-      "portfolio_value": 9617.16,
-      "total_return_pct": -3.83,
-      "max_dd": 0.0443
-    },
-    {
-      "timestamp_ist": "02 Nov 2026, 07:41:25 AM IST",
-      "action": "SHORT XRP-USD (41.7%) @ $1.25",
-      "period_return_pct": -0.326,
-      "period_pnl_usd": -31.37,
-      "portfolio_value": 9585.79,
-      "total_return_pct": -4.14,
-      "max_dd": 0.0474
-    },
-    {
-      "timestamp_ist": "02 Nov 2026, 04:13:58 PM IST",
-      "action": "SHORT XRP-USD (42.6%) @ $1.25",
-      "period_return_pct": 0.21,
-      "period_pnl_usd": 20.03,
-      "portfolio_value": 9605.82,
-      "total_return_pct": -3.94,
-      "max_dd": 0.0454
-    },
-    {
-      "timestamp_ist": "03 Nov 2026, 04:01:51 AM IST",
-      "action": "SHORT XRP-USD (42.6%) @ $1.25",
-      "period_return_pct": -0.038,
-      "period_pnl_usd": -3.62,
-      "portfolio_value": 9602.21,
-      "total_return_pct": -3.98,
-      "max_dd": 0.0458
-    },
-    {
-      "timestamp_ist": "03 Nov 2026, 09:10:56 AM IST",
-      "action": "SHORT XRP-USD (42.5%) @ $1.25",
-      "period_return_pct": 0.034,
-      "period_pnl_usd": 3.27,
-      "portfolio_value": 9605.48,
-      "total_return_pct": -3.95,
-      "max_dd": 0.0455
-    },
-    {
-      "timestamp_ist": "03 Nov 2026, 04:52:54 PM IST",
-      "action": "SHORT XRP-USD (43.1%) @ $1.26",
-      "period_return_pct": -0.304,
-      "period_pnl_usd": -29.21,
-      "portfolio_value": 9576.27,
-      "total_return_pct": -4.24,
-      "max_dd": 0.0484
-    },
-    {
-      "timestamp_ist": "04 Nov 2026, 12:02:43 AM IST",
-      "action": "100% CASH (Neutral)",
-      "period_return_pct": -0.913,
-      "period_pnl_usd": -90.08,
-      "portfolio_value": 9486.19,
-      "total_return_pct": -5.14,
-      "max_dd": 0.0573
-    },
-    {
-      "timestamp_ist": "04 Nov 2026, 05:08:49 AM IST",
-      "action": "100% CASH (Neutral)",
-      "period_return_pct": 0.0,
-      "period_pnl_usd": 0.0,
-      "portfolio_value": 9486.19,
-      "total_return_pct": -5.14,
-      "max_dd": 0.0573
-    },
-    {
-      "timestamp_ist": "04 Nov 2026, 08:47:52 AM IST",
-      "action": "100% CASH (Neutral)",
-      "period_return_pct": 0.0,
-      "period_pnl_usd": 0.0,
-      "portfolio_value": 9486.19,
-      "total_return_pct": -5.14,
-      "max_dd": 0.0573
-    },
-    {
-      "timestamp_ist": "04 Nov 2026, 04:42:45 PM IST",
-      "action": "100% CASH (Neutral)",
-      "period_return_pct": 0.0,
-      "period_pnl_usd": 0.0,
-      "portfolio_value": 9486.19,
-      "total_return_pct": -5.14,
-      "max_dd": 0.0573
-    },
-    {
-      "timestamp_ist": "05 Nov 2026, 12:10:49 AM IST",
-      "action": "LONG BTC-USD (15.5%) @ $80,336.73, LONG ETH-USD (22.4%) @ $2,423.90, LONG XRP-USD (14.4%) @ $1.31",
-      "period_return_pct": 0.0,
-      "period_pnl_usd": -3.18,
-      "portfolio_value": 9483.01,
-      "total_return_pct": -5.17,
-      "max_dd": 0.0576
-    },
-    {
-      "timestamp_ist": "05 Nov 2026, 05:26:48 AM IST",
-      "action": "LONG BTC-USD (16.5%) @ $80,453.52, LONG ETH-USD (23.3%) @ $2,423.43, LONG XRP-USD (12.7%) @ $1.30",
-      "period_return_pct": -0.028,
-      "period_pnl_usd": -2.87,
-      "portfolio_value": 9480.14,
-      "total_return_pct": -5.2,
-      "max_dd": 0.0579
-    },
-    {
-      "timestamp_ist": "05 Nov 2026, 11:13:53 AM IST",
-      "action": "LONG BTC-USD (15.1%) @ $80,384.90, LONG ETH-USD (23.4%) @ $2,420.92, LONG XRP-USD (13.9%) @ $1.31",
-      "period_return_pct": -0.001,
-      "period_pnl_usd": -0.27,
-      "portfolio_value": 9479.87,
-      "total_return_pct": -5.2,
-      "max_dd": 0.058
-    },
-    {
-      "timestamp_ist": "05 Nov 2026, 07:01:54 PM IST",
-      "action": "LONG ETH-USD (30.4%) @ $2,383.48, LONG XRP-USD (18.1%) @ $1.30",
-      "period_return_pct": -0.562,
-      "period_pnl_usd": -54.87,
-      "portfolio_value": 9424.99,
-      "total_return_pct": -5.75,
-      "max_dd": 0.0634
-    }
-  ]
+  "last_bar_date": "2026-11-06",
+  "last_updated": "2026-11-07T17:42:54.185349+00:00",
+  "last_updated_ist": "07 Nov 2026, 11:12:54 PM IST",
+  "last_action": "100% CASH (fresh $10,000 forward test; 15-asset v3)",
+  "last_period_return_pct": 0.0,
+  "last_period_pnl_usd": 0.0,
+  "trade_history": []
 }
-

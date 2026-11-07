@@ -29,8 +29,8 @@ def run_neural_flow_adaptive_backtest():
     portfolio_value = [1.0]
     current_weights = np.zeros(len(tickers))
 
-    # 3. Backtest Loop
-    for i in range(len(returns)):
+    # 3. Backtest Loop (weights formed on bar i earn bar i+1's return)
+    for i in range(len(returns) - 1):
         # a. Signal Generation
         asset_signals = []
         asset_confidences = []
@@ -75,7 +75,7 @@ def run_neural_flow_adaptive_backtest():
         final_weights = final_weights_pre_lev * lev
 
         # c. PnL and Costs
-        period_return = np.sum(final_weights * returns.iloc[i].values)
+        period_return = np.sum(final_weights * returns.iloc[i + 1].values)
         turnover = np.sum(np.abs(final_weights - current_weights))
         costs = execution_engine.calculate_cost(turnover)
 
@@ -93,7 +93,7 @@ def run_neural_flow_adaptive_backtest():
     print(f"Final Portfolio Value: {portfolio_value[-1]:.4f}")
     print(f"Total Return: {(portfolio_value[-1]-1)*100:.2f}%")
     print(f"Sharpe Ratio: {(strategy_rets.mean()/strategy_rets.std()) * np.sqrt(252):.4f}")
-    print(f"Max Drawdown: {(1 - pd.Series(portfolio_value).cummax()/pd.Series(portfolio_value)).max():.4f}")
+    print(f"Max Drawdown: {(1 - pd.Series(portfolio_value) / pd.Series(portfolio_value).cummax()).max():.4f}")
     print(f"MC 5% VaR (1y): {np.percentile(mc_results, 5):.4f}")
 
 if __name__ == '__main__':

@@ -36,7 +36,7 @@ def run_quant_audit():
     all_predictions = []
     all_actuals = []
 
-    for i in range(len(returns)):
+    for i in range(len(returns) - 1):
         asset_signals = []
         asset_confidences = []
 
@@ -88,7 +88,7 @@ def run_quant_audit():
         lev = risk_engine.get_leverage(benchmark_rets.iloc[:i+1])
         final_weights = final_weights_pre_lev * lev
 
-        period_return = np.sum(final_weights * returns.iloc[i].values)
+        period_return = np.sum(final_weights * returns.iloc[i + 1].values)
         costs = execution_engine.calculate_cost(np.sum(np.abs(final_weights - current_weights)))
 
         net_return = period_return - costs
@@ -103,7 +103,8 @@ def run_quant_audit():
     print("="*40)
 
     # --- METRIC 1: RISK-ADJUSTED PERFORMANCE ---
-    ann_ret = (np.prod(1 + strat_rets_series) - 1)
+    total_ret = (np.prod(1 + strat_rets_series) - 1)
+    ann_ret = ((1 + total_ret) ** (252.0 / len(strat_rets_series)) - 1) if len(strat_rets_series) else 0.0
     ann_vol = strat_rets_series.std() * np.sqrt(252)
     sharpe = (ann_ret / ann_vol) if ann_vol != 0 else 0
 
@@ -111,7 +112,7 @@ def run_quant_audit():
     downside_vol = downside_rets.std() * np.sqrt(252) if not downside_rets.empty else 0
     sortino = (ann_ret / downside_vol) if downside_vol != 0 else np.inf
 
-    max_dd = (1 - pd.Series(portfolio_value).cummax() / pd.Series(portfolio_value)).max()
+    max_dd = (1 - pd.Series(portfolio_value) / pd.Series(portfolio_value).cummax()).max()
     calmar = (ann_ret / max_dd) if max_dd != 0 else np.inf
 
     print(f"\n[1] Risk-Adjusted Metrics:")
@@ -176,7 +177,7 @@ def run_quant_audit():
     # --- METRIC 4: SCALABILITY (TURNOVER) ---
     turnovers = []
     current_weights = np.zeros(len(tickers))
-    for i in range(len(returns)):
+    for i in range(len(returns) - 1):
         # Recalculate weights just for turnover
         asset_signals = []
         for ticker in tickers:

@@ -1,0 +1,32 @@
+{
+  "strategy": "trend_vol",
+  "portfolio_value": 10000.0,
+  "peak_equity": 10000.0,
+  "weights": {
+    "BTC-USD": 0.0,
+    "ETH-USD": 0.0
+  },
+  "last_prices": {
+    "BTC-USD": 75841.2890625,
+    "ETH-USD": 2242.4599609375
+  },
+  "last_bar_date": "2026-11-07",
+  "last_updated": "2026-11-07T14:08:33.349724+00:00",
+  "last_updated_ist": "07 Nov 2026, 07:38:33 PM IST",
+  "last_action": "100% CASH (Neutral)",
+  "last_period_return_pct": 0.0,
+  "last_period_pnl_usd": 0.0,
+  "last_turnover": 0.0,
+  "last_costs": 0.0,
+  "trade_history": [
+    {
+      "timestamp_ist": "07 Nov 2026, 07:38:33 PM IST",
+      "action": "100% CASH (Neutral)",
+      "period_return_pct": 0.0,
+      "period_pnl_usd": 0.0,
+      "portfolio_value": 10000.0,
+      "total_return_pct": 0.0,
+      "max_dd": 0.0
+    }
+  ]
+}

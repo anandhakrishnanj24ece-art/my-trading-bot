@@ -1,15 +1,15 @@
-name: 24x7 Multi-Strategy Paper Trading & AMD Hub
+name: AMD Intraday Paper Trader
 
 on:
   schedule:
-    - cron: '*/6 * * * *' # Runs every 6 minutes
+    - cron: '*/6 * * * *' # Intraday AMD bot only; daily adaptive runs in adaptive_daily.yml
   workflow_dispatch: # Manual trigger
 
 permissions:
   contents: write
 
 jobs:
-  execute-strategies:
+  amd-intraday:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -24,56 +24,15 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run Adaptive Weighted Strategy
-        run: |
-          cd nosharashi_1
-          export PYTHONPATH=$(pwd)
-          python neural_flow/run_adaptive.py
-
-      - name: Run Adaptive v3 Strategy
-        run: |
-          cd nosharashi_1
-          export PYTHONPATH=$(pwd)
-          python neural_flow/run_adaptive_v3.py
-
       - name: Run AMD Smart Money Futures Paper Trader
         run: |
           export PYTHONPATH=$(pwd)
           python amd_paper_trader.py --live --capital 10000 --symbols BTC-USD ETH-USD SOL-USD BNB-USD XRP-USD
 
-      - name: Generate Live Dashboard Feed & Update Docs
-        run: |
-          cd nosharashi_1
-          python -c "
-          import json, datetime
-          try:
-              with open('paper_state_adaptive.json') as f: s1 = json.load(f)
-          except: s1 = {}
-          try:
-              with open('paper_state_v3.json') as f: s2 = json.load(f)
-          except: s2 = {}
-          try:
-              with open('../paper_state.json') as f: s3 = json.load(f)
-          except: s3 = {}
-          feed = {
-              'updated_at': datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC'),
-              'updated_at_ist': datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=5, minutes=30))).strftime('%d %b %Y, %I:%M:%S %p IST'),
-              'adaptive': s1,
-              'v3': s2,
-              'amd': s3,
-              'history_adaptive': s1.get('trade_history', []),
-              'history_v3': s2.get('trade_history', [])
-          }
-          with open('../dashboard_data.json', 'w') as f:
-              json.dump(feed, f, indent=2)
-          "
-          python update_history_md.py
-
-      - name: Commit & Push Balance Updates
+      - name: Commit & Push AMD state
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add nosharashi_1/paper_balance*.txt nosharashi_1/paper_state*.json nosharashi_1/price_snapshots/*.json paper_state.json equity_history.json dashboard_data.json index.html TRADE_HISTORY.md
-          git commit -m "Auto-update paper trading balances, AMD state and live dashboard [skip ci]" || echo "No balance change to commit"
+          git add paper_state.json equity_history.json
+          git commit -m "Auto-update AMD paper state [skip ci]" || echo "No AMD change to commit"
           git push
-

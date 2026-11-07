@@ -38,7 +38,7 @@ def run_year_backtest(year, tickers):
     current_weights = np.zeros(len(tickers))
     
     trade_count = 0
-    for i in range(len(returns)):
+    for i in range(len(returns) - 1):
         asset_signals = []
         for ticker in tickers:
             # Create a slice for the asset
@@ -74,7 +74,7 @@ def run_year_backtest(year, tickers):
         lev = risk_engine.get_leverage(btc_rets.iloc[:i+1])
         final_weights = weights * lev
         
-        period_return = (returns.iloc[i] @ final_weights)
+        period_return = (returns.iloc[i + 1] @ final_weights)
         turnover = np.sum(np.abs(final_weights - current_weights))
         costs = execution_engine.calculate_cost(turnover)
         
@@ -90,7 +90,7 @@ def run_year_backtest(year, tickers):
     print(f"Total Return: {(portfolio_value[-1]-1)*100:.2f}%")
     if len(strategy_rets) > 1 and strategy_rets.std() != 0:
         print(f"Sharpe Ratio: {(strategy_rets.mean()/strategy_rets.std()) * np.sqrt(252):.4f}")
-    print(f"Max Drawdown: {(1 - pd.Series(portfolio_value).cummax()/pd.Series(portfolio_value)).max():.4f}")
+    print(f"Max Drawdown: {(1 - pd.Series(portfolio_value) / pd.Series(portfolio_value).cummax()).max():.4f}")
 
 if __name__ == '__main__':
     tickers = ['BTC-USD', 'ETH-USD', 'SOL-USD', 'BNB-USD', 'XRP-USD', 'ADA-USD', 'DOT-USD', 'POL-USD', 'LINK-USD', 'AVAX-USD']

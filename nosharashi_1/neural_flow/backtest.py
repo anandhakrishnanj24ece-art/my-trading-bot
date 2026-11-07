@@ -29,7 +29,7 @@ class StrategyRunner:
         portfolio_value = [1.0]
         current_weights = np.zeros(len(tickers))
 
-        for i in range(len(returns)):
+        for i in range(len(returns) - 1):
             # 1. Alpha Generation
             asset_signals = []
             for ticker in tickers:
@@ -65,8 +65,8 @@ class StrategyRunner:
             # Final Weights
             final_weights = weights * final_lev
 
-            # 5. PnL Calculation
-            period_return = (returns.iloc[i] @ final_weights)
+            # 5. PnL Calculation (weights formed at bar i earn bar i+1's return)
+            period_return = (returns.iloc[i + 1] @ final_weights)
 
             # 6. Execution Costs
             turnover = np.sum(np.abs(final_weights - current_weights))
@@ -95,7 +95,7 @@ def run_neural_flow_backtest():
     print(f"--- NEURAL-FLOW STABILIZED RESULTS ---")
     print(f"Final Portfolio Value: {portfolio_value[-1]:.4f}")
     print(f"Total Return: {(portfolio_value[-1]-1)*100:.2f}%")
-    print(f"Max Drawdown: {(1 - pd.Series(portfolio_value).cummax()/pd.Series(portfolio_value)).max():.4f}")
+    print(f"Max Drawdown: {(1 - pd.Series(portfolio_value) / pd.Series(portfolio_value).cummax()).max():.4f}")
 
 if __name__ == '__main__':
     run_neural_flow_backtest()

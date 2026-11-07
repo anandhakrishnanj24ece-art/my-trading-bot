@@ -45,7 +45,7 @@ def run_7_day_test():
     print(f"{'Date':<12} | {'Return %':<12} | {'Equity':<12} | {'Max Conf':<10}")
     print("-" * 50)
 
-    for i in range(test_start_idx, len(returns)):
+    for i in range(test_start_idx, len(returns) - 1):
         asset_signals = []
         for ticker in tickers:
             if ticker not in close_prices.columns:
@@ -81,7 +81,7 @@ def run_7_day_test():
         lev = risk_engine.get_leverage(btc_rets.iloc[:i+1])
         final_weights = weights * lev
         
-        day_return = (returns.iloc[i] @ final_weights)
+        day_return = (returns.iloc[i + 1] @ final_weights)
         turnover = np.sum(np.abs(final_weights - current_weights))
         costs = execution_engine.calculate_cost(turnover)
         

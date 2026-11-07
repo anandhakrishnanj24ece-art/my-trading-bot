@@ -131,7 +131,8 @@ def run_adaptive_pro():
     current_weights = np.zeros(len(tickers))
 
     print(f"Executing Adaptive Pro Strategy on {len(tickers)} assets...")
-    for i in range(len(returns)):
+    # No look-ahead: weights formed on bar i earn bar i+1's return.
+    for i in range(len(returns) - 1):
         asset_signals = []
         asset_confidences = []
 
@@ -154,7 +155,7 @@ def run_adaptive_pro():
         final_weights = weights * lev
 
         # PnL and Costs
-        period_return = np.sum(final_weights * returns.iloc[i].values)
+        period_return = np.sum(final_weights * returns.iloc[i + 1].values)
         turnover = np.sum(np.abs(final_weights - current_weights))
         costs = execution_engine.calculate_cost(turnover)
 
@@ -163,7 +164,7 @@ def run_adaptive_pro():
 
     final_val = portfolio_value[-1]
     total_ret = (final_val - 1) * 100
-    max_dd = (1 - pd.Series(portfolio_value).cummax() / pd.Series(portfolio_value)).max()
+    max_dd = (1 - pd.Series(portfolio_value) / pd.Series(portfolio_value).cummax()).max()
 
     print(f"\n--- ADAPTIVE PRO STRATEGY RESULTS ---")
     print(f"Final Portfolio Value: {final_val:.4f}")

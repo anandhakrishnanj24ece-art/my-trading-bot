@@ -34,7 +34,7 @@ def run_yesterday_test():
     execution_engine = StealthExecution()
     risk_engine = VolatilitySwitch(base_leverage=4.0)
     
-    i = len(returns) - 1
+    i = len(returns) - 2
     
     asset_signals = []
     for ticker in tickers:
@@ -76,7 +76,7 @@ def run_yesterday_test():
     lev = risk_engine.get_leverage(btc_rets.iloc[:i+1])
     final_weights = weights * lev
     
-    day_return = (returns.iloc[i] @ final_weights)
+    day_return = (returns.iloc[i + 1] @ final_weights)
     turnover = np.sum(np.abs(final_weights))
     costs = execution_engine.calculate_cost(turnover)
     
