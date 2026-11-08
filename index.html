@@ -138,7 +138,7 @@
 
         <div class="mt-5 pt-4 border-t border-white/5 grid grid-cols-3 gap-2 text-center">
           <div>
-            <span class="text-[11px] text-slate-400 block">Dynamic Leverage</span>
+            <span class="text-[11px] text-slate-400 block">Leverage / Max DD</span>
             <span id="s1Leverage" class="text-sm font-bold mono text-slate-200">---</span>
           </div>
           <div>
@@ -682,9 +682,14 @@
           : 'px-2.5 py-1 rounded-lg text-sm font-bold mono bg-rose-500/10 text-rose-400 border border-rose-500/20';
 
         const ddEl = document.getElementById(prefix + 'Drawdown');
-        if (ddEl && state.peak_equity && state.portfolio_value) {
-          const dd = Math.max(0, (state.peak_equity - state.portfolio_value) / state.peak_equity) * 100.0;
-          ddEl.innerText = dd.toFixed(2) + '%';
+        if (ddEl) {
+          let dd = Number(state.max_dd);
+          if (!Number.isFinite(dd)) {
+            dd = (state.peak_equity && state.portfolio_value)
+              ? Math.max(0, (state.peak_equity - state.portfolio_value) / state.peak_equity)
+              : 0.0;
+          }
+          ddEl.innerText = (dd * 100).toFixed(2) + '%';
         }
 
         document.getElementById(prefix + 'LastTimeIST').innerText = state.last_updated_ist || '---';
@@ -703,8 +708,15 @@
       renderStrategyCard('s3', s3);
 
       const levEl = document.getElementById('s1Leverage');
-      if (levEl && s1.leverage != null) {
-        levEl.innerText = Number(s1.leverage).toFixed(2) + 'x';
+      if (levEl) {
+        const levText = s1.leverage != null ? Number(s1.leverage).toFixed(2) + 'x' : '---';
+        let dd = Number(s1.max_dd);
+        if (!Number.isFinite(dd)) {
+          dd = (s1.peak_equity && s1.portfolio_value)
+            ? Math.max(0, (s1.peak_equity - s1.portfolio_value) / s1.peak_equity)
+            : 0.0;
+        }
+        levEl.innerText = `${levText} / ${(dd * 100).toFixed(2)}%`;
       }
 
       // Strategy 4 (AMD) Metrics

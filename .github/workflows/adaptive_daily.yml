@@ -29,6 +29,9 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      - name: Run regression tests
+        run: python -m unittest discover -s tests -v
+
       - name: Run Adaptive Weighted Strategy
         run: |
           cd nosharashi_1
@@ -42,7 +45,6 @@ jobs:
           python neural_flow/run_adaptive_v3.py
 
       - name: Run TrendVol Strategy
-        continue-on-error: true
         run: |
           cd nosharashi_1
           export PYTHONPATH=$(pwd)

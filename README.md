@@ -34,6 +34,15 @@ python nosharashi_1/update_history_md.py
 The dashboard shows all four strategies, a union of monitored assets, and the
 last strategy comparison cards from `dashboard_data.json`.
 
+## Tests
+
+The live runners have synthetic-data regression tests. They use temporary state
+files and never touch the deployed accounts:
+
+```bash
+python -m unittest discover -s tests -v
+```
+
 ## Running locally
 
 ```bash
@@ -58,6 +67,13 @@ python nosharashi_1/update_history_md.py
   missing history cannot leak future prices into a signal.
 - Entry costs, turnover costs, and short financing are charged in the live
   accounting. Period returns shown on the dashboard are net of those costs.
+- Strategies 1 and 3 use a 2% no-trade band and compare targets with the actual
+  price-drifted book. Small same-direction rebalances are skipped, but full
+  exits and long/short reversals always execute.
+- Crypto volatility is annualised with 365 days, not 252. Zero or non-finite
+  volatility returns 1x leverage instead of levering up into bad data.
+- LiquidityAlpha requires a full 200-day SMA warm-up before it can signal, and
+  the runners refuse to trade if too little common history is available.
 - Local caches, model pickles, account artefacts, and `config.json` are ignored
   by git; see `.gitignore`.
 - `TRADE_HISTORY.md` is generated from the live state files by
