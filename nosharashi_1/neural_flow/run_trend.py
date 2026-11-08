@@ -36,7 +36,9 @@ STATE_FILE = str(LIVE_DIR / 'paper_state_trend.json')
 BALANCE_FILE = str(LIVE_DIR / 'paper_balance_trend.txt')
 SNAPSHOT_DIR = LIVE_DIR / 'price_snapshots'
 BASE_CAPITAL = 10000.0
-TICKERS = ['BTC-USD', 'ETH-USD']
+TICKERS = ['BTC-USD', 'ETH-USD', 'BNB-USD', 'XRP-USD', 'ADA-USD', 'SOL-USD', 'DOT-USD',
+           'LINK-USD', 'LTC-USD', 'DOGE-USD', 'AVAX-USD', 'ATOM-USD', 'NEAR-USD',
+           'ALGO-USD', 'FIL-USD']
 
 LOOKBACK = 50
 VOL_WINDOW = 20

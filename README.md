@@ -87,22 +87,26 @@ They are point-in-time estimates, not guarantees.
 
 | Strategy | Window | CAGR/yr | Sharpe | Max DD | Alpha vs BTC | t-stat | Assessment |
 |----------|--------|---------|--------|--------|--------------|--------|------------|
-| Adaptive Weighted | 2024-11 → 2026-11 | -11.1% | -0.53 | 39.0% | — | — | **No edge.** Negative after the look-ahead fix and costs. |
-| TrendVol (BTC+ETH) | 2020-11 → 2026-11 | +18.4% | 1.09 | 26.7% | +10.5%/yr | 2.66 | Modest edge, high drawdown. |
-| TrendVol (BTC+ETH) | 2024-01 → 2026-11 (test) | +16.8% | 0.98 | 16.4% | +10.2%/yr | — | Consistent test-window result. |
+| Adaptive Weighted | 2024-11 → 2026-11 | -11.1% | -0.53 | 39.0% | — | — | **No edge.** Negative after look-ahead fix + costs. Do not trade. |
+| Adaptive v3 | 2024-11 → 2026-11 (2y) | -5.0% | -0.43 | 20.7% | — | — | **No robust edge.** Bootstrap interval includes zero. |
+| TrendVol (15 assets) | 2020-11 → 2026-11 | +58.3% | 2.55 | 17.4% | +39.6%/yr | 5.19 | **Best candidate.** Strong post-cost backtest, incl. out-of-sample. Survivorship-biased universe — treat as upper bound. |
+| TrendVol (15 assets) | 2024-01 → 2026-11 (test) | +33.0% | 1.57 | 13.1% | +24.1%/yr | — | Out-of-sample test confirms edge, but window is short. |
 
 Interpretation:
-- Adaptive Weighted loses money once look-ahead bias and transaction costs are
-  removed. It should not be traded expecting positive edge.
-- TrendVol shows a consistent, modest positive edge versus BTC across train and
-  test windows, but with elevated drawdown. The live drawdown overlay (floor at
-  25% exposure beyond a 15% drawdown) is a protective control, not alpha.
-- Adaptive v3's longer-window analysis showed a weak positive edge (PIT ~+11%
-  CAGR, Sharpe ~0.84) whose bootstrap interval includes zero — treat as an
-  upper bound, not a guarantee. The 2y window above is negative.
+- **Adaptive Weighted** loses money once look-ahead bias and transaction costs
+  are removed (-11% CAGR). It should not be traded expecting positive edge.
+- **Adaptive v3** shows no robust edge (bootstrap interval includes zero; 2y
+  window is negative). Do not trade expecting positive returns.
+- **TrendVol (15 assets)** is the only strategy with a demonstrated post-cost
+  edge (+58% CAGR, Sharpe 2.55 full period; +33% CAGR, Sharpe 1.57 test
+  period). However, the 15-asset universe is survivorship-biased — it only
+  includes assets that exist today. Treat backtest figures as upper bounds,
+  not guarantees. Forward paper-trading evidence is still limited.
 
-None of the three strategies demonstrates a statistically robust edge after all
-costs. Position sizes should be kept small and expectations modest.
+None of the strategies demonstrates a statistically robust edge after all
+costs with sufficient live evidence. Position sizes should be kept small and
+expectations modest. TrendVol is the best candidate but should be traded small
+until it builds a longer live track record.
 
 ## Risk controls (live)
 
