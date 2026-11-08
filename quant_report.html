@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantitative Strategy Optimization Report</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@300;400;600;700&display=swap">
+    <style>
+        :root {
+            --bg: #fdfdfc;
+            --surface: #f5f5f2;
+            --text-main: #1a1a18;
+            --text-muted: #63635e;
+            --accent: #2a5a5c;
+            --accent-light: #eef6f6;
+            --border: #ddddc7;
+            --danger: #9e2a2b;
+            --success: #386641;
+            --mono-bg: #f0f0ea;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root:not([data-theme="light"]) {
+                --bg: #0f0f0e;
+                --surface: #1a1a18;
+                --text-main: #e6e6e2;
+                --text-muted: #a0a09a;
+                --accent: #66b2b4;
+                --accent-light: #1d2e2f;
+                --border: #33332d;
+                --danger: #c94c4c;
+                --success: #6aa84f;
+                --mono-bg: #141412;
+            }
+        }
+
+        :root[data-theme="dark"] {
+            --bg: #0f0f0e;
+            --surface: #1a1a18;
+            --text-main: #e6e6e2;
+            --text-muted: #a0a09a;
+            --accent: #66b2b4;
+            --accent-light: #1d2e2f;
+            --border: #33332d;
+            --danger: #c94c4c;
+            --success: #6aa84f;
+            --mono-bg: #141412;
+        }
+
+        body {
+            font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        header {
+            margin-bottom: 5rem;
+            border-left: 4px solid var(--accent);
+            padding-left: 2rem;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            line-height: 1.1;
+            margin: 0 0 1rem 0;
+            text-wrap: balance;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            font-weight: 300;
+        }
+
+        .section {
+            margin-bottom: 6rem;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: baseline;
+            gap: 1rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .section-number {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            color: var(--accent);
+            font-size: 1.1rem;
+        }
+
+        h2 {
+            font-size: 2rem;
+            font-weight: 600;
+            margin: 0;
+            letter-spacing: -0.01em;
+        }
+
+        .card {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 0;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            position: relative;
+            transition: border-color 0.2s ease;
+        }
+
+        .card:hover {
+            border-color: var(--accent);
+        }
+
+        .flow {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+
+        .flow-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .flow-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+            font-weight: 700;
+        }
+
+        .flow-content {
+            font-size: 0.95rem;
+        }
+
+        .formula {
+            font-family: 'JetBrains Mono', monospace;
+            background-color: var(--mono-bg);
+            padding: 0.2rem 0.4rem;
+            border-radius: 2px;
+            font-size: 0.9em;
+            color: var(--accent);
+        }
+
+        .highlight {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.6rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            background-color: var(--accent-light);
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+
+        footer {
+            margin-top: 8rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        @media (max-width: 768px) {
+            .flow {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            h1 {
+                font-size: 2.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Quantitative Strategy <br>Rectification Report</h1>
+            <p class="subtitle">Institutional-grade refinements for high-turnover, fat-tail hunting strategies in volatile crypto-asset markets.</p>
+        </header>
+
+        <!-- ISSUE 1: TURNOVER -->
+        <div class="section">
+            <div class="section-header">
+                <span class="section-number">01</span>
+                <h2>Turnover Optimization</h2>
+            </div>
+
+            <div class="card">
+                <div class="badge">L1: Objective Function</div>
+                <div class="flow">
+                    <div class="flow-item">
+                        <div class="flow-label">Current State</div>
+                        <div class="flow-content">Daily turnover of <span class="highlight">294%</span>; signals drive immediate weight rebalancing.</div>
+                    </div>
+                    <div class="flow-item">
+                        <div class="flow-label">Proposed Technique</div>
+                        <div class="flow-content">L1-Regularization penalty on weight changes. Add <span class="formula">&lambda; ||w<sub>t</sub> - w<sub>t-1</sub>|<sub>1</sub></span> to the cost function.</div>
+                    </div>
+                    <div class="flow-item">
+                        <div class="flow-label">Expected Outcome</div>
+                        <div class="flow-content">Suppresses "jitter" trades; only executes rebalancing when alpha outweighs the transaction cost penalty.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="badge">L2: Signal Processing</div>
+                <div class="flow">
+                    <div class="flow-item">
+                        <div class="flow-label">Current State</div>
+                        <div class="flow-content">Raw signals lead to high-frequency flips in position.</div>
+                    </div>
+                    <div class="flow-item">
+                        <div class="flow-label">Proposed Technique</div>
+                        <div class="flow-content">Temporal smoothing via <span class="highlight">Exponential Moving Average (EMA)</span> of the signal vector.</div>
+                    </div>
+                    <div class="flow-item">
+                        <div class="flow-label">Expected Outcome</div>
+                        <div class="flow-content">Filters high-frequency noise; converts instantaneous signals into persistent regimes.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="badge">L3: Execution Logic</div>
+                <div class="flow">
+                    <div class="flow-item">
+                        <div class="flow-label">Current State</div>
+                        <div class="flow-content">Any change in signal triggers a trade.</div>
+                    </div>
+                    <div class="flow-item">
+                        <div class="flow-label">Proposed Technique</div>
+                        <div class="flow-content"><span class="highlight">Hysteresis Banding</span>: Trade only if <span class="formula">|S<sub>new</sub> - S<sub>old</sub>| &gt; &tau;</span>.</div>
+                    </div>
+                    <div class="flow-item">
+                        <div class="flow-label">Expected Outcome</div>
+                        <div class="flow-content">Eliminates small, costly adjustments that do not meaningfully change the portfolio's risk profile.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ISSUE 2: HIT RATE -->
+        <div class="section">
+            <div class="section-header">
+                <span class="section-number">02</span>
+                <h2>Hit Rate & Stability</h2>
+            </div>
+
+            <div class="card">
+                <div class="badge">L1: Validation</div>
+                <div class="flow">
+                    <div class="flow-item">
+                        <div class="flow-label">Current State</div>
+                        <div class="flow-content">Win rate <span class="highlight">~51%</span>; high reliance on extreme positive outliers.</div>
+                    </div>
+                    <div class="flow-item">
+                        <div class="flow-label">Proposed Technique</div>
+                        <div class="flow-content"><span class="highlight">Meta-Labeling</span>: Train a secondary Random Forest/XGBoost model to predict the probability of the primary signal succeeding.</div>
+                    </div>
+                    <div class="flow-item">
+                        <div class="flow-label">Expected Outcome</div>
+                        <div class="flow-content">Filters out low-probability trades, increasing the hit rate by reducing "false positive" entries.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="badge">L2: Market Context</div>
+                <div class="flow">
+                    <div class="flow-item">
+                        <div class="flow-label">Current State</div>
+                        <div class="flow-content">Single logic applied regardless of market phase.</div>
+                    </div>
+                    <div class="flow-item">
+                        <div class="flow-label">Proposed Technique</div>
+                        <div class="flow-content"><span class="highlight">Hidden Markov Model (HMM)</span> for Regime Detection (Trending vs. Mean-Reverting).</div>
+                    </div>
+                    <div class="flow-item">
+                        <div class="flow-label">Expected Outcome</div>
+                        <div class="flow-content">Prevents "fat-tail" hunters from trading in choppy, low-volatility ranges where they typically bleed.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="badge">L3: Signal Filtering</div>
+                <div class="flow">
+                    <div class="flow-item">
+                        <div class="flow-label">Current State</div>
+                        <div class="flow-content">Signals triggered in low-liquidity/low-vol environments.</div>
+                    </div>
+                    <div class="flow-item">
+                        <div class="flow-label">Proposed Technique</div>
+                        <div class="flow-content"><span class="highlight">Volume-Weighted Volatility Filter</span>: Suppress signals if current vol is below the 20th percentile of the rolling 30-day window.</div>
+                    </div>
+                    <div class="flow-item">
+                        <div class="flow-label">Expected Outcome</div>
+                        <div class="flow-content">Ensures the strategy only deploys when the "tail" energy required for profitability is present.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ISSUE 3: RISK SCALING -->
+        <div class="section">
+            <div class="section-header">
+                <span class="section-number">03</span>
+                <h2>Risk Scaling & Leverage</h2>
+            </div>
+
+            <div class="card">
+                <div class="badge">L1: Volatility Targeting</div>
+                <div class="flow">
+                    <div class="flow-item">
+                        <div class="flow-label">Current State</div>
+                        <div class="flow-content">Leverage tied exclusively to BTC volatility.</div>
+                    </div>
+                    <div class="flow-item">
+                        <div class="flow-label">Proposed Technique</div>
+                        <div class="flow-content"><span class="highlight">Portfolio Volatility Targeting</span>: Scale leverage based on the realized vol of the entire portfolio <span class="formula">&sigma;<sub>p</sub></span>.</div>
+                    </div>
+                    <div class="flow-item">
+                        <div class="flow-label">Expected Outcome</div>
+                        <div class="flow-content">Protects against idiosyncratic shocks in altcoins that BTC vol fails to capture.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="badge">L2: Adaptive Thresholds</div>
+                <div class="flow">
+                    <div class="flow-item">
+                        <div class="flow-label">Current State</div>
+                        <div class="flow-content">Static volatility switches for leverage changes.</div>
+                    </div>
+                    <div class="flow-item">
+                        <div class="flow-label">Proposed Technique</div>
+                        <div class="flow-content"><span class="highlight">Dynamic Percentile Thresholds</span>: Switch leverage based on the rolling 90-day volatility percentile.</div>
+                    </div>
+                    <div class="flow-item">
+                        <div class="flow-label">Expected Outcome</div>
+                        <div class="flow-content">Adjusts the "definition" of high/low volatility to the current market epoch.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="badge">L3: Asset Allocation</div>
+                <div class="flow">
+                    <div class="flow-item">
+                        <div class="flow-label">Current State</div>
+                        <div class="flow-content">Leverage applied uniformly across positions.</div>
+                    </div>
+                    <div class="flow-item">
+                        <div class="flow-label">Proposed Technique</div>
+                        <div class="flow-content"><span class="highlight">Multi-Asset Risk Parity</span>: Allocate weights <span class="formula">w<sub>i</sub> &prop; 1 / &sigma;<sub>i</sub></span>.</div>
+                    </div>
+                    <div class="flow-item">
+                        <div class="flow-label">Expected Outcome</div>
+                        <div class="flow-content">Equalizes the risk contribution of each asset, preventing a single volatile altcoin from dominating the PnL.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            QUANT RESEARCH | STRATEGY OPTIMIZATION v1.0 | CONFIDENTIAL
+        </footer>
+    </div>
+</body>
+</html>

@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWS v3: Quantitative Enhancements</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@300;400;600;700&display=swap">
+    <style>
+        :root {
+            --bg: #ffffff;
+            --fg: #1a1a1a;
+            --accent: #2563eb;
+            --accent-muted: #dbeafe;
+            --border: #e5e7eb;
+            --surface: #f9fafb;
+            --text-muted: #6b7280;
+            --code-bg: #f3f4f6;
+            --success: #059669;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root:not([data-theme="light"]) {
+                --bg: #0f172a;
+                --fg: #f8fafc;
+                --accent: #60a5fa;
+                --accent-muted: #1e3a8a;
+                --border: #334155;
+                --surface: #1e293b;
+                --text-muted: #94a3b8;
+                --code-bg: #0f172a;
+                --success: #34d399;
+            }
+        }
+
+        :root[data-theme="dark"] {
+            --bg: #0f172a;
+            --fg: #f8fafc;
+            --accent: #60a5fa;
+            --accent-muted: #1e3a8a;
+            --border: #334155;
+            --surface: #1e293b;
+            --text-muted: #94a3b8;
+            --code-bg: #0f172a;
+            --success: #34d399;
+        }
+
+        body {
+            font-family: 'Outfit', system-ui, sans-serif;
+            background-color: var(--bg);
+            color: var(--fg);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        header {
+            margin-bottom: 4rem;
+            border-left: 4px solid var(--accent);
+            padding-left: 1.5rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0 0 0.5rem 0;
+            letter-spacing: -0.02em;
+            text-wrap: balance;
+        }
+
+        .eyebrow {
+            text-transform: uppercase;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--accent);
+            letter-spacing: 0.1em;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .lead {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            max-width: 600px;
+        }
+
+        section {
+            margin-bottom: 5rem;
+        }
+
+        h2 {
+            font-size: 1.75rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        h2::before {
+            content: "";
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .grid-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 600px) {
+            .grid-comparison {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .math {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--code-bg);
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            border: 1px solid var(--border);
+            font-size: 0.9rem;
+            color: var(--fg);
+        }
+
+        .highlight {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .outcome-pill {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: var(--accent-muted);
+            color: var(--accent);
+            border-radius: 99px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-top: 1rem;
+        }
+
+        .success-gate {
+            background: var(--surface);
+            border: 2px solid var(--success);
+            border-radius: 16px;
+            padding: 2.5rem;
+            text-align: center;
+        }
+
+        .gate-metric {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .metric-box {
+            padding: 1rem;
+            border-radius: 8px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+        }
+
+        .metric-val {
+            display: block;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--success);
+        }
+
+        .metric-lab {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        figure {
+            margin: 3rem 0;
+            text-align: center;
+        }
+
+        figcaption {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 1rem;
+            font-style: italic;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <span class="eyebrow">Quantitative Research Report</span>
+            <h1>Adaptive Weighted Strategy <span class="highlight">v3</span></h1>
+            <p class="lead">Optimizing return capture and responsiveness while maintaining the risk floor of Pro v2.</p>
+        </header>
+
+        <section>
+            <h2>1. Dynamic Lambda Tuning (SNR)</h2>
+            <div class="grid-comparison">
+                <div>
+                    <span class="label">Current State (v2)</span>
+                    <p>Static L1 regularization or simple momentum-based scaling of $\lambda$. Leads to over-sparsity in high-conviction regimes and noise-capture in low-SNR regimes.</p>
+                </div>
+                <div>
+                    <span class="label">Proposed v3 Technique</span>
+                    <p>Implementation of <span class="highlight">Square-root Lasso (SQL)</span>. By making $\lambda$ pivotal, we decouple the penalty from the noise level $\sigma$, allowing for adaptive sparsity based on signal strength.</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <span class="label">Implementation Formula</span>
+                <div class="math">
+                    Minimize: 1/sqrt(n) * ||Y - Xβ||₂ + λ||β||₁ <br>
+                    Optimal λ ≈ sqrt(log(p)/n)
+                </div>
+                <p>The Square-root Lasso is preferred over Adaptive Lasso as it is <strong>pivotal</strong>, meaning the optimal $\lambda$ is independent of $\sigma$, removing the need for an external noise estimator that often lags in volatility spikes.</p>
+                <span class="outcome-pill">Expected: Reduced signal lag & tighter sparsity control</span>
+            </div>
+        </section>
+
+        <section>
+            <h2>2. Non-Linear Hysteresis (The Elastic Band)</h2>
+            <div class="grid-comparison">
+                <div>
+                    <span class="label">Current State (v2)</span>
+                    <p>Flat thresholds for regime entry/exit. This creates a "dead zone" that is too wide during high volatility (missing turns) and too narrow during low volatility (whipsawing).</p>
+                </div>
+                <div>
+                    <span class="label">Proposed v3 Technique</span>
+                    <p><strong>Volatility-Adaptive Gating</strong>. The hysteresis band $\tau$ is now a function of realized volatility $\sigma$, shrinking during high-vol regimes to force faster responsiveness.</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <span class="label">Implementation Formula</span>
+                <div class="math">
+                    Upper Threshold (r<sub>U</sub>) = k<sub>U</sub> * σ<sub>t</sub> <br>
+                    Lower Threshold (r<sub>L</sub>) = k<sub>L</sub> * σ<sub>t</sub> <br>
+                    Hysteresis Band Δτ = (k<sub>U</sub> - k<sub>L</sub>) * σ<sub>t</sub>
+                </div>
+                <p>By scaling the buffer zone by $\sigma_t$, the strategy effectively "tightens" its requirements for a regime shift when the market is moving fast, eliminating the response lag observed in v2.</p>
+                <span class="outcome-pill">Expected: Higher turnover in vol-spikes / lower drawdowns</span>
+            </div>
+        </section>
+
+        <section>
+            <h2>3. Advanced Risk Decoupling</h2>
+            <div class="grid-comparison">
+                <div>
+                    <span class="label">Current State (v2)</span>
+                    <p>Linear Vol Targeting. Exposure is scaled strictly by $1/\sigma$. This is overly conservative in "Low Vol / High Momentum" phases where risk-adjusted returns are highest.</p>
+                </div>
+                <div>
+                    <span class="label">Proposed v3 Technique</span>
+                    <p><strong>Equal Risk Contribution (ERC) + Convexity Scaling</strong>. Shift from simple vol-targeting to a risk-budgeting approach that accounts for tail-risk (CVaR).</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <span class="label">Implementation Formula</span>
+                <div class="math">
+                    Risk Contribution (RC<sub>i</sub>) = w<sub>i</sub> * (Σw)<sub>i</sub> / σ<sub>p</sub> <br>
+                    Leverage Scaling (L) = Target_Vol / σ<sub>p</sub> * f(Convexity)
+                </div>
+                <p>We introduce a non-linear scaling factor $f(\text{Convexity})$ that allows leverage to expand slightly during high-momentum/low-vol regimes, while aggressively curtailing it using Conditional Value-at-Risk (CVaR) during tail-events.</p>
+                <span class="outcome-pill">Expected: Increased return in "Goldilocks" regimes</span>
+            </div>
+        </section>
+
+        <section>
+            <h2>4. Meta-Labeling v2 (Prob-Weighted)</h2>
+            <div class="grid-comparison">
+                <div>
+                    <span class="label">Current State (v2)</span>
+                    <p>Binary filter (Trade/No-Trade). This "all-or-nothing" approach discards marginal alpha and creates jumpy equity curves.</p>
+                </div>
+                <div>
+                    <span class="label">Proposed v3 Technique</span>
+                    <p><strong>Probability-Weighted Exposure</strong>. Use a calibrated meta-model to output $P(\text{Success})$ and linearly scale the position size.</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <span class="label">Implementation Formula</span>
+                <div class="math">
+                    Exposure = Min_Risk + [(P(success) - Threshold) / (1 - Threshold)] * (Max_Risk - Min_Risk)
+                </div>
+                <p>This bridges the gap between Conservative and Aggressive settings. Trades with $P \approx 0.6$ receive minimal sizing, while $P \approx 0.9$ trades receive full allocation, smoothing the equity curve and increasing the capture rate.</p>
+                <span class="outcome-pill">Expected: Higher Sharpe via optimized capital allocation</span>
+            </div>
+        </section>
+
+        <figure>
+            <svg viewBox="0 0 600 300" role="img" aria-label="v2 vs v3 Signal Flow">
+                <defs>
+                    <marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                        <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor" />
+                    </marker>
+                </defs>
+
+                <!-- v2 Flow -->
+                <rect x="50" y="50" width="120" height="60" rx="8" fill="var(--surface)" stroke="var(--border)" />
+                <text x="110" y="85" text-anchor="middle" font-family="JetBrains Mono" font-size="12" fill="var(--fg)">Alpha Signals</text>
+
+                <line x1="170" y1="80" x2="230" y2="80" stroke="var(--border)" stroke-width="2" marker-end="url(#arrow)" />
+
+                <rect x="240" y="50" width="120" height="60" rx="8" fill="var(--surface)" stroke="var(--border)" />
+                <text x="300" y="85" text-anchor="middle" font-family="JetBrains Mono" font-size="12" fill="var(--fg)">Flat Gate (v2)</text>
+
+                <line x1="360" y1="80" x2="420" y2="80" stroke="var(--border)" stroke-width="2" marker-end="url(#arrow)" />
+
+                <rect x="430" y="50" width="120" height="60" rx="8" fill="var(--surface)" stroke="var(--border)" />
+                <text x="490" y="85" text-anchor="middle" font-family="JetBrains Mono" font-size="12" fill="var(--fg)">Binary Size</text>
+
+                <!-- v3 Flow -->
+                <rect x="50" y="180" width="120" height="60" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="2" />
+                <text x="110" y="215" text-anchor="middle" font-family="JetBrains Mono" font-size="12" fill="var(--fg)">Alpha Signals</text>
+
+                <line x1="170" y1="210" x2="230" y2="210" stroke="var(--accent)" stroke-width="2" marker-end="url(#arrow)" />
+
+                <rect x="240" y="180" width="120" height="60" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="2" />
+                <text x="300" y="215" text-anchor="middle" font-family="JetBrains Mono" font-size="12" fill="var(--fg)">Adaptive Gate</text>
+
+                <line x1="360" y1="210" x2="420" y2="210" stroke="var(--accent)" stroke-width="2" marker-end="url(#arrow)" />
+
+                <rect x="430" y="180" width="120" height="60" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="2" />
+                <text x="490" y="215" text-anchor="middle" font-family="JetBrains Mono" font-size="12" fill="var(--fg)">Prob-Sized</text>
+
+                <text x="50" y="40" font-family="JetBrains Mono" font-size="11" fill="var(--text-muted)">v2: Static/Binary</text>
+                <text x="50" y="170" font-family="JetBrains Mono" font-size="11" fill="var(--accent)">v3: Dynamic/Linear</text>
+            </svg>
+            <figcaption>Signal propagation flow: Transition from rigid binary gating (v2) to volatility-aware linear scaling (v3).</figcaption>
+        </figure>
+
+        <div class="success-gate">
+            <span class="eyebrow" style="color: var(--success)">Deployment Target</span>
+            <h2 style="justify-content: center; margin-bottom: 1rem;">v3 Success Gate</h2>
+            <p>Implementation is considered successful if the following metrics are met over a 12-month walk-forward test:</p>
+            <div class="gate-metric">
+                <div class="metric-box">
+                    <span class="metric-lab">Annual Return</span>
+                    <span class="metric-val">&gt; 70%</span>
+                </div>
+                <div class="metric-box">
+                    <span class="metric-lab">Sharpe Ratio</span>
+                    <span class="metric-val">&gt; 4.0</span>
+                </div>
+                <div class="metric-box">
+                    <span class="metric-lab">Max Drawdown</span>
+                    <span class="metric-val">&approx; 0%</span>
+                </div>
+            </div>
+        </div>
+
+        <footer style="margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border); font-size: 0.8rem; color: var(--text-muted);">
+            <p>Research sources:
+                <a href="https://arxiv.org/html/1602.08006v2" style="color: inherit">High-Dimensional SNR</a>,
+                <a href="https://aligrithm.com/volatility-regimes-and-strategy-survival/" style="color: inherit">Volatility Regimes</a>,
+                <a href="https://www.man.com/insights/leverage-equal-risk" style="color: inherit">Risk Parity Leverage</a>,
+                <a href="https://doi.org/10.3905/jfds.2023.1.119" style="color: inherit">Meta-Labeling Calibration</a>
+            </p>
+        </footer>
+    </div>
+</body>
+</html>
