@@ -11,6 +11,7 @@ import numpy as np
 from neural_flow.alpha.v3_core import (AdaptiveWeightedV3, ProRiskManagerV3,
                                         trend_score, btc_regime_series)
 from neural_flow.execution.model import StealthExecution
+from neural_flow.risk.model import drawdown_multiplier
 
 LIVE_DIR = Path(__file__).resolve().parent.parent
 STATE_FILE = str(LIVE_DIR / 'paper_state_v3.json')
@@ -36,6 +37,10 @@ NO_TRADE_BAND = 0.02
 SHORT_COST_BPS_PER_DAY = 3.0
 # 150d regime + 60d covariance + 50d trend, with a small buffer.
 MIN_HISTORY_BARS = max(REGIME_LOOKBACK, COV_WINDOW, LOOKBACK) + 10
+# Protective drawdown overlay: de-risk from 5% drawdown, floor at 25% from 15%.
+DD_CAUTION = 0.05
+DD_HALT = 0.15
+DD_FLOOR = 0.25
 
 
 def run_adaptive_v3():
@@ -159,11 +164,14 @@ def run_adaptive_v3():
     stale_closing = 0.0
     actual_weights = np.zeros(len(tickers))
     days_held = 1
+    risk_multiplier = 1.0
+    risk_drawdown = 0.0
 
     if state is not None and 'portfolio_value' in state and 'last_prices' in state:
         prev_portfolio_val = float(state['portfolio_value'])
         prev_prices = state['last_prices']
         prev_weights = state.get('weights', {})
+        # High-water mark before this period's trading.
         peak_equity = max(float(state.get('peak_equity', BASE_CAPITAL)),
                           prev_portfolio_val)
 
@@ -181,6 +189,14 @@ def run_adaptive_v3():
                 if t in prev_prices and float(prev_prices[t]) > 0:
                     actual_weights[i] = (w * (latest_prices[t] / float(prev_prices[t]))
                                          / denom)
+
+        # Protective drawdown overlay: scale the signal target down as the
+        # portfolio drifts from its high-water mark, before the no-trade band.
+        risk_drawdown = (peak_equity - prev_portfolio_val) / peak_equity if peak_equity > 0 else 0.0
+        risk_multiplier = drawdown_multiplier(
+            peak_equity, prev_portfolio_val,
+            caution=DD_CAUTION, halt=DD_HALT, floor=DD_FLOOR)
+        desired_weights = np.array(desired_weights, dtype=float) * risk_multiplier
 
         # Positions that fell out of the download must be closed, not silently
         # dropped from the book.
@@ -251,7 +267,13 @@ def run_adaptive_v3():
     else:
         action_summary = ", ".join(active_positions) if active_positions else "100% CASH (Neutral)"
 
-    # Trade History Persistence
+    # Trade History Persistence.  Suppress consecutive identical flat-cash
+    # cycles so the log stays readable; a cash entry after any real trade is
+    # still recorded.
+    def _is_flat_cash(entry):
+        return (str(entry.get('action', '')).startswith('100% CASH')
+                and abs(float(entry.get('period_pnl_usd', 0.0))) < 1e-9)
+
     trade_history = state.get('trade_history', []) if state else []
     period_pnl_usd = current_portfolio_val - prev_portfolio_val
 
@@ -265,10 +287,16 @@ def run_adaptive_v3():
         'total_return_pct': round(total_return_pct, 2),
         'max_dd': round(max_dd, 4),
         'leverage': round(float(lev), 2),
+        'risk_multiplier': round(risk_multiplier, 4),
+        'risk_drawdown': round(risk_drawdown, 4),
         'turnover': round(turnover, 4),
         'costs_pct': round(costs * 100.0, 3),
     }
-    trade_history.append(trade_entry)
+
+    if (not trade_history
+            or not (_is_flat_cash(trade_entry) and _is_flat_cash(trade_history[-1])
+                    and trade_history[-1].get('portfolio_value') == trade_entry['portfolio_value'])):
+        trade_history.append(trade_entry)
     if len(trade_history) > 100:
         trade_history = trade_history[-100:]
 
@@ -290,6 +318,8 @@ def run_adaptive_v3():
         'last_short_financing': round(short_financing, 6),
         'last_costs': round(costs, 6),
         'last_days_held': days_held,
+        'last_risk_multiplier': round(risk_multiplier, 4),
+        'last_risk_drawdown': round(risk_drawdown, 4),
         'last_prices': latest_prices,
         'last_bar_date': str(last_bar_date),
         'last_updated': now_utc.isoformat(),
@@ -322,7 +352,9 @@ def run_adaptive_v3():
         "regime_on": regime_on,
         "regime_sma": REGIME_LOOKBACK,
         "last_prices": latest_prices,
-        "portfolio_value": current_portfolio_val
+        "portfolio_value": current_portfolio_val,
+        "risk_multiplier": float(risk_multiplier),
+        "risk_drawdown": float(risk_drawdown),
     }
 
     snap_file = SNAPSHOT_DIR / f"v3_{now_utc.strftime('%Y%m%d_%H%M%S')}.json"
@@ -346,7 +378,8 @@ def run_adaptive_v3():
     print(f"Portfolio leverage: {lev:.2f}x")
     print(f"Current Portfolio Value: ${current_portfolio_val:.2f}")
     print(f"Total Return from Base: {total_return_pct:.2f}%")
-    print(f"Max Drawdown: {max_dd:.4f}")
+    print(f"Max Drawdown: {max_dd:.4f}  |  Risk DD: {risk_drawdown:.4f}  "
+          f"| Risk Multiplier: {risk_multiplier:.2f}x")
     print("\nActive Portfolio Allocations:")
     for t in tickers:
         w = float(target_weights[tickers.index(t)])

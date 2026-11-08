@@ -122,3 +122,16 @@ class StopLoss:
         else: # short
             return current_price > entry_price * (1 + self.stop_pct)
 
+
+def drawdown_multiplier(peak_equity: float, current_value: float,
+                        caution: float = 0.05, halt: float = 0.15,
+                        floor: float = 0.25) -> float:
+    if peak_equity <= 0:
+        return 1.0
+    dd = (peak_equity - current_value) / peak_equity
+    if dd < caution:
+        return 1.0
+    if dd >= halt:
+        return floor
+    return 1.0 - ((dd - caution) / (halt - caution)) * (1.0 - floor)
+

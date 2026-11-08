@@ -12,7 +12,7 @@ import yfinance as yf
 
 from neural_flow.alpha.model import LiquidityAlpha
 from neural_flow.execution.model import StealthExecution
-from neural_flow.risk.model import VolatilitySwitch
+from neural_flow.risk.model import VolatilitySwitch, drawdown_multiplier
 
 LIVE_DIR = Path(__file__).resolve().parent.parent
 STATE_FILE = str(LIVE_DIR / 'paper_state_adaptive.json')
@@ -21,11 +21,14 @@ SNAPSHOT_DIR = LIVE_DIR / 'price_snapshots'
 BASE_CAPITAL = 10000.0
 UNIVERSE_TAG = 'adaptive_9'
 
-# Cost / risk controls.  A 2% band stops tiny daily rebalances, and short
-# exposure pays a conservative daily financing charge.
+# Cost / risk controls.
 NO_TRADE_BAND = 0.02
 SHORT_COST_BPS_PER_DAY = 3.0
 MIN_HISTORY_BARS = 220
+# Protective drawdown overlay: de-risk from 5% drawdown, floor at 25% from 15%.
+DD_CAUTION = 0.05
+DD_HALT = 0.15
+DD_FLOOR = 0.25
 
 
 def run_adaptive_weighted_strategy():
@@ -172,11 +175,15 @@ def run_adaptive_weighted_strategy():
     peak_equity = BASE_CAPITAL
     prev_max_dd = 0.0
     actual_weights = {t: 0.0 for t in tickers}
+    risk_multiplier = 1.0
+    risk_drawdown = 0.0
 
     if state is not None and 'portfolio_value' in state and 'last_prices' in state:
         prev_portfolio_val = float(state['portfolio_value'])
         prev_prices = state['last_prices']
         prev_weights = state.get('weights', {})
+        # High-water mark before this period's trading (risk decisions use
+        # today's drawdown, not tomorrow's post-trade drawdown).
         peak_equity = max(float(state.get('peak_equity', BASE_CAPITAL)),
                           prev_portfolio_val)
         prev_max_dd = float(state.get('max_dd', 0.0))
@@ -197,6 +204,16 @@ def run_adaptive_weighted_strategy():
                                          * (latest_prices[t] / float(prev_prices[t]))
                                          / denom)
 
+        # Protective drawdown overlay: scale the signal target down as the
+        # portfolio drifts from its high-water mark.  Applied to the signal
+        # target *before* the no-trade band so drawdown-driven reductions can
+        # still trigger a rebalance.
+        risk_drawdown = (peak_equity - prev_portfolio_val) / peak_equity if peak_equity > 0 else 0.0
+        risk_multiplier = drawdown_multiplier(
+            peak_equity, prev_portfolio_val,
+            caution=DD_CAUTION, halt=DD_HALT, floor=DD_FLOOR)
+        target_weights = np.array(target_weights, dtype=float) * risk_multiplier
+
         # Positions that fell out of the download must be closed, not silently
         # dropped from the book.
         stale = [t for t in prev_weights
@@ -208,7 +225,7 @@ def run_adaptive_weighted_strategy():
 
         # A no-trade band reduces churn, but never blocks a full exit or a
         # long/short reversal.
-        target = np.array(target_weights, dtype=float)
+        target = target_weights
         actual = np.array([actual_weights[t] for t in tickers], dtype=float)
         if NO_TRADE_BAND > 0:
             delta = target - actual
@@ -264,7 +281,13 @@ def run_adaptive_weighted_strategy():
 
     action_summary = ", ".join(active_positions) if active_positions else "100% CASH (Neutral)"
 
-    # Trade history persistence.
+    # Trade history persistence.  Suppress consecutive identical flat-cash
+    # cycles (e.g. "100% CASH (Neutral)" with zero PnL) so the log stays
+    # readable; a cash entry after any real trade is still recorded.
+    def _is_flat_cash(entry):
+        return (str(entry.get('action', '')).startswith('100% CASH')
+                and abs(float(entry.get('period_pnl_usd', 0.0))) < 1e-9)
+
     trade_history = state.get('trade_history', []) if state else []
     period_pnl_usd = current_portfolio_val - prev_portfolio_val
 
@@ -278,10 +301,16 @@ def run_adaptive_weighted_strategy():
         'total_return_pct': round(total_return_pct, 2),
         'max_dd': round(max_dd, 4),
         'leverage': round(lev, 2),
+        'risk_multiplier': round(risk_multiplier, 4),
+        'risk_drawdown': round(risk_drawdown, 4),
         'turnover': round(turnover, 4),
         'costs_pct': round(costs * 100.0, 3),
     }
-    trade_history.append(trade_entry)
+
+    if (not trade_history
+            or not (_is_flat_cash(trade_entry) and _is_flat_cash(trade_history[-1])
+                    and trade_history[-1].get('portfolio_value') == trade_entry['portfolio_value'])):
+        trade_history.append(trade_entry)
     if len(trade_history) > 100:
         trade_history = trade_history[-100:]
 
@@ -306,6 +335,8 @@ def run_adaptive_weighted_strategy():
         'last_short_financing': round(short_financing, 6),
         'last_costs': round(costs, 6),
         'last_days_held': days_held,
+        'last_risk_multiplier': round(risk_multiplier, 4),
+        'last_risk_drawdown': round(risk_drawdown, 4),
         'trade_history': trade_history,
     }
 
@@ -326,6 +357,8 @@ def run_adaptive_weighted_strategy():
         "last_prices": latest_prices,
         "portfolio_value": current_portfolio_val,
         "max_dd": float(max_dd),
+        "risk_multiplier": float(risk_multiplier),
+        "risk_drawdown": float(risk_drawdown),
     }
 
     snap_file = SNAPSHOT_DIR / f"adaptive_{now_utc.strftime('%Y%m%d_%H%M%S')}.json"
@@ -345,7 +378,8 @@ def run_adaptive_weighted_strategy():
           f"trading {trading_costs * 100:.3f}%, "
           f"short financing {short_financing * 100:.3f}%)")
     print(f"Total Return from Base: {total_return_pct:.2f}%")
-    print(f"Max Drawdown: {max_dd * 100:.2f}%")
+    print(f"Max Drawdown: {max_dd * 100:.2f}%  |  Risk DD: {risk_drawdown * 100:.2f}%  "
+          f"| Risk Multiplier: {risk_multiplier:.2f}x")
     print(f"Current Leverage: {lev:.2f}x  |  Turnover: {turnover:.2f}")
     print("\nActive Portfolio Allocations:")
     for t in tickers:

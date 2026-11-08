@@ -133,17 +133,21 @@
               <span class="text-slate-400">Last Period PnL:</span>
               <span id="s1LastPnL" class="font-mono font-bold text-slate-200">---</span>
             </div>
+            <div class="text-xs flex items-center justify-between">
+              <span class="text-slate-400">Costs / Turnover:</span>
+              <span id="s1Costs" class="font-mono text-slate-300">---</span>
+            </div>
           </div>
         </div>
 
         <div class="mt-5 pt-4 border-t border-white/5 grid grid-cols-3 gap-2 text-center">
           <div>
-            <span class="text-[11px] text-slate-400 block">Leverage / Max DD</span>
+            <span class="text-[11px] text-slate-400 block">Dynamic Leverage</span>
             <span id="s1Leverage" class="text-sm font-bold mono text-slate-200">---</span>
           </div>
           <div>
-            <span class="text-[11px] text-slate-400 block">Risk Engine</span>
-            <span class="text-xs font-semibold text-slate-300">VolSwitch (4x/1x)</span>
+            <span class="text-[11px] text-slate-400 block">Max Drawdown</span>
+            <span id="s1Drawdown" class="text-sm font-bold mono text-slate-200">0.00%</span>
           </div>
           <div>
             <span class="text-[11px] text-slate-400 block">Execution</span>
@@ -192,6 +196,10 @@
             <div class="text-xs flex items-center justify-between pt-1 border-t border-white/5">
               <span class="text-slate-400">Last Period PnL:</span>
               <span id="s2LastPnL" class="font-mono font-bold text-slate-200">---</span>
+            </div>
+            <div class="text-xs flex items-center justify-between">
+              <span class="text-slate-400">Costs / Turnover:</span>
+              <span id="s2Costs" class="font-mono text-slate-300">---</span>
             </div>
           </div>
         </div>
@@ -252,6 +260,10 @@
             <div class="text-xs flex items-center justify-between pt-1 border-t border-white/5">
               <span class="text-slate-400">Last Period PnL:</span>
               <span id="s3LastPnL" class="font-mono font-bold text-slate-200">---</span>
+            </div>
+            <div class="text-xs flex items-center justify-between">
+              <span class="text-slate-400">Costs / Turnover:</span>
+              <span id="s3Costs" class="font-mono text-slate-300">---</span>
             </div>
           </div>
         </div>
@@ -701,6 +713,18 @@
         pnlEl.innerText = (pnl >= 0 ? '+$' : '-$') + Math.abs(pnl).toFixed(2) +
           ` (${pnlPct >= 0 ? '+' : ''}${pnlPct.toFixed(2)}%)`;
         pnlEl.className = 'font-mono font-bold ' + (pnl >= 0 ? 'text-emerald-400' : 'text-rose-400');
+
+        const costsEl = document.getElementById(prefix + 'Costs');
+        if (costsEl) {
+          const costs = Number(state.last_costs);
+          const turnover = Number(state.last_turnover);
+          if (Number.isFinite(costs) && Number.isFinite(turnover)) {
+            costsEl.innerText =
+              `${(costs * 100).toFixed(2)}% / ${(turnover * 100).toFixed(0)}%`;
+          } else {
+            costsEl.innerText = '---';
+          }
+        }
       }
 
       renderStrategyCard('s1', s1);
@@ -709,14 +733,7 @@
 
       const levEl = document.getElementById('s1Leverage');
       if (levEl) {
-        const levText = s1.leverage != null ? Number(s1.leverage).toFixed(2) + 'x' : '---';
-        let dd = Number(s1.max_dd);
-        if (!Number.isFinite(dd)) {
-          dd = (s1.peak_equity && s1.portfolio_value)
-            ? Math.max(0, (s1.peak_equity - s1.portfolio_value) / s1.peak_equity)
-            : 0.0;
-        }
-        levEl.innerText = `${levText} / ${(dd * 100).toFixed(2)}%`;
+        levEl.innerText = s1.leverage != null ? Number(s1.leverage).toFixed(2) + 'x' : '---';
       }
 
       // Strategy 4 (AMD) Metrics

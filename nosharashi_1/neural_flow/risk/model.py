@@ -120,3 +120,26 @@ class StopLoss:
         else: # short
             return current_price > entry_price * (1 + self.stop_pct)
 
+
+def drawdown_multiplier(peak_equity: float, current_value: float,
+                        caution: float = 0.05, halt: float = 0.15,
+                        floor: float = 0.25) -> float:
+    """
+    Protective drawdown overlay.
+
+    Scales target exposure down as the portfolio drifts from its high-water
+    mark, without fully halting (so the strategy can re-enter on recovery).
+
+    - below `caution`: full exposure (1.0)
+    - between `caution` and `halt`: linear decay from 1.0 to `floor`
+    - at or above `halt`: `floor` exposure
+    """
+    if peak_equity <= 0:
+        return 1.0
+    dd = (peak_equity - current_value) / peak_equity
+    if dd < caution:
+        return 1.0
+    if dd >= halt:
+        return floor
+    return 1.0 - ((dd - caution) / (halt - caution)) * (1.0 - floor)
+

@@ -29,7 +29,7 @@ sys.path.insert(0, str(LIVE_DIR))
 from neural_flow.alpha.model import LiquidityAlpha  # noqa: E402
 from neural_flow.alpha.v3_core import btc_regime_series  # noqa: E402
 from neural_flow.execution.model import StealthExecution  # noqa: E402
-from neural_flow.risk.model import VolatilitySwitch  # noqa: E402
+from neural_flow.risk.model import VolatilitySwitch, drawdown_multiplier  # noqa: E402
 import neural_flow.run_adaptive as adaptive_runner  # noqa: E402
 import neural_flow.run_adaptive_v3 as v3_runner  # noqa: E402
 import neural_flow.run_trend as trend_runner  # noqa: E402
@@ -101,6 +101,18 @@ class SignalComponentTests(unittest.TestCase):
         engine = VolatilitySwitch(base_leverage=4.0)
         self.assertEqual(engine.get_leverage(pd.Series([0.0] * 30)), 1.0)
         self.assertEqual(engine.get_leverage(pd.Series([np.nan] * 30)), 1.0)
+
+    def test_drawdown_multiplier(self):
+        # Below caution: full exposure.
+        self.assertEqual(drawdown_multiplier(10000.0, 9900.0), 1.0)
+        # In the decay band: linear between 1.0 and floor.
+        mult = drawdown_multiplier(10000.0, 9400.0)  # 6% drawdown
+        self.assertAlmostEqual(mult, 1.0 - (0.01 / 0.10) * 0.75, places=6)
+        # At/above halt: floor exposure.
+        self.assertEqual(drawdown_multiplier(10000.0, 8400.0), 0.25)
+        self.assertEqual(drawdown_multiplier(10000.0, 7000.0), 0.25)
+        # Non-positive peak: full exposure.
+        self.assertEqual(drawdown_multiplier(0.0, 100.0), 1.0)
 
     def test_btc_regime_fallback_without_btc(self):
         close = pd.DataFrame(

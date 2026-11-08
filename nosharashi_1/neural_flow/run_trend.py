@@ -29,6 +29,7 @@ import yfinance as yf
 
 from neural_flow.alpha.trend import TrendVolSignal
 from neural_flow.execution.model import StealthExecution
+from neural_flow.risk.model import drawdown_multiplier
 
 LIVE_DIR = Path(__file__).resolve().parent.parent
 STATE_FILE = str(LIVE_DIR / 'paper_state_trend.json')
@@ -42,6 +43,10 @@ VOL_WINDOW = 20
 TARGET_VOL = 0.15
 MAX_LEVERAGE = 2.0
 NO_TRADE_BAND = 0.02
+# Protective drawdown overlay: de-risk from 5% drawdown, floor at 25% from 15%.
+DD_CAUTION = 0.05
+DD_HALT = 0.15
+DD_FLOOR = 0.25
 
 
 def download_close(tickers=TICKERS, period='1y', attempts=5):
@@ -109,10 +114,13 @@ def main():
     days_held = 0
     peak_equity = BASE_CAPITAL
     prev_max_dd = 0.0
+    risk_multiplier = 1.0
+    risk_drawdown = 0.0
     if state and 'portfolio_value' in state and 'last_prices' in state:
         prev_val = float(state['portfolio_value'])
         prev_prices = state['last_prices']
         prev_weights = state.get('weights', {})
+        # High-water mark before this period's trading.
         peak_equity = max(float(state.get('peak_equity', BASE_CAPITAL)), prev_val)
         prev_max_dd = float(state.get('max_dd', 0.0))
 
@@ -134,6 +142,15 @@ def main():
                     actual_weights[t] = (float(prev_weights.get(t, 0.0))
                                          * (latest_prices[t] / float(p0))
                                          / denom)
+
+        # Protective drawdown overlay: scale the signal target down as the
+        # portfolio drifts from its high-water mark, before the no-trade band.
+        risk_drawdown = (peak_equity - prev_val) / peak_equity if peak_equity > 0 else 0.0
+        risk_multiplier = drawdown_multiplier(
+            peak_equity, prev_val,
+            caution=DD_CAUTION, halt=DD_HALT, floor=DD_FLOOR)
+        for t in tickers:
+            target_weights[t] = float(target_weights[t]) * risk_multiplier
 
         stale = [t for t in prev_weights
                  if t not in tickers and abs(float(prev_weights[t])) > 0]
@@ -194,7 +211,14 @@ def main():
     action_summary = ', '.join(active) if active else '100% CASH (Neutral)'
 
     history = state.get('trade_history', []) if state else []
-    history.append({
+
+    # Suppress consecutive identical flat-cash cycles so the log stays
+    # readable; a cash entry after any real trade is still recorded.
+    def _is_flat_cash(entry):
+        return (str(entry.get('action', '')).startswith('100% CASH')
+                and abs(float(entry.get('period_pnl_usd', 0.0))) < 1e-9)
+
+    new_entry = {
         'timestamp_ist': ist_str,
         'action': action_summary,
         'gross_return_pct': round(period_return * 100.0, 3),
@@ -203,9 +227,15 @@ def main():
         'portfolio_value': round(current_val, 2),
         'total_return_pct': round(total_return_pct, 2),
         'max_dd': round(max_dd, 4),
+        'risk_multiplier': round(risk_multiplier, 4),
+        'risk_drawdown': round(risk_drawdown, 4),
         'turnover': round(turnover, 4),
         'costs_pct': round(costs * 100.0, 3),
-    })
+    }
+    if (not history
+            or not (_is_flat_cash(new_entry) and _is_flat_cash(history[-1])
+                    and history[-1].get('portfolio_value') == new_entry['portfolio_value'])):
+        history.append(new_entry)
     history = history[-100:]
 
     new_state = {
@@ -226,6 +256,8 @@ def main():
         'last_turnover': round(turnover, 4),
         'last_costs': round(costs, 6),
         'last_days_held': days_held,
+        'last_risk_multiplier': round(risk_multiplier, 4),
+        'last_risk_drawdown': round(risk_drawdown, 4),
         'trade_history': history,
     }
 
@@ -240,6 +272,8 @@ def main():
         'last_prices': latest_prices,
         'portfolio_value': current_val,
         'max_dd': float(max_dd),
+        'risk_multiplier': float(risk_multiplier),
+        'risk_drawdown': float(risk_drawdown),
     }
     with open(SNAPSHOT_DIR / f"trend_{now_utc.strftime('%Y%m%d_%H%M%S')}.json", 'w') as f:
         json.dump(snapshot, f)
@@ -254,7 +288,8 @@ def main():
     print(f"Period Return:   {net_period_return * 100:.2f}%  "
           f"(gross {period_return * 100:.2f}%, costs {costs * 100:.3f}%)")
     print(f"Total Return:    {total_return_pct:.2f}%")
-    print(f"Max Drawdown:    {max_dd * 100:.2f}%")
+    print(f"Max Drawdown:    {max_dd * 100:.2f}%  |  Risk DD: {risk_drawdown * 100:.2f}%  "
+          f"| Risk Multiplier: {risk_multiplier:.2f}x")
     print('Allocations:')
     for t in tickers:
         w = target_weights[t]
