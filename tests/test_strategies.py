@@ -25,6 +25,7 @@ import yfinance as yf
 ROOT = Path(__file__).resolve().parents[1]
 LIVE_DIR = ROOT / 'nosharashi_1'
 sys.path.insert(0, str(LIVE_DIR))
+sys.path.append(str(ROOT))
 
 from neural_flow.alpha.model import LiquidityAlpha  # noqa: E402
 from neural_flow.alpha.v3_core import btc_regime_series  # noqa: E402
@@ -113,6 +114,37 @@ class SignalComponentTests(unittest.TestCase):
         self.assertEqual(drawdown_multiplier(10000.0, 7000.0), 0.25)
         # Non-positive peak: full exposure.
         self.assertEqual(drawdown_multiplier(0.0, 100.0), 1.0)
+
+    def test_trend_backtest_overlay_is_causal(self):
+        """A truncated-data backtest must reproduce the full-data returns.
+
+        This is the regression test for the look-ahead bug that inflated the
+        TrendVol 15-asset result from ~28% to ~58% CAGR. If the drawdown
+        overlay ever peeks at the next bar again, the truncated run will
+        diverge and this test will fail.
+        """
+        import backtest_trend_broad as bt
+
+        idx = pd.date_range('2023-01-01', periods=400, freq='D')
+        rng = np.random.default_rng(11)
+        btc = 100.0 * np.exp(np.cumsum(0.001 + rng.normal(0, 0.020, len(idx))))
+        eth = 100.0 * np.exp(np.cumsum(0.001 + rng.normal(0, 0.025, len(idx))))
+        close = pd.DataFrame({'BTC-USD': btc, 'ETH-USD': eth}, index=idx)
+        fwd = close.shift(-1) / close - 1.0
+        assets = ['BTC-USD', 'ETH-USD']
+
+        _, full_net, _ = bt.run_causal(close, fwd, assets, overlay=True)
+        cut = 360
+        close_tr = close.iloc[:cut]
+        fwd_tr = close_tr.shift(-1) / close_tr - 1.0
+        _, tr_net, _ = bt.run_causal(close_tr, fwd_tr, assets, overlay=True)
+
+        common = full_net.index.intersection(tr_net.index)
+        common = common[common <= idx[cut - 2]]
+        pd.testing.assert_series_equal(
+            full_net.loc[common], tr_net.loc[common],
+            check_names=False, check_exact=False, rtol=1e-12, atol=1e-15,
+        )
 
     def test_btc_regime_fallback_without_btc(self):
         close = pd.DataFrame(

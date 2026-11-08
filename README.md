@@ -85,28 +85,43 @@ All figures below include execution costs (0.05% fee + 0.014% effective slippage
 per unit turnover, 6.4 bps total) and short financing where shorting is used.
 They are point-in-time estimates, not guarantees.
 
-| Strategy | Window | CAGR/yr | Sharpe | Max DD | Alpha vs BTC | t-stat | Assessment |
-|----------|--------|---------|--------|--------|--------------|--------|------------|
-| Adaptive Weighted | 2024-11 → 2026-11 | -11.1% | -0.53 | 39.0% | — | — | **No edge.** Negative after look-ahead fix + costs. Do not trade. |
-| Adaptive v3 | 2024-11 → 2026-11 (2y) | -5.0% | -0.43 | 20.7% | — | — | **No robust edge.** Bootstrap interval includes zero. |
-| TrendVol (15 assets) | 2020-11 → 2026-11 | +58.3% | 2.55 | 17.4% | +39.6%/yr | 5.19 | **Best candidate.** Strong post-cost backtest, incl. out-of-sample. Survivorship-biased universe — treat as upper bound. |
-| TrendVol (15 assets) | 2024-01 → 2026-11 (test) | +33.0% | 1.57 | 13.1% | +24.1%/yr | — | Out-of-sample test confirms edge, but window is short. |
+| Strategy | Window | CAGR/yr | Sharpe | Max DD | Alpha vs BTC | Assessment |
+|----------|--------|---------|--------|--------|--------------|------------|
+| Adaptive Weighted | 2024-11 → 2026-11 | -11.1% | -0.53 | 39.0% | — | **No edge.** Negative after look-ahead fix + costs. Do not trade. |
+| Adaptive v3 | 2024-11 → 2026-11 | -5.0% | -0.43 | 20.7% | — | **No robust edge.** Bootstrap interval includes zero. |
+| TrendVol BTC+ETH (no overlay) | 2020-11 → 2026-11 | +18.4% | 1.09 | 26.7% | +10.5%/yr | Modest full-period edge, high drawdown. |
+| TrendVol BTC+ETH (no overlay) | 2024-01 → 2026-11 (test) | +16.8% | 0.98 | 16.4% | +10.2%/yr | Positive out-of-sample, but naive t≈1.7 (not significant). |
+| TrendVol BTC+ETH (causal overlay) | 2024-01 → 2026-11 (test) | +10.2% | 0.76 | 13.5% | +5.4%/yr | Overlay cuts MDD 16.4→13.5% but also cuts return. |
+| TrendVol 15 assets (causal overlay) | 2020-11 → 2026-11 | +28.0% | 1.35 | 22.8% | +18.4%/yr | In-sample only; not robust. |
+| TrendVol 15 assets (causal overlay) | 2024-01 → 2026-11 (test) | +4.9% | 0.29 | 22.8% | +0.5%/yr | **Fails out-of-sample.** Rejected. |
+
+> **Correction (2026-11-08).** An earlier version of this file reported
+> TrendVol (15 assets) at +58.3% CAGR / Sharpe 2.55 / MDD 17.4%. That was
+> **wrong**: the drawdown overlay was applied using an equity curve that
+> already contained the next bar's return (look-ahead). The corrected, fully
+> causal numbers are +28.0% / 1.35 / 22.8% in-sample and +4.9% / 0.29 /
+> 22.8% out-of-sample. The live runner was always causal; only the backtest
+> was flawed. The 15-asset expansion is rejected; the live runner trades
+> BTC+ETH.
 
 Interpretation:
 - **Adaptive Weighted** loses money once look-ahead bias and transaction costs
   are removed (-11% CAGR). It should not be traded expecting positive edge.
 - **Adaptive v3** shows no robust edge (bootstrap interval includes zero; 2y
   window is negative). Do not trade expecting positive returns.
-- **TrendVol (15 assets)** is the only strategy with a demonstrated post-cost
-  edge (+58% CAGR, Sharpe 2.55 full period; +33% CAGR, Sharpe 1.57 test
-  period). However, the 15-asset universe is survivorship-biased — it only
-  includes assets that exist today. Treat backtest figures as upper bounds,
-  not guarantees. Forward paper-trading evidence is still limited.
+- **TrendVol BTC+ETH** is the only configuration with a positive out-of-sample
+  result (+16.8% CAGR / 0.98 Sharpe over ~2.8 years), but the naive t-stat is
+  only ≈1.7 and block-bootstrap significance is weak. The causal drawdown
+  overlay reduces max drawdown from 16.4% to 13.5% at the cost of roughly
+  6.6%/yr of CAGR out-of-sample. Treat this as a modest, unproven edge.
+- **The 15-asset expansion is rejected.** It only outperformed during the
+  2020-2023 altcoin bull market; out-of-sample it returned +4.9% CAGR with
+  0.29 Sharpe. Adding assets did not add durable edge.
 
 None of the strategies demonstrates a statistically robust edge after all
 costs with sufficient live evidence. Position sizes should be kept small and
-expectations modest. TrendVol is the best candidate but should be traded small
-until it builds a longer live track record.
+expectations modest. Keep everything paper-only until a longer live record
+exists.
 
 ## Risk controls (live)
 
