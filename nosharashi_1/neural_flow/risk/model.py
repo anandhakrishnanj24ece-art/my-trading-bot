@@ -6,19 +6,22 @@ class VolatilityTarget:
     Continuous Volatility Targeting.
     Aims for a constant risk contribution by adjusting leverage inversely to realized vol.
     """
-    def __init__(self, target_vol=0.15, max_cap=4.0):
+    def __init__(self, target_vol=0.15, max_cap=4.0, ann=365):
         self.target_vol = target_vol
         self.max_cap = max_cap
+        self.ann = ann
 
     def get_leverage(self, returns: pd.Series) -> float:
         if len(returns) < 20:
             return 1.0
 
-        # Realized 20-day volatility (annualized)
-        realized_vol = returns.tail(20).std() * np.sqrt(252)
+        # Crypto trades every day of the year, so annualise with 365.
+        realized_vol = returns.tail(20).std() * np.sqrt(self.ann)
 
-        if realized_vol == 0:
-            return self.max_cap
+        # Zero/NaN vol usually means stale or flat data, not a risk-free asset.
+        # Never lever up into that; stay at 1x.
+        if not np.isfinite(realized_vol) or realized_vol <= 0:
+            return 1.0
 
         lev = self.target_vol / realized_vol
         return min(lev, self.max_cap)
@@ -28,15 +31,21 @@ class VolatilitySwitch:
     Volatility Switch.
     Switches between base leverage and cautious leverage based on a volatility threshold.
     """
-    def __init__(self, base_leverage=4.0, threshold=0.40):
+    def __init__(self, base_leverage=4.0, threshold=0.40, ann=365):
         self.base_leverage = base_leverage
         self.threshold = threshold
+        self.ann = ann
 
     def get_leverage(self, returns: pd.Series) -> float:
         if len(returns) < 20:
             return 1.0
 
-        realized_vol = returns.tail(20).std() * np.sqrt(252)
+        # Crypto trades every day of the year, so annualise with 365.
+        realized_vol = returns.tail(20).std() * np.sqrt(self.ann)
+
+        # Zero/NaN vol usually means stale or flat data, not a low-risk regime.
+        if not np.isfinite(realized_vol) or realized_vol <= 0:
+            return 1.0
 
         # Switch leverage based on volatility threshold
         if realized_vol > self.threshold:

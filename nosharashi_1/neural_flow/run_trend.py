@@ -33,6 +33,7 @@ from neural_flow.execution.model import StealthExecution
 LIVE_DIR = Path(__file__).resolve().parent.parent
 STATE_FILE = str(LIVE_DIR / 'paper_state_trend.json')
 BALANCE_FILE = str(LIVE_DIR / 'paper_balance_trend.txt')
+SNAPSHOT_DIR = LIVE_DIR / 'price_snapshots'
 BASE_CAPITAL = 10000.0
 TICKERS = ['BTC-USD', 'ETH-USD']
 
@@ -40,6 +41,7 @@ LOOKBACK = 50
 VOL_WINDOW = 20
 TARGET_VOL = 0.15
 MAX_LEVERAGE = 2.0
+NO_TRADE_BAND = 0.02
 
 
 def download_close(tickers=TICKERS, period='1y', attempts=5):
@@ -78,8 +80,9 @@ def main():
     now_utc = datetime.now(timezone.utc)
     close = download_close()
     tickers = [t for t in TICKERS if t in close.columns]
+    tickers = [t for t in tickers if np.isfinite(float(close[t].iloc[-1]))]
     if not tickers:
-        raise RuntimeError('none of the configured tickers are available')
+        raise RuntimeError('none of the configured tickers have a usable latest price')
     close = close[tickers]
 
     last_ts = close.index[-1]
@@ -102,11 +105,16 @@ def main():
     latest_prices = {t: float(close[t].iloc[-1]) for t in tickers}
 
     # ---- mark-to-market on the previous book, then charge turnover costs ----
+    execution_engine = StealthExecution()
+    days_held = 0
+    peak_equity = BASE_CAPITAL
+    prev_max_dd = 0.0
     if state and 'portfolio_value' in state and 'last_prices' in state:
         prev_val = float(state['portfolio_value'])
         prev_prices = state['last_prices']
         prev_weights = state.get('weights', {})
         peak_equity = max(float(state.get('peak_equity', BASE_CAPITAL)), prev_val)
+        prev_max_dd = float(state.get('max_dd', 0.0))
 
         period_return = 0.0
         for t in tickers:
@@ -115,26 +123,64 @@ def main():
             if p0 and p0 > 0:
                 period_return += w * (latest_prices[t] / float(p0) - 1.0)
 
-        turnover = sum(abs(target_weights[t] - float(prev_weights.get(t, 0.0)))
-                       for t in tickers)
-        costs = StealthExecution().calculate_cost(turnover)
+        # Recover the actual, price-drifted book.  Turnover must compare the
+        # new target with what is actually held, not with the old target.
+        actual_weights = {t: 0.0 for t in tickers}
+        denom = 1.0 + period_return
+        if denom > 1e-9:
+            for t in tickers:
+                p0 = prev_prices.get(t)
+                if p0 and p0 > 0:
+                    actual_weights[t] = (float(prev_weights.get(t, 0.0))
+                                         * (latest_prices[t] / float(p0))
+                                         / denom)
+
+        stale = [t for t in prev_weights
+                 if t not in tickers and abs(float(prev_weights[t])) > 0]
+        stale_closing = sum(abs(float(prev_weights[t])) for t in stale)
+        if stale:
+            print(f"Warning: closing {len(stale)} stale position(s) missing from data: "
+                  f"{', '.join(stale)}")
+
+        # Suppress only small same-direction rebalances; never block a full
+        # exit or a reversal.
+        if NO_TRADE_BAND > 0:
+            for t in tickers:
+                desired = target_weights[t]
+                actual = actual_weights[t]
+                same_direction = np.sign(desired) == np.sign(actual)
+                material = abs(desired - actual) >= NO_TRADE_BAND
+                if same_direction and not material and abs(desired) > 1e-12:
+                    target_weights[t] = actual
+
+        turnover = sum(abs(target_weights[t] - actual_weights[t])
+                       for t in tickers) + stale_closing
+        costs = execution_engine.calculate_cost(turnover)
         current_val = prev_val * (1.0 + period_return - costs)
         period_pnl_usd = current_val - prev_val
-        peak_equity = max(peak_equity, current_val)
+
+        try:
+            days_held = max(0, (last_bar_date
+                                - pd.to_datetime(state['last_bar_date']).date()).days)
+        except Exception:
+            days_held = 0
     else:
         prev_val = BASE_CAPITAL
         period_return = 0.0
         # Match the backtest: entering the first book is not free.
         turnover = sum(abs(target_weights[t]) for t in tickers)
-        costs = StealthExecution().calculate_cost(turnover)
+        costs = execution_engine.calculate_cost(turnover)
         current_val = BASE_CAPITAL * (1.0 - costs)
         period_pnl_usd = current_val - BASE_CAPITAL
-        peak_equity = BASE_CAPITAL
+
+    peak_equity = max(peak_equity, current_val)
+    drawdown = ((peak_equity - current_val) / peak_equity
+                if peak_equity > 0 else 0.0)
+    max_dd = max(prev_max_dd, drawdown)
 
     net_period_return = ((current_val / prev_val - 1.0)
                          if prev_val > 0 else 0.0)
     total_return_pct = (current_val / BASE_CAPITAL - 1.0) * 100.0
-    max_dd = max(0.0, (peak_equity - current_val) / peak_equity) if peak_equity > 0 else 0.0
 
     ist = now_utc.astimezone(timezone(timedelta(hours=5, minutes=30)))
     ist_str = ist.strftime("%d %b %Y, %I:%M:%S %p IST")
@@ -151,11 +197,14 @@ def main():
     history.append({
         'timestamp_ist': ist_str,
         'action': action_summary,
+        'gross_return_pct': round(period_return * 100.0, 3),
         'period_return_pct': round(net_period_return * 100.0, 3),
         'period_pnl_usd': round(period_pnl_usd, 2),
         'portfolio_value': round(current_val, 2),
         'total_return_pct': round(total_return_pct, 2),
         'max_dd': round(max_dd, 4),
+        'turnover': round(turnover, 4),
+        'costs_pct': round(costs * 100.0, 3),
     })
     history = history[-100:]
 
@@ -163,21 +212,24 @@ def main():
         'strategy': 'trend_vol',
         'portfolio_value': round(current_val, 2),
         'peak_equity': round(peak_equity, 2),
+        'max_dd': round(max_dd, 6),
         'weights': target_weights,
         'last_prices': latest_prices,
         'last_bar_date': str(last_bar_date),
         'last_updated': now_utc.isoformat(),
         'last_updated_ist': ist_str,
         'last_action': action_summary,
+        'no_trade_band': NO_TRADE_BAND,
+        'last_gross_return_pct': round(period_return * 100.0, 3),
         'last_period_return_pct': round(net_period_return * 100.0, 3),
         'last_period_pnl_usd': round(period_pnl_usd, 2),
         'last_turnover': round(turnover, 4),
         'last_costs': round(costs, 6),
+        'last_days_held': days_held,
         'trade_history': history,
     }
 
-    snapshot_dir = Path(__file__).resolve().parent.parent / 'price_snapshots'
-    snapshot_dir.mkdir(parents=True, exist_ok=True)
+    SNAPSHOT_DIR.mkdir(parents=True, exist_ok=True)
     snapshot = {
         'strategy': 'trend_vol',
         'timestamp': now_utc.isoformat(),
@@ -187,8 +239,9 @@ def main():
         'weights': target_weights,
         'last_prices': latest_prices,
         'portfolio_value': current_val,
+        'max_dd': float(max_dd),
     }
-    with open(snapshot_dir / f"trend_{now_utc.strftime('%Y%m%d_%H%M%S')}.json", 'w') as f:
+    with open(SNAPSHOT_DIR / f"trend_{now_utc.strftime('%Y%m%d_%H%M%S')}.json", 'w') as f:
         json.dump(snapshot, f)
 
     with open(STATE_FILE, 'w') as f:

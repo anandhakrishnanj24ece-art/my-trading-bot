@@ -14,16 +14,21 @@ class LiquidityAlpha:
         volume = data['Volume']
 
         # 1. Multi-Timeframe Trend Filters
-        # Macro Trend (SMA 200) - The "Directional Guard"
-        sma200 = close.rolling(window=200, min_periods=1).mean()
+        # Require a full window.  A partial SMA200 is not a 200-day trend and
+        # must not generate a position during the warm-up period.
+        sma200 = close.rolling(window=200, min_periods=200).mean()
         macro_trend = np.where(close > sma200, 1, -1)
+        macro_trend = np.where(sma200.notna(), macro_trend, 0)
 
         # Medium Trend (SMA 20) - The "Momentum Guard"
-        sma20 = close.rolling(window=20, min_periods=1).mean()
+        sma20 = close.rolling(window=20, min_periods=20).mean()
         medium_trend = np.where(close > sma20, 1, -1)
+        medium_trend = np.where(sma20.notna(), medium_trend, 0)
 
-        # Final Trend: Only trade when Macro and Medium agree
-        trend = np.where(macro_trend == medium_trend, macro_trend, 0)
+        # Final Trend: Only trade when Macro and Medium agree.  Zero means
+        # "warm-up / indecision" and is treated as cash, never a short.
+        trend = np.where((macro_trend == medium_trend) & (macro_trend != 0),
+                         macro_trend, 0)
 
         # 2. Advanced Alpha Signals
         # Toxicity Proxy (Volatility * Volume)

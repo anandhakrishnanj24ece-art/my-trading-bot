@@ -16,6 +16,7 @@ LIVE_DIR = Path(__file__).resolve().parent.parent
 STATE_FILE = str(LIVE_DIR / 'paper_state_v3.json')
 BALANCE_FILE = str(LIVE_DIR / 'paper_balance_v3.txt')
 LEGACY_BALANCE_FILE = str(LIVE_DIR / 'paper_balance.txt')
+SNAPSHOT_DIR = LIVE_DIR / 'price_snapshots'
 BASE_CAPITAL = 10000.0
 
 # Improved v3 configuration (validated out-of-sample).
@@ -33,6 +34,8 @@ MAX_ASSET_WEIGHT = 1.0
 NO_TRADE_BAND = 0.02
 # Conservative daily financing on the short book (perp funding/borrow).
 SHORT_COST_BPS_PER_DAY = 3.0
+# 150d regime + 60d covariance + 50d trend, with a small buffer.
+MIN_HISTORY_BARS = max(REGIME_LOOKBACK, COV_WINDOW, LOOKBACK) + 10
 
 
 def run_adaptive_v3():
@@ -68,12 +71,24 @@ def run_adaptive_v3():
     close_prices = close_prices[valid_tickers]
     volumes = volumes[valid_tickers]
 
-    tickers = close_prices.columns.tolist()
+    tickers = [t for t in close_prices.columns
+               if np.isfinite(float(close_prices[t].iloc[-1]))]
+    if not tickers:
+        print("Warning: no ticker has a usable latest price. Skipping run.")
+        return
+    close_prices = close_prices[tickers]
+    volumes = volumes[tickers]
+
     returns = close_prices.pct_change().dropna()
     common_index = returns.index.intersection(close_prices.index).intersection(volumes.index)
     returns = returns.loc[common_index]
     close_prices = close_prices.loc[common_index]
     volumes = volumes.loc[common_index]
+
+    if len(close_prices) < MIN_HISTORY_BARS:
+        print(f"Warning: only {len(close_prices)} bars available; "
+              f"need at least {MIN_HISTORY_BARS}. Skipping run.")
+        return
 
     # Candle-close safety check (Crypto daily closes at 00:00 UTC; allow run after 01:00 UTC)
     now_utc = datetime.now(timezone.utc)
@@ -186,11 +201,15 @@ def run_adaptive_v3():
         period_return = 0.0
 
     # 4. No-trade band: compare the new target with the actual, drifted book.
-    # Applied before the regime filter so a regime exit always goes to cash.
+    # The band only suppresses small changes in the same direction; a full
+    # exit or a long/short reversal must always execute.  Applied before the
+    # regime filter so a regime exit always goes to cash.
     if NO_TRADE_BAND > 0:
         band_delta = desired_weights - actual_weights
-        target_weights = np.where(np.abs(band_delta) >= NO_TRADE_BAND,
-                                  desired_weights, actual_weights)
+        same_direction = np.sign(desired_weights) == np.sign(actual_weights)
+        material = np.abs(band_delta) >= NO_TRADE_BAND
+        keep_position = same_direction & ~material & (np.abs(desired_weights) > 1e-12)
+        target_weights = np.where(keep_position, actual_weights, desired_weights)
     else:
         target_weights = desired_weights
 
@@ -203,8 +222,9 @@ def run_adaptive_v3():
     # 5. Charge turnover from the actual book, plus short financing on the
     # short exposure that was held over the period.
     turnover = float(np.abs(target_weights - actual_weights).sum()) + stale_closing
-    short_cost = short_gross_prev * (SHORT_COST_BPS_PER_DAY / 1e4) * days_held
-    costs = execution_engine.calculate_cost(turnover) + short_cost
+    trading_costs = execution_engine.calculate_cost(turnover)
+    short_financing = short_gross_prev * (SHORT_COST_BPS_PER_DAY / 1e4) * days_held
+    costs = trading_costs + short_financing
     current_portfolio_val = prev_portfolio_val * (1.0 + period_return - costs)
     peak_equity = max(peak_equity, current_portfolio_val)
     net_period_return = ((current_portfolio_val / prev_portfolio_val - 1.0)
@@ -238,11 +258,15 @@ def run_adaptive_v3():
     trade_entry = {
         'timestamp_ist': ist_str,
         'action': action_summary,
+        'gross_return_pct': round(period_return * 100.0, 3),
         'period_return_pct': round(net_period_return * 100.0, 3),
         'period_pnl_usd': round(period_pnl_usd, 2),
         'portfolio_value': round(current_portfolio_val, 2),
         'total_return_pct': round(total_return_pct, 2),
-        'max_dd': round(max_dd, 4)
+        'max_dd': round(max_dd, 4),
+        'leverage': round(float(lev), 2),
+        'turnover': round(turnover, 4),
+        'costs_pct': round(costs * 100.0, 3),
     }
     trade_history.append(trade_entry)
     if len(trade_history) > 100:
@@ -251,6 +275,7 @@ def run_adaptive_v3():
     new_state = {
         'portfolio_value': current_portfolio_val,
         'peak_equity': peak_equity,
+        'max_dd': round(max_dd, 6),
         'weights': {t: float(target_weights[i]) for i, t in enumerate(tickers)},
         'weights_raw': {t: float(weights[i]) for i, t in enumerate(tickers)},
         'signal_model': SIGNAL_MODEL,
@@ -259,8 +284,12 @@ def run_adaptive_v3():
         'regime_on': regime_on,
         'regime_sma': REGIME_LOOKBACK,
         'leverage': round(float(lev), 2),
+        'last_gross_return_pct': round(period_return * 100.0, 3),
         'last_turnover': round(turnover, 4),
+        'last_trading_costs': round(trading_costs, 6),
+        'last_short_financing': round(short_financing, 6),
         'last_costs': round(costs, 6),
+        'last_days_held': days_held,
         'last_prices': latest_prices,
         'last_bar_date': str(last_bar_date),
         'last_updated': now_utc.isoformat(),
@@ -271,9 +300,8 @@ def run_adaptive_v3():
         'trade_history': trade_history
     }
 
-    # Save price snapshot after each run (anchored to the package, not CWD)
-    snapshot_dir = Path(__file__).resolve().parent.parent / "price_snapshots"
-    snapshot_dir.mkdir(parents=True, exist_ok=True)
+    # Save price snapshot after each run (anchored to the package, not CWD).
+    SNAPSHOT_DIR.mkdir(parents=True, exist_ok=True)
 
     snapshot = {
         "strategy": "adaptive_v3",
@@ -290,13 +318,14 @@ def run_adaptive_v3():
         "weights": {t: float(target_weights[i]) for i, t in enumerate(tickers)},
         "weights_raw": {t: float(weights[i]) for i, t in enumerate(tickers)},
         "leverage": float(lev),
+        "max_dd": float(max_dd),
         "regime_on": regime_on,
         "regime_sma": REGIME_LOOKBACK,
         "last_prices": latest_prices,
         "portfolio_value": current_portfolio_val
     }
 
-    snap_file = snapshot_dir / f"v3_{now_utc.strftime('%Y%m%d_%H%M%S')}.json"
+    snap_file = SNAPSHOT_DIR / f"v3_{now_utc.strftime('%Y%m%d_%H%M%S')}.json"
     with open(snap_file, "w") as f:
         json.dump(snapshot, f)
 
