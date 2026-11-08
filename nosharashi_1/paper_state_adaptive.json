@@ -1,5 +1,7 @@
 {
   "portfolio_value": 10000.0,
+  "peak_equity": 10000.0,
+  "max_dd": 0.0,
   "weights": {
     "BTC-USD": 0.0,
     "ETH-USD": 0.0,
@@ -12,22 +14,33 @@
     "AVAX-USD": 0.0
   },
   "last_prices": {
-    "BTC-USD": 79511.3984375,
-    "ETH-USD": 2383.679931640625,
-    "SOL-USD": 95.1500015258789,
-    "BNB-USD": 710.0999755859375,
-    "XRP-USD": 1.3047000169754028,
-    "ADA-USD": 0.1947299987077713,
-    "DOT-USD": 0.9351999759674072,
-    "LINK-USD": 11.388999938964844,
-    "AVAX-USD": 8.649999618530273
+    "BTC-USD": 75714.6796875,
+    "ETH-USD": 2230.39990234375,
+    "SOL-USD": 88.91999816894531,
+    "BNB-USD": 697.8699951171875,
+    "XRP-USD": 1.1627000570297241,
+    "ADA-USD": 0.179639995098114,
+    "DOT-USD": 0.8956999778747559,
+    "LINK-USD": 10.711999893188477,
+    "AVAX-USD": 8.161999702453613
   },
-  "last_updated": "2026-11-05T13:31:51.354641+00:00",
-  "last_updated_ist": "05 Nov 2026, 07:01:51 PM IST",
+  "last_bar_date": "2026-11-08",
+  "last_updated": "2026-11-08T06:59:35.703798+00:00",
+  "last_updated_ist": "08 Nov 2026, 12:29:35 PM IST",
   "last_action": "100% CASH (Neutral)",
+  "leverage": 1.0,
+  "universe": "adaptive_9",
+  "no_trade_band": 0.02,
+  "last_gross_return_pct": 0.0,
   "last_period_return_pct": 0.0,
   "last_period_pnl_usd": 0.0,
-  "last_bar_date": "2026-11-05",
+  "last_turnover": 0.0,
+  "last_trading_costs": 0.0,
+  "last_short_financing": 0.0,
+  "last_costs": 0.0,
+  "last_days_held": 3,
+  "last_risk_multiplier": 1.0,
+  "last_risk_drawdown": 0.0,
   "trade_history": [
     {
       "timestamp_ist": "29 Oct 2026, 08:55:03 PM IST",
@@ -37,6 +50,21 @@
       "portfolio_value": 10183.16,
       "total_return_pct": 1.83,
       "leverage": 4.0
+    },
+    {
+      "timestamp_ist": "08 Nov 2026, 12:29:35 PM IST",
+      "action": "100% CASH (Neutral)",
+      "gross_return_pct": 0.0,
+      "period_return_pct": 0.0,
+      "period_pnl_usd": 0.0,
+      "portfolio_value": 10000.0,
+      "total_return_pct": 0.0,
+      "max_dd": 0.0,
+      "leverage": 1.0,
+      "risk_multiplier": 1.0,
+      "risk_drawdown": 0.0,
+      "turnover": 0.0,
+      "costs_pct": 0.0
     }
   ]
 }

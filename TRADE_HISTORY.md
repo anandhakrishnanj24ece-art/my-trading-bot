@@ -17,20 +17,22 @@
 | # | Timestamp (IST) | Action / Position | Asset | Entry / Exit Price | Size (%) | Period PnL ($) | Period Return | Portfolio Balance | Total Return | Max DD | Leverage | Result |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | 1 | 29 Oct 2026, 08:55:03 PM IST | LONG BNB-USD (200.0%) @ $750.77 | BNB-USD | $750.77 | 200.0% | **+$78.10** | **+0.77%** | $10,183.16 | +1.83% | 0.00% | 4.0x | 🟢 PROFIT |
+| 2 | 08 Nov 2026, 12:29:35 PM IST | 100% CASH (Neutral) | - | - | 0.0% | **+$0.00** | **+0.00%** | $10,000.00 | +0.00% | 0.00% | 1.0x | ⚪ CASH EXIT |
 
 ---
 
 ## 🚀 Strategy 2: Adaptive v3 Strategy (Hyper-Adaptive Optimizer)
 * **Model:** 50d Trend Score (15 assets) + BTC 150d Regime Filter + Square-Root Lasso (λ=0.05) + Elastic Hysteresis + 2% No-Trade Band + Ledoit-Wolf (60d) 15% Vol Target
 * **Initial Capital:** `$10,000.00`
-* **Current Portfolio Value:** `$10,000.00`
+* **Current Portfolio Value:** `$9,998.30`
 * **Peak Equity (HWM):** `$10,000.00`
-* **Net Return:** `+0.00%`
-* **Current Status:** `100% CASH (fresh $10,000 forward test; 15-asset v3)`
+* **Net Return:** `-0.02%`
+* **Current Status:** `SHORT BTC-USD (1.4%) @ $75,722.57, SHORT ETH-USD (1.5%) @ $2,230.44, SHORT BNB-USD (1.0%) @ $697.87, SHORT XRP-USD (2.0%) @ $1.16, SHORT ADA-USD (2.0%) @ $0.18, SHORT SOL-USD (2.0%) @ $88.92, SHORT DOT-USD (2.0%) @ $0.90, SHORT LINK-USD (1.5%) @ $10.71, SHORT LTC-USD (1.9%) @ $52.10, SHORT DOGE-USD (2.0%) @ $0.07, SHORT AVAX-USD (2.0%) @ $8.16, SHORT ATOM-USD (2.0%) @ $1.36, SHORT NEAR-USD (1.5%) @ $3.70, SHORT ALGO-USD (1.5%) @ $0.10, SHORT FIL-USD (2.0%) @ $0.78`
 
 ### Trade History Log
 | # | Timestamp (IST) | Action / Position | Asset | Entry / Exit Price | Size (%) | Period PnL ($) | Period Return | Portfolio Balance | Total Return | Max DD | Result |
 |---|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | 08 Nov 2026, 12:29:38 PM IST | SHORT BTC-USD (1.4%) @ $75,722.57, SHORT ETH-USD (1.5%) @ $2,230.44, SHORT BNB-USD (1.0%) @ $697.87, SHORT XRP-USD (2.0%) @ $1.16, SHORT ADA-USD (2.0%) @ $0.18, SHORT SOL-USD (2.0%) @ $88.92, SHORT DOT-USD (2.0%) @ $0.90, SHORT LINK-USD (1.5%) @ $10.71, SHORT LTC-USD (1.9%) @ $52.10, SHORT DOGE-USD (2.0%) @ $0.07, SHORT AVAX-USD (2.0%) @ $8.16, SHORT ATOM-USD (2.0%) @ $1.36, SHORT NEAR-USD (1.5%) @ $3.70, SHORT ALGO-USD (1.5%) @ $0.10, SHORT FIL-USD (2.0%) @ $0.78 | BTC-USD, ETH-USD, BNB-USD, XRP-USD, ADA-USD, SOL-USD, DOT-USD, LINK-USD, LTC-USD, DOGE-USD, AVAX-USD, ATOM-USD, NEAR-USD, ALGO-USD, FIL-USD | $75,722.57,, $2,230.44,, $697.87,, $1.16,, $0.18,, $88.92,, $0.90,, $10.71,, $52.10,, $0.07,, $8.16,, $1.36,, $3.70,, $0.10,, $0.78 | 1.4%, 1.5%, 1.0%, 2.0%, 2.0%, 2.0%, 2.0%, 1.5%, 1.9%, 2.0%, 2.0%, 2.0%, 1.5%, 1.5%, 2.0% | **-$1.70** | **-0.02%** | $9,998.30 | -0.02% | 0.02% | 🔴 LOSS |
 
 ---
 
