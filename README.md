@@ -123,6 +123,23 @@ costs with sufficient live evidence. Position sizes should be kept small and
 expectations modest. Keep everything paper-only until a longer live record
 exists.
 
+### Broader edge search (2026-11-08)
+
+A stricter 9-strategy search on 44 assets (including the collapsed coins LUNC,
+USTC, FTT and CEL), with a held-out 2024-2026 test window, realistic costs and
+Bonferroni correction, found **no statistically significant edge**. See
+[`RESEARCH_EDGE.md`](RESEARCH_EDGE.md) for the full protocol and results.
+
+The least-bad candidate is still BTC+ETH trend, but its test p-value is 0.115,
+it does not survive multiple-testing correction, and it is fragile across
+lookbacks (75/100-day lookbacks have negative or near-zero train CAGR; monthly
+rebalancing fails). It also underperformed BTC buy-and-hold in the test window
+(+14.4% vs +22.7% CAGR); its value is lower drawdown (19.1% vs 53.1%), not
+higher return.
+
+Consequence: keep TrendVol paper-only at BTC+ETH. Do not add capital and do
+not deploy any of the new research strategies.
+
 ## Risk controls (live)
 
 - **Drawdown overlay:** exposure is scaled from 1.0x down to a 0.25x floor as
