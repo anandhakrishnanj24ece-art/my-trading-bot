@@ -12,9 +12,10 @@ from neural_flow.alpha.v3_core import (AdaptiveWeightedV3, ProRiskManagerV3,
                                         trend_score, btc_regime_series)
 from neural_flow.execution.model import StealthExecution
 
-STATE_FILE = 'paper_state_v3.json'
-BALANCE_FILE = 'paper_balance_v3.txt'
-LEGACY_BALANCE_FILE = 'paper_balance.txt'
+LIVE_DIR = Path(__file__).resolve().parent.parent
+STATE_FILE = str(LIVE_DIR / 'paper_state_v3.json')
+BALANCE_FILE = str(LIVE_DIR / 'paper_balance_v3.txt')
+LEGACY_BALANCE_FILE = str(LIVE_DIR / 'paper_balance.txt')
 BASE_CAPITAL = 10000.0
 
 # Improved v3 configuration (validated out-of-sample).
@@ -140,6 +141,7 @@ def run_adaptive_v3():
     peak_equity = BASE_CAPITAL
     period_return = 0.0
     short_gross_prev = 0.0
+    stale_closing = 0.0
     actual_weights = np.zeros(len(tickers))
     days_held = 1
 
@@ -164,6 +166,13 @@ def run_adaptive_v3():
                 if t in prev_prices and float(prev_prices[t]) > 0:
                     actual_weights[i] = (w * (latest_prices[t] / float(prev_prices[t]))
                                          / denom)
+
+        # Positions that fell out of the download must be closed, not silently
+        # dropped from the book.
+        stale = [t for t in prev_weights if t not in tickers and abs(float(prev_weights[t])) > 0]
+        if stale:
+            stale_closing = sum(abs(float(prev_weights[t])) for t in stale)
+            print(f"Warning: closing {len(stale)} stale position(s) missing from data: {', '.join(stale)}")
 
         try:
             # Zero on a same-bar configuration transition; >1 after a missed run.
@@ -193,7 +202,7 @@ def run_adaptive_v3():
 
     # 5. Charge turnover from the actual book, plus short financing on the
     # short exposure that was held over the period.
-    turnover = float(np.abs(target_weights - actual_weights).sum())
+    turnover = float(np.abs(target_weights - actual_weights).sum()) + stale_closing
     short_cost = short_gross_prev * (SHORT_COST_BPS_PER_DAY / 1e4) * days_held
     costs = execution_engine.calculate_cost(turnover) + short_cost
     current_portfolio_val = prev_portfolio_val * (1.0 + period_return - costs)
@@ -249,6 +258,9 @@ def run_adaptive_v3():
         'no_trade_band': NO_TRADE_BAND,
         'regime_on': regime_on,
         'regime_sma': REGIME_LOOKBACK,
+        'leverage': round(float(lev), 2),
+        'last_turnover': round(turnover, 4),
+        'last_costs': round(costs, 6),
         'last_prices': latest_prices,
         'last_bar_date': str(last_bar_date),
         'last_updated': now_utc.isoformat(),

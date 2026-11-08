@@ -11,9 +11,11 @@ from neural_flow.alpha.model import LiquidityAlpha
 from neural_flow.execution.model import StealthExecution
 from neural_flow.risk.model import VolatilitySwitch
 
-STATE_FILE = 'paper_state_adaptive.json'
-BALANCE_FILE = 'paper_balance_adaptive.txt'
+LIVE_DIR = Path(__file__).resolve().parent.parent
+STATE_FILE = str(LIVE_DIR / 'paper_state_adaptive.json')
+BALANCE_FILE = str(LIVE_DIR / 'paper_balance_adaptive.txt')
 BASE_CAPITAL = 10000.0
+UNIVERSE_TAG = 'adaptive_9'
 
 def run_adaptive_weighted_strategy():
     tickers = ['BTC-USD', 'ETH-USD', 'SOL-USD', 'BNB-USD', 'XRP-USD', 'ADA-USD', 'DOT-USD', 'LINK-USD', 'AVAX-USD']
@@ -39,8 +41,10 @@ def run_adaptive_weighted_strategy():
         close_prices = pd.DataFrame({tickers[0]: data_raw['Close']}).ffill().dropna(how='all')
         volumes = pd.DataFrame({tickers[0]: data_raw['Volume']}).ffill().dropna(how='all')
 
-    close_prices = close_prices.dropna(axis=1, how='all').ffill().bfill()
-    volumes = volumes.dropna(axis=1, how='all').ffill().bfill()
+    # Forward-fill real gaps only.  Never back-fill: leading values belong to
+    # the future and would leak information into the early signal history.
+    close_prices = close_prices.dropna(axis=1, how='all').ffill()
+    volumes = volumes.dropna(axis=1, how='all').ffill()
     valid_tickers = [t for t in tickers if t in close_prices.columns and t in volumes.columns]
     close_prices = close_prices[valid_tickers]
     volumes = volumes[valid_tickers]
@@ -118,34 +122,49 @@ def run_adaptive_weighted_strategy():
         except Exception:
             state = None
 
-    # Idempotency guard: never process the same daily bar twice.
-    if state and state.get('last_bar_date') == str(last_bar_date):
+    # A configuration change (new universe) is a new book even on the same bar,
+    # so it must be allowed to rebalance the transition.
+    same_book = bool(state) and state.get('universe') == UNIVERSE_TAG
+
+    # Idempotency guard: never process the same daily bar twice for the same book.
+    if state and same_book and state.get('last_bar_date') == str(last_bar_date):
         print(f"[{now_utc.isoformat()}] No new daily bar since last run ({last_bar_date}). Skipping.")
         return
 
+    prev_portfolio_val = BASE_CAPITAL
+    period_return = 0.0
+    turnover = 0.0
     if state is not None and 'portfolio_value' in state and 'last_prices' in state:
         prev_portfolio_val = float(state['portfolio_value'])
         prev_prices = state['last_prices']
         prev_weights = state.get('weights', {})
 
         # Compute period return on held positions
-        period_return = 0.0
-        for i, t in enumerate(tickers):
-            w = prev_weights.get(t, 0.0)
-            if t in prev_prices and prev_prices[t] > 0:
-                asset_ret = (latest_prices[t] - prev_prices[t]) / prev_prices[t]
+        for t in tickers:
+            w = float(prev_weights.get(t, 0.0))
+            if t in prev_prices and float(prev_prices[t]) > 0:
+                asset_ret = (latest_prices[t] - float(prev_prices[t])) / float(prev_prices[t])
                 period_return += w * asset_ret
 
-        # Turnover and costs
-        turnover = sum(abs(target_weights[i] - prev_weights.get(t, 0.0)) for i, t in enumerate(tickers))
+        # Turnover and costs.  Include positions that fell out of the current
+        # download so a data outage cannot silently drop a live position.
+        turnover = sum(abs(target_weights[i] - float(prev_weights.get(t, 0.0)))
+                       for i, t in enumerate(tickers))
+        stale = [t for t in prev_weights if t not in tickers and abs(float(prev_weights[t])) > 0]
+        if stale:
+            closing = sum(abs(float(prev_weights[t])) for t in stale)
+            turnover += closing
+            print(f"Warning: closing {len(stale)} stale position(s) missing from data: {', '.join(stale)}")
         costs = execution_engine.calculate_cost(turnover)
         current_portfolio_val = prev_portfolio_val * (1.0 + period_return - costs)
     else:
-        # Initial run: reset to clean starting baseline $10,000.00
-        current_portfolio_val = BASE_CAPITAL
-        period_return = 0.0
-        costs = 0.0
+        # Initial run from cash: the entry trade must pay its own cost.
+        turnover = float(np.abs(target_weights).sum())
+        costs = execution_engine.calculate_cost(turnover)
+        current_portfolio_val = BASE_CAPITAL * (1.0 - costs)
 
+    net_period_return = ((current_portfolio_val / prev_portfolio_val - 1.0)
+                         if prev_portfolio_val > 0 else 0.0)
     total_return_pct = ((current_portfolio_val - BASE_CAPITAL) / BASE_CAPITAL) * 100.0
 
     # 4. Generate IST Timestamp and Action Summary
@@ -165,14 +184,12 @@ def run_adaptive_weighted_strategy():
 
     # Trade History Persistence
     trade_history = state.get('trade_history', []) if state else []
-    period_pnl_usd = 0.0
-    if state is not None and 'portfolio_value' in state and 'last_prices' in state:
-        period_pnl_usd = current_portfolio_val - prev_portfolio_val
+    period_pnl_usd = current_portfolio_val - prev_portfolio_val
 
     trade_entry = {
         'timestamp_ist': ist_str,
         'action': action_summary,
-        'period_return_pct': round(period_return * 100.0, 3),
+        'period_return_pct': round(net_period_return * 100.0, 3),
         'period_pnl_usd': round(period_pnl_usd, 2),
         'portfolio_value': round(current_portfolio_val, 2),
         'total_return_pct': round(total_return_pct, 2),
@@ -190,14 +207,18 @@ def run_adaptive_weighted_strategy():
         'last_updated': now_utc.isoformat(),
         'last_updated_ist': ist_str,
         'last_action': action_summary,
-        'last_period_return_pct': round(period_return * 100.0, 3),
+        'leverage': round(lev, 2),
+        'universe': UNIVERSE_TAG,
+        'last_turnover': round(turnover, 4),
+        'last_costs': round(costs, 6),
+        'last_period_return_pct': round(net_period_return * 100.0, 3),
         'last_period_pnl_usd': round(period_pnl_usd, 2),
         'trade_history': trade_history
     }
 
-    # Save price snapshot after each run
-    snapshot_dir = Path("price_snapshots")
-    snapshot_dir.mkdir(exist_ok=True)
+    # Save price snapshot after each run (anchored to the package, not CWD).
+    snapshot_dir = Path(__file__).resolve().parent.parent / "price_snapshots"
+    snapshot_dir.mkdir(parents=True, exist_ok=True)
 
     snapshot = {
         "strategy": "adaptive",
@@ -209,6 +230,8 @@ def run_adaptive_weighted_strategy():
         "signals": asset_signals,
         "confidences": asset_confidences,
         "weights": {t: float(target_weights[i]) for i, t in enumerate(tickers)},
+        "leverage": float(lev),
+        "universe": UNIVERSE_TAG,
         "last_prices": latest_prices,
         "portfolio_value": current_portfolio_val
     }
@@ -225,6 +248,8 @@ def run_adaptive_weighted_strategy():
 
     print("\n--- ADAPTIVE WEIGHTED STRATEGY RESULTS ---")
     print(f"Current Portfolio Value: ${current_portfolio_val:.2f}")
+    print(f"Period Return: {net_period_return * 100:.2f}%  "
+          f"(gross {period_return * 100:.2f}%, costs {costs * 100:.3f}%)")
     print(f"Total Return from Base: {total_return_pct:.2f}%")
     print(f"Current Leverage: {lev:.2f}x")
     print("\nActive Portfolio Allocations:")

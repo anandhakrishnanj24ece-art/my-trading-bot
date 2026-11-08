@@ -38,8 +38,17 @@ def trend_score(close, lookback=50, vol_window=20, cap=5.0):
 
 
 def btc_regime_series(close, lookback=150):
-    """1.0 when BTC is above its lookback SMA, else 0.0."""
-    btc = close['BTC-USD']
+    """1.0 when BTC is above its lookback SMA, else 0.0.
+
+    Falls back to the first available column if BTC-USD is missing from a
+    download, so a single failed ticker cannot crash the live runner.
+    """
+    if isinstance(close, pd.Series):
+        btc = close
+    elif 'BTC-USD' in close.columns:
+        btc = close['BTC-USD']
+    else:
+        btc = close.iloc[:, 0]
     # A full window is required: a partial SMA in the first `lookback` days is
     # not a 150-day regime signal and can produce misleading early exposure.
     sma = btc.rolling(lookback, min_periods=lookback).mean()

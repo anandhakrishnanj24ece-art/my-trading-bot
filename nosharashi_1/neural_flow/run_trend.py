@@ -30,8 +30,9 @@ import yfinance as yf
 from neural_flow.alpha.trend import TrendVolSignal
 from neural_flow.execution.model import StealthExecution
 
-STATE_FILE = 'paper_state_trend.json'
-BALANCE_FILE = 'paper_balance_trend.txt'
+LIVE_DIR = Path(__file__).resolve().parent.parent
+STATE_FILE = str(LIVE_DIR / 'paper_state_trend.json')
+BALANCE_FILE = str(LIVE_DIR / 'paper_balance_trend.txt')
 BASE_CAPITAL = 10000.0
 TICKERS = ['BTC-USD', 'ETH-USD']
 
@@ -130,6 +131,8 @@ def main():
         period_pnl_usd = current_val - BASE_CAPITAL
         peak_equity = BASE_CAPITAL
 
+    net_period_return = ((current_val / prev_val - 1.0)
+                         if prev_val > 0 else 0.0)
     total_return_pct = (current_val / BASE_CAPITAL - 1.0) * 100.0
     max_dd = max(0.0, (peak_equity - current_val) / peak_equity) if peak_equity > 0 else 0.0
 
@@ -148,7 +151,7 @@ def main():
     history.append({
         'timestamp_ist': ist_str,
         'action': action_summary,
-        'period_return_pct': round(period_return * 100.0, 3),
+        'period_return_pct': round(net_period_return * 100.0, 3),
         'period_pnl_usd': round(period_pnl_usd, 2),
         'portfolio_value': round(current_val, 2),
         'total_return_pct': round(total_return_pct, 2),
@@ -166,7 +169,7 @@ def main():
         'last_updated': now_utc.isoformat(),
         'last_updated_ist': ist_str,
         'last_action': action_summary,
-        'last_period_return_pct': round(period_return * 100.0, 3),
+        'last_period_return_pct': round(net_period_return * 100.0, 3),
         'last_period_pnl_usd': round(period_pnl_usd, 2),
         'last_turnover': round(turnover, 4),
         'last_costs': round(costs, 6),
@@ -195,7 +198,8 @@ def main():
 
     print('\n--- TREND VOL RESULTS ---')
     print(f"Portfolio Value: ${current_val:.2f}")
-    print(f"Period Return:   {period_return * 100:.2f}%  (costs {costs * 100:.3f}%)")
+    print(f"Period Return:   {net_period_return * 100:.2f}%  "
+          f"(gross {period_return * 100:.2f}%, costs {costs * 100:.3f}%)")
     print(f"Total Return:    {total_return_pct:.2f}%")
     print(f"Max Drawdown:    {max_dd * 100:.2f}%")
     print('Allocations:')
