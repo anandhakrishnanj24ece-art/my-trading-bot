@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-11-07 17:43:13 UTC",
-  "updated_at_ist": "07 Nov 2026, 11:13:13 PM IST",
+  "updated_at": "2026-11-08 02:38:04 UTC",
+  "updated_at_ist": "08 Nov 2026, 08:08:04 AM IST",
   "adaptive": {
     "portfolio_value": 10000.0,
     "weights": {
@@ -110,7 +110,6 @@
     "last_period_pnl_usd": 0.0,
     "trade_history": []
   },
-  "amd": {},
   "trend": {
     "strategy": "trend_vol",
     "portfolio_value": 10000.0,
@@ -143,6 +142,7 @@
       }
     ]
   },
+  "amd": {},
   "history_adaptive": [
     {
       "timestamp_ist": "29 Oct 2026, 08:55:03 PM IST",

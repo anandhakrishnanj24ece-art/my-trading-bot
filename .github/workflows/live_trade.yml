@@ -8,6 +8,11 @@ on:
 permissions:
   contents: write
 
+# Serialize with the daily adaptive workflow so the two bots never race on git.
+concurrency:
+  group: paper-trading-state
+  cancel-in-progress: false
+
 jobs:
   amd-intraday:
     runs-on: ubuntu-latest
@@ -29,10 +34,14 @@ jobs:
           export PYTHONPATH=$(pwd)
           python amd_paper_trader.py --live --capital 10000 --symbols BTC-USD ETH-USD SOL-USD BNB-USD XRP-USD
 
+      - name: Refresh dashboard feed
+        run: python build_dashboard.py
+
       - name: Commit & Push AMD state
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add paper_state.json equity_history.json
+          git add paper_state.json equity_history.json dashboard_data.json
           git commit -m "Auto-update AMD paper state [skip ci]" || echo "No AMD change to commit"
+          git pull --rebase --autostash origin main
           git push

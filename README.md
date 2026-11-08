@@ -1,98 +1,68 @@
-# AMD Quant Trading Bot — Paper Trading on GitHub Actions
+# No-Sharashi — Multi-Strategy Paper Trading Bot
 
-## Overview
+Four paper-trading strategies run on GitHub Actions and publish a static dashboard:
 
-The AMD (Accumulation / Manipulation / Distribution) Smart Money Concepts bot runs as a **paper trader** on GitHub Actions every 6 minutes. It fetches live OHLCV data via yfinance (free, no API key), simulates trades with fees/slippage/funding, and persists state between runs via `paper_state.json`.
+| # | Strategy | Runner | State |
+|---|----------|--------|-------|
+| 1 | Adaptive Weighted (LiquidityAlpha) | `nosharashi_1/neural_flow/run_adaptive.py` | `nosharashi_1/paper_state_adaptive.json` |
+| 2 | Adaptive v3 (trend + regime + Lasso) | `nosharashi_1/neural_flow/run_adaptive_v3.py` | `nosharashi_1/paper_state_v3.json` |
+| 3 | TrendVol (50d time-series momentum) | `nosharashi_1/neural_flow/run_trend.py` | `nosharashi_1/paper_state_trend.json` |
+| 4 | AMD Smart Money (PO3) | `amd_paper_trader.py` | `paper_state.json` |
 
-## Files
+## Workflows
 
-| File | Purpose |
-|------|---------|
-| `.github/workflows/paper_trade.yml` | GitHub Actions cron (every 6 min) |
-| `amd_paper_trader.py` | Paper trading engine with state persistence |
-| `amd_futures_backtest.py` | Backtest engine + signal logic |
-| `amd_full_validation_oos.py` | Quantitative validation suite |
-| `paper_state.json` | Persisted state (auto-generated) |
-| `equity_history.json` | Equity curve history (auto-generated) |
-| `requirements.txt` | Python dependencies |
+| File | Schedule | Purpose |
+|------|----------|---------|
+| `.github/workflows/adaptive_daily.yml` | Daily at 01:00 UTC | Runs strategies 1–3 after the crypto daily candle closes |
+| `.github/workflows/live_trade.yml` | Every 6 minutes | Runs strategy 4 (AMD) |
 
-## Setup
+Both workflows share the `paper-trading-state` concurrency group, so they cannot
+push state at the same time. They commit their own state files back to `main`.
+No Personal Access Token is required: the workflows use the repository
+`GITHUB_TOKEN` with `contents: write`.
 
-### 1. Create a GitHub repository
+## Dashboard
 
-Push this code to a GitHub repo.
+`index.html` is a static dashboard that reads `dashboard_data.json`. Regenerate
+the feed after running any strategy:
 
-### 2. Create a Personal Access Token (PAT)
-
-The workflow needs a PAT to commit `paper_state.json` back to the repo after each run.
-
-1. Go to GitHub → Settings → Developer settings → Personal access tokens → Fine-grained tokens
-2. Generate a new token with these permissions:
-   - **Repository permissions**: Contents (read & write)
-   - **Repository permissions**: Issues (read & write) — optional
-3. Copy the token.
-
-### 3. Add the PAT as a GitHub secret
-
-1. In your GitHub repo → Settings → Secrets and variables → Actions
-2. Click "New repository secret"
-3. Name: `PAPER_TRADER_PAT`
-4. Value: paste your PAT token
-5. Click "Add secret"
-
-### 4. Enable Actions
-
-In your repo → Settings → Actions → General → Allow all actions and reusable workflows.
-
-### 5. Initialize state (optional)
-
-Create an empty `paper_state.json` and `equity_history.json` in the repo root so the first commit has something to work with:
-
-```json
-{}
+```bash
+python build_dashboard.py
+python nosharashi_1/update_history_md.py
 ```
 
-## How It Works
+The dashboard shows all four strategies, a union of monitored assets, and the
+last strategy comparison cards from `dashboard_data.json`.
 
-1. **Cron trigger**: Every 6 minutes (`*/6 * * * *`), GitHub Actions starts a new job
-2. **Checkout**: The repo is checked out with write permissions (using the PAT)
-3. **Python setup**: Python 3.11 is installed, dependencies from `requirements.txt` are installed
-4. **Paper trade**: `amd_paper_trader.py` runs for each symbol (BTC-USD, ETH-USD, SOL-USD, BNB-USD, XRP-USD)
-   - Loads persisted state from `paper_state.json` (equity, open positions, stops, etc.)
-   - Fetches last 60 days of 1h OHLCV data from yfinance
-   - Processes only the past 30 days as the "live" paper window
-   - Executes entries/exits with fees (0.05% taker), slippage (1 bp), funding (0.01%/8h)
-   - Applies drawdown kill switch (20% halt, 15% → 50% size reduction)
-5. **Commit**: Updated `paper_state.json` and `equity_history.json` are committed back to the repo
+## Running locally
 
-## Viewing Results
+```bash
+pip install -r requirements.txt
 
-- Check the **Actions tab** in your GitHub repo for run logs
-- `paper_state.json` shows current equity, open positions, stops, and trade history per symbol
-- `equity_history.json` shows the equity curve over time
+cd nosharashi_1
+export PYTHONPATH=$(pwd)          # PowerShell: $env:PYTHONPATH = (Get-Location).Path
+python neural_flow/run_adaptive.py
+python neural_flow/run_adaptive_v3.py
+python neural_flow/run_trend.py
 
-## Manual Trigger
+cd ..
+python amd_paper_trader.py --live --capital 10000 --symbols BTC-USD ETH-USD SOL-USD BNB-USD XRP-USD
+python build_dashboard.py
+python nosharashi_1/update_history_md.py
+```
 
-You can also run the trader manually from the Actions tab → "AMD Paper Trader" → "Run workflow".
+## Notes
 
-## Important Notes
+- Market data comes from yfinance (free, no API key) and can be rate-limited or
+  return incomplete data. Runners forward-fill gaps and never back-fill, so
+  missing history cannot leak future prices into a signal.
+- Entry costs, turnover costs, and short financing are charged in the live
+  accounting. Period returns shown on the dashboard are net of those costs.
+- Local caches, model pickles, account artefacts, and `config.json` are ignored
+  by git; see `.gitignore`.
+- `TRADE_HISTORY.md` is generated from the live state files by
+  `nosharashi_1/update_history_md.py`.
 
-- **yfinance is free but unreliable** — it may return empty data or rate-limit. For production paper trading, consider a paid market data API.
-- **GitHub Actions free tier**: 2,000 minutes/month. A 6-minute cron running 5 symbols should stay well within limits.
-- **Each job has a 10-minute timeout** — if data fetching takes longer, the job will fail.
-- **State persistence**: `paper_state.json` is committed back after each run, so positions, stops, and equity persist across cron executions.
-- **Capital**: The AMD portfolio starts with a unified `$10,000.00` baseline (allocated across the monitored symbols, set via `--capital 10000` in the workflow). State persists across cron executions.
+## Manual trigger
 
-## Customizing
-
-Edit `.github/workflows/paper_trade.yml` to:
-- Change symbols: modify `--symbols` argument
-- Change capital: modify `--capital` argument
-- Change frequency: modify the cron expression (minimum 5 minutes on GitHub Actions)
-
-## Stopping the Bot
-
-To stop, either:
-1. Disable the workflow in the Actions tab, or
-2. Remove the `.github/workflows/paper_trade.yml` file and push
-
+Open the **Actions** tab, select either workflow, and choose **Run workflow**.

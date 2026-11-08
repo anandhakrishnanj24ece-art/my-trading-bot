@@ -1,6 +1,7 @@
-import os
 import json
+import os
 import re
+
 
 def parse_action(action_str):
     """Render every position in a multi-asset action string (not just the first)."""
@@ -12,24 +13,103 @@ def parse_action(action_str):
     sizes = ", ".join(f"{m[2]}%" for m in matches)
     return tickers, prices, sizes
 
+
+def result_label(action, pnl):
+    if "CASH" in action:
+        return "⚪ CASH EXIT"
+    if pnl > 0:
+        return "🟢 PROFIT"
+    return "🔴 LOSS"
+
+
+def signed_money(value):
+    return f"+${value:,.2f}" if value >= 0 else f"-${abs(value):,.2f}"
+
+
+def signed_pct(value):
+    return f"+{value:.2f}%" if value >= 0 else f"{value:.2f}%"
+
+
+def render_trade_rows(trades, include_drawdown=False, include_leverage=False):
+    rows = []
+    for idx, trade in enumerate(trades, 1):
+        action = trade.get('action', '')
+        asset, price, size = parse_action(action)
+        pnl = trade.get('period_pnl_usd', 0.0)
+        ret = trade.get('period_return_pct', 0.0)
+        balance = trade.get('portfolio_value', 0.0)
+        total_ret = trade.get('total_return_pct', 0.0)
+
+        cells = [
+            str(idx),
+            trade.get('timestamp_ist', ''),
+            action,
+            asset,
+            price,
+            size,
+            f"**{signed_money(pnl)}**",
+            f"**{signed_pct(ret)}**",
+            f"${balance:,.2f}",
+            signed_pct(total_ret),
+        ]
+        if include_drawdown:
+            cells.append(f"{trade.get('max_dd', 0.0) * 100.0:.2f}%")
+        if include_leverage:
+            cells.append(f"{trade.get('leverage', 0.0):.1f}x")
+        cells.append(result_label(action, pnl))
+        rows.append("| " + " | ".join(cells) + " |")
+    return rows
+
+
+def render_strategy(number, title, model, state, include_drawdown=False, include_leverage=False):
+    trades = state.get('trade_history', [])
+    current_value = state.get('portfolio_value', 10000.0)
+    peak_value = state.get('peak_equity', 10000.0)
+    total_return = ((current_value - 10000.0) / 10000.0) * 100.0
+    action = state.get('last_action', '100% CASH (Neutral)')
+
+    lines = [
+        f"## {title.format(number=number)}",
+        f"* **Model:** {model}",
+        "* **Initial Capital:** `$10,000.00`",
+        f"* **Current Portfolio Value:** `${current_value:,.2f}`",
+    ]
+    if include_drawdown:
+        lines.append(f"* **Peak Equity (HWM):** `${peak_value:,.2f}`")
+    lines.extend([
+        f"* **Net Return:** `{total_return:+.2f}%`",
+        f"* **Current Status:** `{action}`",
+        "",
+        "### Trade History Log",
+    ])
+
+    headers = [
+        "#", "Timestamp (IST)", "Action / Position", "Asset",
+        "Entry / Exit Price", "Size (%)", "Period PnL ($)",
+        "Period Return", "Portfolio Balance", "Total Return",
+    ]
+    separators = ["---"] * len(headers)
+    if include_drawdown:
+        headers.append("Max DD")
+        separators.append("---")
+    if include_leverage:
+        headers.append("Leverage")
+        separators.append("---")
+    headers.append("Result")
+    separators.append("---")
+
+    lines.append("| " + " | ".join(headers) + " |")
+    lines.append("|" + "|".join(separators) + "|")
+    lines.extend(render_trade_rows(
+        trades,
+        include_drawdown=include_drawdown,
+        include_leverage=include_leverage,
+    ))
+    lines.extend(["", "---", ""])
+    return lines
+
+
 def generate_markdown(adaptive_state, v3_state, trend_state, output_path):
-    v3_trades = v3_state.get('trade_history', [])
-    v3_curr_val = v3_state.get('portfolio_value', 10000.0)
-    v3_peak_val = v3_state.get('peak_equity', 10000.0)
-    v3_ret = ((v3_curr_val - 10000.0) / 10000.0) * 100.0
-    v3_action = v3_state.get('last_action', '100% CASH (Neutral)')
-
-    adaptive_trades = adaptive_state.get('trade_history', [])
-    adaptive_curr_val = adaptive_state.get('portfolio_value', 10000.0)
-    adaptive_ret = ((adaptive_curr_val - 10000.0) / 10000.0) * 100.0
-    adaptive_action = adaptive_state.get('last_action', '100% CASH (Neutral)')
-
-    trend_trades = trend_state.get('trade_history', [])
-    trend_curr_val = trend_state.get('portfolio_value', 10000.0)
-    trend_peak_val = trend_state.get('peak_equity', 10000.0)
-    trend_ret = ((trend_curr_val - 10000.0) / 10000.0) * 100.0
-    trend_action = trend_state.get('last_action', '100% CASH (Neutral)')
-
     lines = [
         "# 📊 Institutional Paper Trading Execution History",
         "",
@@ -38,173 +118,66 @@ def generate_markdown(adaptive_state, v3_state, trend_state, output_path):
         "",
         "---",
         "",
-        "## 🚀 Strategy 1: Adaptive v3 Strategy (Hyper-Adaptive Optimizer)",
-        "* **Model:** 50d Trend Score (15 assets) + BTC 150d Regime Filter + Square-Root Lasso (λ=0.05) + Elastic Hysteresis + 2% No-Trade Band + Ledoit-Wolf (60d) 15% Vol Target",
-        "* **Initial Capital:** `$10,000.00`",
-        f"* **Current Portfolio Value:** `${v3_curr_val:,.2f}`",
-        f"* **Peak Equity (HWM):** `${v3_peak_val:,.2f}`",
-        f"* **Net Return:** `{v3_ret:+.2f}%`",
-        f"* **Current Status:** `{v3_action}`",
-        "",
-        "### Trade History Log",
-        "| # | Timestamp (IST) | Action / Position | Asset | Entry / Exit Price | Size (%) | Period PnL ($) | Period Return | Portfolio Balance | Total Return | Max DD | Result |",
-        "|---|-----------------|-------------------|-------|--------------------|----------|----------------|---------------|-------------------|--------------|--------|--------|"
     ]
 
-    for idx, t in enumerate(v3_trades, 1):
-        action = t.get('action', '')
-        asset, price, size = parse_action(action)
-        pnl = t.get('period_pnl_usd', 0.0)
-        ret = t.get('period_return_pct', 0.0)
-        balance = t.get('portfolio_value', 0.0)
-        tot_ret = t.get('total_return_pct', 0.0)
-        max_dd = t.get('max_dd', 0.0) * 100.0
-
-        if "CASH" in action:
-            res = "⚪ CASH EXIT"
-        elif pnl > 0:
-            res = "🟢 PROFIT"
-        else:
-            res = "🔴 LOSS"
-
-        pnl_str = f"+${pnl:,.2f}" if pnl >= 0 else f"-${abs(pnl):,.2f}"
-        ret_str = f"+{ret:.2f}%" if ret >= 0 else f"{ret:.2f}%"
-        tot_ret_str = f"+{tot_ret:.2f}%" if tot_ret >= 0 else f"{tot_ret:.2f}%"
-
-        lines.append(
-            f"| {idx} | {t.get('timestamp_ist', '')} | {action} | {asset} | {price} | {size} | **{pnl_str}** | **{ret_str}** | ${balance:,.2f} | {tot_ret_str} | {max_dd:.2f}% | {res} |"
-        )
-
-    lines.extend([
-        "",
-        "---",
-        "",
-        "## 📈 Strategy 2: Adaptive Weighted Strategy (Base Adaptive Model)",
-        "* **Model:** LiquidityAlpha + Dynamic Confidence Capping + Volatility Switch Leverage (4.0x)",
-        "* **Initial Capital:** `$10,000.00`",
-        f"* **Current Portfolio Value:** `${adaptive_curr_val:,.2f}`",
-        f"* **Net Return:** `{adaptive_ret:+.2f}%`",
-        f"* **Current Status:** `{adaptive_action}`",
-        "",
-        "### Trade History Log",
-        "| # | Timestamp (IST) | Action / Position | Asset | Entry / Exit Price | Size (%) | Period PnL ($) | Period Return | Portfolio Balance | Total Return | Leverage | Result |",
-        "|---|-----------------|-------------------|-------|--------------------|----------|----------------|---------------|-------------------|--------------|----------|--------|"
-    ])
-
-    for idx, t in enumerate(adaptive_trades, 1):
-        action = t.get('action', '')
-        asset, price, size = parse_action(action)
-        pnl = t.get('period_pnl_usd', 0.0)
-        ret = t.get('period_return_pct', 0.0)
-        balance = t.get('portfolio_value', 0.0)
-        tot_ret = t.get('total_return_pct', 0.0)
-        lev = t.get('leverage', 4.0)
-
-        if "CASH" in action:
-            res = "⚪ CASH EXIT"
-        elif pnl > 0:
-            res = "🟢 PROFIT"
-        else:
-            res = "🔴 LOSS"
-
-        pnl_str = f"+${pnl:,.2f}" if pnl >= 0 else f"-${abs(pnl):,.2f}"
-        ret_str = f"+{ret:.2f}%" if ret >= 0 else f"{ret:.2f}%"
-        tot_ret_str = f"+{tot_ret:.2f}%" if tot_ret >= 0 else f"{tot_ret:.2f}%"
-
-        lines.append(
-            f"| {idx} | {t.get('timestamp_ist', '')} | {action} | {asset} | {price} | {size} | **{pnl_str}** | **{ret_str}** | ${balance:,.2f} | {tot_ret_str} | {lev:.1f}x | {res} |"
-        )
+    # Keep this order identical to the web dashboard: S1 Adaptive, S2 v3, S3 TrendVol.
+    lines.extend(render_strategy(
+        1,
+        "🔵 Strategy {number}: Adaptive Weighted Strategy (Base Adaptive Model)",
+        "LiquidityAlpha + Dynamic Confidence Capping + Volatility Switch Leverage (max 4x)",
+        adaptive_state,
+        include_leverage=True,
+    ))
+    lines.extend(render_strategy(
+        2,
+        "🚀 Strategy {number}: Adaptive v3 Strategy (Hyper-Adaptive Optimizer)",
+        "50d Trend Score (15 assets) + BTC 150d Regime Filter + Square-Root Lasso (λ=0.05) + Elastic Hysteresis + 2% No-Trade Band + Ledoit-Wolf (60d) 15% Vol Target",
+        v3_state,
+        include_drawdown=True,
+    ))
+    lines.extend(render_strategy(
+        3,
+        "📉 Strategy {number}: TrendVol (Redesigned Signal)",
+        "Long-only 50-day time-series momentum on BTC + ETH, inverse-vol sizing, 15% volatility target",
+        trend_state,
+        include_drawdown=True,
+    ))
 
     lines.extend([
-        "",
-        "---",
-        "",
-        "## 📉 Strategy 3: TrendVol (Redesigned Signal)",
-        "* **Model:** Long-only 50-day time-series momentum on BTC + ETH, inverse-vol sizing, 15% volatility target",
-        "* **Initial Capital:** `$10,000.00`",
-        f"* **Current Portfolio Value:** `${trend_curr_val:,.2f}`",
-        f"* **Peak Equity (HWM):** `${trend_peak_val:,.2f}`",
-        f"* **Net Return:** `{trend_ret:+.2f}%`",
-        f"* **Current Status:** `{trend_action}`",
-        "",
-        "### Trade History Log",
-        "| # | Timestamp (IST) | Action / Position | Asset | Entry / Exit Price | Size (%) | Period PnL ($) | Period Return | Portfolio Balance | Total Return | Max DD | Result |",
-        "|---|-----------------|-------------------|-------|--------------------|----------|----------------|---------------|-------------------|--------------|--------|--------|"
-    ])
-
-    for idx, t in enumerate(trend_trades, 1):
-        action = t.get('action', '')
-        asset, price, size = parse_action(action)
-        pnl = t.get('period_pnl_usd', 0.0)
-        ret = t.get('period_return_pct', 0.0)
-        balance = t.get('portfolio_value', 0.0)
-        tot_ret = t.get('total_return_pct', 0.0)
-        max_dd = t.get('max_dd', 0.0) * 100.0
-
-        if "CASH" in action:
-            res = "⚪ CASH EXIT"
-        elif pnl > 0:
-            res = "🟢 PROFIT"
-        else:
-            res = "🔴 LOSS"
-
-        pnl_str = f"+${pnl:,.2f}" if pnl >= 0 else f"-${abs(pnl):,.2f}"
-        ret_str = f"+{ret:.2f}%" if ret >= 0 else f"{ret:.2f}%"
-        tot_ret_str = f"+{tot_ret:.2f}%" if tot_ret >= 0 else f"{tot_ret:.2f}%"
-
-        lines.append(
-            f"| {idx} | {t.get('timestamp_ist', '')} | {action} | {asset} | {price} | {size} | **{pnl_str}** | **{ret_str}** | ${balance:,.2f} | {tot_ret_str} | {max_dd:.2f}% | {res} |"
-        )
-
-    lines.extend([
-        "",
-        "---",
-        "",
         "## ⚙️ Strategy Comparison & Specifications",
         "",
-        "| Feature | Adaptive v3 (Hyper-Adaptive) | Adaptive Weighted (Base) | TrendVol (Redesigned) |",
+        "| Feature | Adaptive Weighted (Base) | Adaptive v3 (Hyper-Adaptive) | TrendVol (Redesigned) |",
         "|---|---|---|---|",
-        "| **Signal** | 50d trend score across 15 assets + BTC 150d regime | LiquidityAlpha | 50d time-series momentum on BTC + ETH |",
-        "| **Turnover Control** | Elastic Hysteresis + 2% no-trade band | None | Daily, ~4%/bar |",
-        "| **Risk Architecture** | 60d Ledoit-Wolf + 15% vol target, max 2x + BTC 150d regime | Volatility Switch (4x -> 1x) | Inverse-vol + 15% vol target, max 2x |",
-        "| **Position Sizing** | Probabilistic (5%-50% per asset) | Proportional to signal | Inverse-vol, gross normalised |",
-        "| **Shorting** | Yes (cash below BTC 150d SMA) | Yes | No (long or cash) |",
-        "| **Out-of-sample** | 2024-26: +21.1%/yr, Sharpe 1.57 CAGR/vol (1.49 mean/std), 10.5% MDD (fixed 15); PIT liquidity universe: +11.3%/yr, 0.81 Sharpe | Loses after look-ahead fix | Sharpe ~1.0, +10%/yr alpha vs BTC |",
-        "| **Execution Cost Model** | Stealth Iceberg (0.05% + 0.014% slip) + 3 bp/day short financing | Stealth Iceberg (0.05% + 0.014% slip) | Stealth Iceberg (0.05% + 0.014% slip) |",
+        "| **Signal** | LiquidityAlpha | 50d trend score across 15 assets + BTC 150d regime | 50d time-series momentum on BTC + ETH |",
+        "| **Turnover Control** | None | Elastic Hysteresis + 2% no-trade band | Daily, ~4%/bar |",
+        "| **Risk Architecture** | Volatility Switch (max 4x) | 60d Ledoit-Wolf + 15% vol target, max 2x + BTC 150d regime | Inverse-vol + 15% vol target, max 2x |",
+        "| **Position Sizing** | Proportional to signal | Probabilistic (5%-50% per asset) | Inverse-vol, gross normalised |",
+        "| **Shorting** | Yes | Yes (cash below BTC 150d SMA) | No (long or cash) |",
+        "| **Out-of-sample** | Loses after look-ahead fix | 2024-26: +21.1%/yr, Sharpe 1.57 CAGR/vol (1.49 mean/std), 10.5% MDD (fixed 15); PIT liquidity universe: +11.3%/yr, 0.81 Sharpe | Sharpe ~1.0, +10%/yr alpha vs BTC |",
+        "| **Execution Cost Model** | Stealth Iceberg (0.05% + 0.014% slip) | Stealth Iceberg (0.05% + 0.014% slip) + 3 bp/day short financing | Stealth Iceberg (0.05% + 0.014% slip) |",
         "",
         "*v3 backtest note:* the fixed 15-asset result is survivorship-biased because those assets survived to today. A point-in-time top-15-by-liquidity backtest, which includes assets that later collapsed, gives +11.3%/yr and 0.81 Sharpe in 2024-26; its 95% block-bootstrap Sharpe interval includes zero. Treat the fixed-15 figure as an upper bound, not a guarantee. The test window was also observed during tuning, so the edge is not statistically overwhelming after multiple-testing adjustment.",
-        ""
+        "",
     ])
 
-    with open(output_path, 'w', encoding='utf-8') as f:
-        f.write("\n".join(lines))
+    with open(output_path, 'w', encoding='utf-8', newline='\n') as handle:
+        handle.write("\n".join(lines))
+
+
+def load_state(path):
+    try:
+        with open(path, 'r', encoding='utf-8') as handle:
+            return json.load(handle)
+    except (OSError, ValueError):
+        return {}
+
 
 if __name__ == '__main__':
     base_dir = os.path.dirname(os.path.abspath(__file__))
-    s1_path = os.path.join(base_dir, 'paper_state_adaptive.json')
-    s2_path = os.path.join(base_dir, 'paper_state_v3.json')
-    s3_path = os.path.join(base_dir, 'paper_state_trend.json')
+    adaptive_state = load_state(os.path.join(base_dir, 'paper_state_adaptive.json'))
+    v3_state = load_state(os.path.join(base_dir, 'paper_state_v3.json'))
+    trend_state = load_state(os.path.join(base_dir, 'paper_state_trend.json'))
     out_path = os.path.abspath(os.path.join(base_dir, '..', 'TRADE_HISTORY.md'))
 
-    s1, s2, s3 = {}, {}, {}
-    if os.path.exists(s1_path):
-        try:
-            with open(s1_path, 'r', encoding='utf-8') as f:
-                s1 = json.load(f)
-        except Exception:
-            pass
-    if os.path.exists(s2_path):
-        try:
-            with open(s2_path, 'r', encoding='utf-8') as f:
-                s2 = json.load(f)
-        except Exception:
-            pass
-    if os.path.exists(s3_path):
-        try:
-            with open(s3_path, 'r', encoding='utf-8') as f:
-                s3 = json.load(f)
-        except Exception:
-            pass
-
-    generate_markdown(s1, s2, s3, out_path)
+    generate_markdown(adaptive_state, v3_state, trend_state, out_path)
     print(f"Successfully generated {out_path}")
