@@ -8,12 +8,12 @@
     "ETH-USD": 0.0
   },
   "last_prices": {
-    "BTC-USD": 75722.5703125,
-    "ETH-USD": 2230.43994140625
+    "BTC-USD": 73914.4296875,
+    "ETH-USD": 2090.159912109375
   },
-  "last_bar_date": "2026-11-08",
-  "last_updated": "2026-11-08T06:59:39.411297+00:00",
-  "last_updated_ist": "08 Nov 2026, 12:29:39 PM IST",
+  "last_bar_date": "2026-11-09",
+  "last_updated": "2026-11-09T07:44:13.873406+00:00",
+  "last_updated_ist": "09 Nov 2026, 01:14:13 PM IST",
   "last_action": "100% CASH (Neutral)",
   "no_trade_band": 0.02,
   "last_gross_return_pct": 0.0,
