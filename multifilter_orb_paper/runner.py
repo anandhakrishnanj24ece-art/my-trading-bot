@@ -247,6 +247,9 @@ def _completed_bars(df: pd.DataFrame, now: datetime) -> pd.DataFrame:
 
 def run_tick(dry_run: bool = False, now: datetime | None = None) -> dict:
     state = PaperState()
+    # Always persist initial state so the directory/files exist on GitHub.
+    state.save()
+
     result = {
         "time_et": None,
         "halted": state.is_halted(),
@@ -324,22 +327,27 @@ def run_tick(dry_run: bool = False, now: datetime | None = None) -> dict:
 
         exit_price = None
         reason = ""
+        exit_ts = latest.name
         for ts, bar in after_entry.iterrows():
             high = float(bar["High"])
             low = float(bar["Low"])
             if direction == "long":
                 if low <= stop:
                     exit_price, reason = stop, "stop"
+                    exit_ts = ts
                     break
                 if high >= target:
                     exit_price, reason = target, "target"
+                    exit_ts = ts
                     break
             else:
                 if high >= stop:
                     exit_price, reason = stop, "stop"
+                    exit_ts = ts
                     break
                 if low <= target:
                     exit_price, reason = target, "target"
+                    exit_ts = ts
                     break
 
         if exit_price is None and now.time() >= dtime(15, 55):
@@ -363,7 +371,7 @@ def run_tick(dry_run: bool = False, now: datetime | None = None) -> dict:
                 "stop_price": stop,
                 "target_price": target,
                 "entry_time": str(position["opened_at"]),
-                "exit_time": str(ts if "ts" in locals() else latest.name),
+                "exit_time": str(exit_ts),
                 "gross_points": round(gross_pts, 4),
                 "net_points": round(net_pts, 4),
                 "net_usd": round(net_usd, 2),
