@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>UltimateORB Paper Monitor</title>
+<title>Multi-Filter ORB — Live Paper Monitor</title>
 <style>
   :root { color-scheme: dark; }
   body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background: #0b1020; color: #e8edf7; }
@@ -16,7 +16,7 @@
   .value { font-size: 24px; font-weight: 700; margin-top: 6px; }
   .good { color: #3ddc97; }
   .bad { color: #ff6b6b; }
-  .warn { color: #ffd166; }
+  .neutral { color: #ffd166; }
   table { width: 100%; border-collapse: collapse; background: #151c33; border-radius: 14px; overflow: hidden; }
   th, td { padding: 10px 12px; border-bottom: 1px solid #263156; text-align: left; font-size: 13px; }
   th { color: #9fb0d6; font-weight: 600; }
@@ -33,14 +33,14 @@
 </head>
 <body>
 <div class="wrap">
-  <h1>UltimateORB Paper Monitor</h1>
-  <div class="sub">Paper-only. NQ futures proxy, 6.6 / 10.0 points, 1 MNQ. Auto-refreshes every 60 seconds. Times shown in IST.</div>
+  <h1>Multi-Filter ORB — Live Paper Monitor</h1>
+  <div class="sub">Paper-only. NQ=F 5m, opening-range breakout, 6.6/10-style risk. Auto-refreshes every 60 seconds. Times in IST.</div>
 
   <div class="grid">
     <div class="card"><div class="label">Status</div><div class="value" id="status">Loading…</div></div>
     <div class="card"><div class="label">Balance</div><div class="value" id="equity">—</div></div>
     <div class="card"><div class="label">Unrealized P&L</div><div class="value" id="unrealized">—</div></div>
-    <div class="card"><div class="label">Position holding</div><div class="value" id="holding" style="font-size:18px">—</div></div>
+    <div class="card"><div class="label">Position Holding</div><div class="value" id="holding" style="font-size:18px">—</div></div>
     <div class="card"><div class="label">Cash</div><div class="value" id="cash">—</div></div>
     <div class="card"><div class="label">Realized P&L</div><div class="value" id="pnl">—</div></div>
     <div class="card"><div class="label">Trades</div><div class="value" id="trades">—</div></div>
@@ -49,39 +49,38 @@
   </div>
 
   <div class="section">
-    <h2>Open position</h2>
+    <h2>Open Position</h2>
     <div id="openWrap"><div class="empty">No open position.</div></div>
   </div>
 
   <div class="section">
-    <h2>Equity curve</h2>
+    <h2>Equity Curve</h2>
     <canvas id="chart" class="chart"></canvas>
   </div>
 
   <div class="section">
-    <h2>Closed trades</h2>
+    <h2>Closed Trades</h2>
     <div id="tradesWrap"><div class="empty">No closed trades.</div></div>
   </div>
 
   <div class="section links">
-    <a href="https://github.com/anandhakrishnanj24ece-art/my-trading-bot/actions/workflows/ultimateorb_paper_runner.yml">Session runner</a>
+    <a href="https://github.com/anandhakrishnanj24ece-art/my-trading-bot/actions/workflows/multifilter_orb_runner.yml">Runner workflow</a>
     <a href="https://github.com/anandhakrishnanj24ece-art/my-trading-bot/actions/workflows/ultimateorb_halt.yml">Halt switch</a>
-    <a href="https://github.com/anandhakrishnanj24ece-art/my-trading-bot/blob/main/ultimateorb_paper/state/paper_state.json">Raw state</a>
+    <a href="https://github.com/anandhakrishnanj24ece-art/my-trading-bot/blob/main/multifilter_orb_paper/state/paper_state.json">Raw state</a>
   </div>
 
   <p class="note">
-    This is a paper-only proxy. The original UltimateORB rules and dated trade CSV are still missing.
-    Halt blocks new entries but still allows marking and closing an open paper position.
+    This is a <b>paper-only</b> proxy of the Multi-Filter Opening Range Breakout. The original Pine Script strategy runs on TradingView; this is an independent Python port trading NQ=F 5-minute bars. No broker adapter, no API keys, no live orders.
   </p>
 </div>
 <script>
-const stateUrl = './ultimateorb_paper/state/paper_state.json';
-const controlUrl = './ultimateorb_paper/state/control.json';
+const stateUrl = './multifilter_orb_paper/state/paper_state.json';
+const controlUrl = './multifilter_orb_paper/state/control.json';
 
 function money(x) { return '$' + Number(x).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}); }
 function points(x) { return Number(x).toFixed(1) + ' pts'; }
 const istOpts = { timeZone: 'Asia/Kolkata', year: 'numeric', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
-function fmtIST(x) { return new Date(x).toLocaleString('en-IN', istOpts) + ' IST'; }
+function fmtIST(x) { return x ? new Date(x).toLocaleString('en-IN', istOpts) + ' IST' : '—'; }
 
 async function load() {
   try {
@@ -107,7 +106,10 @@ async function load() {
     document.getElementById('pnl').textContent = money(state.realized_pnl ?? 0);
     document.getElementById('trades').textContent = trades.length;
     document.getElementById('winrate').textContent = winRate.toFixed(1) + '%';
-    document.getElementById('updated').textContent = state.last_update ? fmtIST(state.last_update) : '—';
+    document.getElementById('updated').textContent = fmtIST(state.last_update);
+
+    const pnlEl = document.getElementById('pnl');
+    pnlEl.className = 'value ' + ((state.realized_pnl ?? 0) >= 0 ? 'good' : 'bad');
 
     const unrealEl = document.getElementById('unrealized');
     unrealEl.textContent = money(unrealized);
@@ -117,23 +119,20 @@ async function load() {
     holdingEl.textContent = positions.length
       ? positions.map(p => `${p.direction} @ ${Number(p.entry_price).toFixed(2)}`).join(', ')
       : 'None';
-    holdingEl.className = 'value ' + (positions.length ? 'good' : '');
+    holdingEl.className = 'value ' + (positions.length ? 'good' : 'neutral');
 
-    const pnlEl = document.getElementById('pnl');
-    pnlEl.className = 'value ' + ((state.realized_pnl ?? 0) >= 0 ? 'good' : 'bad');
-
-    // Open positions
+    // Open positions table
     const openWrap = document.getElementById('openWrap');
-    if ((state.positions || []).length === 0) {
+    if (positions.length === 0) {
       openWrap.innerHTML = '<div class="empty">No open position.</div>';
     } else {
-      let html = '<table><thead><tr><th>Direction</th><th>Entry</th><th>Target</th><th>Stop</th><th>Last</th><th>Unrealized</th><th>Opened</th></tr></thead><tbody>';
-      for (const p of state.positions) {
+      let html = '<table><thead><tr><th>Direction</th><th>Entry</th><th>Stop</th><th>Target</th><th>Last</th><th>Unrealized</th><th>Opened</th></tr></thead><tbody>';
+      for (const p of positions) {
         html += `<tr>
           <td>${p.direction}</td>
           <td>${Number(p.entry_price).toFixed(2)}</td>
-          <td>${Number(p.target_price).toFixed(2)}</td>
           <td>${Number(p.stop_price).toFixed(2)}</td>
+          <td>${Number(p.target_price).toFixed(2)}</td>
           <td>${Number(p.last_price).toFixed(2)}</td>
           <td>${points(p.unrealized_points)} (${money(p.unrealized_usd)})</td>
           <td>${fmtIST(p.opened_at)}</td>
@@ -143,7 +142,7 @@ async function load() {
       openWrap.innerHTML = html;
     }
 
-    // Closed trades
+    // Closed trades table
     const tradesWrap = document.getElementById('tradesWrap');
     if (trades.length === 0) {
       tradesWrap.innerHTML = '<div class="empty">No closed trades.</div>';
@@ -208,10 +207,7 @@ function drawChart(points) {
 
 load();
 setInterval(load, 60000);
-window.addEventListener('resize', () => {
-  const s = document.getElementById('chart');
-  if (s) load();
-});
+window.addEventListener('resize', () => load());
 </script>
 </body>
 </html>
