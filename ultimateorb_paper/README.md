@@ -27,7 +27,7 @@ The server binds to loopback only. It refuses non-loopback hosts because it has 
 
 ## GitHub paper session runner
 
-`.github/workflows/ultimateorb_paper_runner.yml` starts near **08:55 CT** and loops every 6 minutes until **14:45 CT**. It does not depend on GitHub firing a cron every 6 minutes.
+`.github/workflows/ultimateorb_paper_runner.yml` starts near **08:55 CT** and loops every 6 minutes until **14:45 CT**. It does not depend on GitHub firing a cron every 6 minutes; extra scheduled starts are included because GitHub can delay them.
 
 It uses **NQ=F 5-minute bars**, converts the price to MNQ dollars at **$2/point**, and:
 

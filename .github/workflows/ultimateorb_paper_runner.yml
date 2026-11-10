@@ -6,6 +6,9 @@ on:
   schedule:
     - cron: '55 13 * * 1-5'
     - cron: '55 14 * * 1-5'
+    # GitHub can delay scheduled runs by hours. These extra starts give the
+    # session loop more chances to begin during/after the cash-session open.
+    - cron: '0 10,12,14,16,18,20 * * 1-5'
   push:
     paths:
       - "ultimateorb_paper/**"
