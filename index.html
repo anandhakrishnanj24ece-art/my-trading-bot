@@ -3,17 +3,19 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Multi-Filter ORB — Live Paper Monitor</title>
+<title>Paper Trading Monitor — UltimateORB + Multi-Filter ORB</title>
 <style>
   :root { color-scheme: dark; }
   body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background: #0b1020; color: #e8edf7; }
-  .wrap { max-width: 1100px; margin: 0 auto; padding: 24px; }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 24px; }
   h1 { margin: 0 0 4px; font-size: 28px; }
   .sub { color: #9fb0d6; margin-bottom: 20px; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 20px; }
   .card { background: #151c33; border: 1px solid #263156; border-radius: 14px; padding: 14px; }
+  .card.strat-a { border-left: 4px solid #7aa2ff; }
+  .card.strat-b { border-left: 4px solid #3ddc97; }
   .label { color: #9fb0d6; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
-  .value { font-size: 24px; font-weight: 700; margin-top: 6px; }
+  .value { font-size: 22px; font-weight: 700; margin-top: 6px; }
   .good { color: #3ddc97; }
   .bad { color: #ff6b6b; }
   .neutral { color: #ffd166; }
@@ -27,151 +29,188 @@
   .status.halted { background: #3b2424; color: #ff6b6b; }
   .links a { color: #7aa2ff; text-decoration: none; margin-right: 14px; }
   .note { color: #9fb0d6; font-size: 13px; line-height: 1.5; }
-  .chart { width: 100%; height: 180px; background: #10172b; border: 1px solid #263156; border-radius: 14px; }
+  .chart { width: 100%; height: 160px; background: #10172b; border: 1px solid #263156; border-radius: 14px; }
   .empty { color: #9fb0d6; padding: 18px; text-align: center; }
+  .strat-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot.a { background: #7aa2ff; box-shadow: 0 0 8px #7aa2ff; }
+  .dot.b { background: #3ddc97; box-shadow: 0 0 8px #3ddc97; }
+  h2 { margin: 0 0 8px; font-size: 18px; }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>Multi-Filter ORB — Live Paper Monitor</h1>
-  <div class="sub">Paper-only. NQ=F 5m, opening-range breakout, 6.6/10-style risk. Auto-refreshes every 60 seconds. Times in IST.</div>
+  <h1>Paper Trading Monitor</h1>
+  <div class="sub">UltimateORB + Multi-Filter ORB — Paper only. Auto-refreshes every 60 seconds. Times in IST.</div>
 
   <div class="grid">
-    <div class="card"><div class="label">Status</div><div class="value" id="status">Loading…</div></div>
-    <div class="card"><div class="label">Balance</div><div class="value" id="equity">—</div></div>
-    <div class="card"><div class="label">Unrealized P&L</div><div class="value" id="unrealized">—</div></div>
-    <div class="card"><div class="label">Position Holding</div><div class="value" id="holding" style="font-size:18px">—</div></div>
-    <div class="card"><div class="label">Cash</div><div class="value" id="cash">—</div></div>
-    <div class="card"><div class="label">Realized P&L</div><div class="value" id="pnl">—</div></div>
-    <div class="card"><div class="label">Trades</div><div class="value" id="trades">—</div></div>
-    <div class="card"><div class="label">Win rate</div><div class="value" id="winrate">—</div></div>
-    <div class="card"><div class="label">Last update</div><div class="value" id="updated" style="font-size:15px">—</div></div>
+    <div class="card strat-a">
+      <div class="label">UltimateORB — Status</div>
+      <div class="value" id="u-status">Loading…</div>
+    </div>
+    <div class="card strat-a">
+      <div class="label">UltimateORB — Balance</div>
+      <div class="value" id="u-equity">—</div>
+    </div>
+    <div class="card strat-a">
+      <div class="label">UltimateORB — Unrealized P&L</div>
+      <div class="value" id="u-unrealized">—</div>
+    </div>
+    <div class="card strat-a">
+      <div class="label">UltimateORB — Position</div>
+      <div class="value" id="u-holding" style="font-size:16px">—</div>
+    </div>
+    <div class="card strat-b">
+      <div class="label">Multi-Filter ORB — Status</div>
+      <div class="value" id="m-status">Loading…</div>
+    </div>
+    <div class="card strat-b">
+      <div class="label">Multi-Filter ORB — Balance</div>
+      <div class="value" id="m-equity">—</div>
+    </div>
+    <div class="card strat-b">
+      <div class="label">Multi-Filter ORB — Unrealized P&L</div>
+      <div class="value" id="m-unrealized">—</div>
+    </div>
+    <div class="card strat-b">
+      <div class="label">Multi-Filter ORB — Position</div>
+      <div class="value" id="m-holding" style="font-size:16px">—</div>
+    </div>
   </div>
 
   <div class="section">
-    <h2>Open Position</h2>
-    <div id="openWrap"><div class="empty">No open position.</div></div>
+    <div class="strat-head"><span class="dot a"></span><h2>UltimateORB — Paper (6.6 / 10.0, 1 MNQ)</h2></div>
+    <div id="u-wrap"><div class="empty">Loading…</div></div>
   </div>
 
   <div class="section">
-    <h2>Equity Curve</h2>
+    <div class="strat-head"><span class="dot b"></span><h2>Multi-Filter ORB — Paper (Opening Range Breakout)</h2></div>
+    <div id="m-wrap"><div class="empty">Loading…</div></div>
+  </div>
+
+  <div class="section">
+    <h2>Combined Equity Curve</h2>
     <canvas id="chart" class="chart"></canvas>
   </div>
 
-  <div class="section">
-    <h2>Closed Trades</h2>
-    <div id="tradesWrap"><div class="empty">No closed trades.</div></div>
-  </div>
-
   <div class="section links">
-    <a href="https://github.com/anandhakrishnanj24ece-art/my-trading-bot/actions/workflows/multifilter_orb_runner.yml">Runner workflow</a>
+    <a href="https://github.com/anandhakrishnanj24ece-art/my-trading-bot/actions/workflows/ultimateorb_paper_runner.yml">UltimateORB runner</a>
+    <a href="https://github.com/anandhakrishnanj24ece-art/my-trading-bot/actions/workflows/multifilter_orb_runner.yml">Multi-Filter ORB runner</a>
     <a href="https://github.com/anandhakrishnanj24ece-art/my-trading-bot/actions/workflows/ultimateorb_halt.yml">Halt switch</a>
-    <a href="https://github.com/anandhakrishnanj24ece-art/my-trading-bot/blob/main/multifilter_orb_paper/state/paper_state.json">Raw state</a>
+    <a href="https://github.com/anandhakrishnanj24ece-art/my-trading-bot/blob/main/ultimateorb_paper/state/paper_state.json">UltimateORB state</a>
+    <a href="https://github.com/anandhakrishnanj24ece-art/my-trading-bot/blob/main/multifilter_orb_paper/state/paper_state.json">Multi-Filter state</a>
   </div>
 
   <p class="note">
-    This is a <b>paper-only</b> proxy of the Multi-Filter Opening Range Breakout. The original Pine Script strategy runs on TradingView; this is an independent Python port trading NQ=F 5-minute bars. No broker adapter, no API keys, no live orders.
+    Both are <b>paper-only</b> proxies. No broker adapter, no API keys, no live orders. The original UltimateORB rules and dated trade CSV are still missing; the Multi-Filter ORB is an independent Python port of a Pine Script strategy.
   </p>
 </div>
 <script>
-const stateUrl = './multifilter_orb_paper/state/paper_state.json';
-const controlUrl = './multifilter_orb_paper/state/control.json';
+const U_STATE = './ultimateorb_paper/state/paper_state.json';
+const U_CONTROL = './ultimateorb_paper/state/control.json';
+const M_STATE = './multifilter_orb_paper/state/paper_state.json';
+const M_CONTROL = './multifilter_orb_paper/state/control.json';
 
-function money(x) { return '$' + Number(x).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}); }
-function points(x) { return Number(x).toFixed(1) + ' pts'; }
+function money(x) { return '$' + Number(x || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}); }
+function points(x) { return Number(x || 0).toFixed(1) + ' pts'; }
 const istOpts = { timeZone: 'Asia/Kolkata', year: 'numeric', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
 function fmtIST(x) { return x ? new Date(x).toLocaleString('en-IN', istOpts) + ' IST' : '—'; }
 
+async function loadJson(url) {
+  const res = await fetch(url + '?t=' + Date.now());
+  if (!res.ok) throw new Error('unavailable: ' + url);
+  return res.json();
+}
+
 async function load() {
   try {
-    const [sRes, cRes] = await Promise.all([
-      fetch(stateUrl + '?t=' + Date.now()),
-      fetch(controlUrl + '?t=' + Date.now())
+    const [uState, uCtrl, mState, mCtrl] = await Promise.all([
+      loadJson(U_STATE), loadJson(U_CONTROL), loadJson(M_STATE), loadJson(M_CONTROL)
     ]);
-    if (!sRes.ok) throw new Error('state unavailable');
-    const state = await sRes.json();
-    const control = cRes.ok ? await cRes.json() : { halted: false };
 
-    const trades = state.trades || [];
-    const positions = state.positions || [];
-    const wins = trades.filter(t => Number(t.net_usd) > 0);
-    const winRate = trades.length ? (wins.length / trades.length * 100) : 0;
-    const unrealized = positions.reduce((sum, p) => sum + Number(p.unrealized_usd || 0), 0);
-
-    document.getElementById('status').innerHTML = control.halted
-      ? '<span class="status halted">HALTED</span>'
-      : '<span class="status running">RUNNING</span>';
-    document.getElementById('equity').textContent = money(state.equity ?? 0);
-    document.getElementById('cash').textContent = money(state.cash ?? 0);
-    document.getElementById('pnl').textContent = money(state.realized_pnl ?? 0);
-    document.getElementById('trades').textContent = trades.length;
-    document.getElementById('winrate').textContent = winRate.toFixed(1) + '%';
-    document.getElementById('updated').textContent = fmtIST(state.last_update);
-
-    const pnlEl = document.getElementById('pnl');
-    pnlEl.className = 'value ' + ((state.realized_pnl ?? 0) >= 0 ? 'good' : 'bad');
-
-    const unrealEl = document.getElementById('unrealized');
-    unrealEl.textContent = money(unrealized);
-    unrealEl.className = 'value ' + (unrealized >= 0 ? 'good' : 'bad');
-
-    const holdingEl = document.getElementById('holding');
-    holdingEl.textContent = positions.length
-      ? positions.map(p => `${p.direction} @ ${Number(p.entry_price).toFixed(2)}`).join(', ')
-      : 'None';
-    holdingEl.className = 'value ' + (positions.length ? 'good' : 'neutral');
-
-    // Open positions table
-    const openWrap = document.getElementById('openWrap');
-    if (positions.length === 0) {
-      openWrap.innerHTML = '<div class="empty">No open position.</div>';
-    } else {
-      let html = '<table><thead><tr><th>Direction</th><th>Entry</th><th>Stop</th><th>Target</th><th>Last</th><th>Unrealized</th><th>Opened</th></tr></thead><tbody>';
-      for (const p of positions) {
-        html += `<tr>
-          <td>${p.direction}</td>
-          <td>${Number(p.entry_price).toFixed(2)}</td>
-          <td>${Number(p.stop_price).toFixed(2)}</td>
-          <td>${Number(p.target_price).toFixed(2)}</td>
-          <td>${Number(p.last_price).toFixed(2)}</td>
-          <td>${points(p.unrealized_points)} (${money(p.unrealized_usd)})</td>
-          <td>${fmtIST(p.opened_at)}</td>
-        </tr>`;
-      }
-      html += '</tbody></table>';
-      openWrap.innerHTML = html;
-    }
-
-    // Closed trades table
-    const tradesWrap = document.getElementById('tradesWrap');
-    if (trades.length === 0) {
-      tradesWrap.innerHTML = '<div class="empty">No closed trades.</div>';
-    } else {
-      let html = '<table><thead><tr><th>Closed</th><th>Direction</th><th>Entry</th><th>Exit</th><th>Gross</th><th>Net</th><th>Net $</th><th>Reason</th></tr></thead><tbody>';
-      for (const t of [...trades].reverse().slice(0, 30)) {
-        html += `<tr>
-          <td>${fmtIST(t.closed_at)}</td>
-          <td>${t.direction}</td>
-          <td>${Number(t.entry_price).toFixed(2)}</td>
-          <td>${Number(t.exit_price).toFixed(2)}</td>
-          <td>${points(t.gross_points)}</td>
-          <td>${points(t.net_points)}</td>
-          <td class="${Number(t.net_usd) >= 0 ? 'good' : 'bad'}">${money(t.net_usd)}</td>
-          <td>${t.reason}</td>
-        </tr>`;
-      }
-      html += '</tbody></table>';
-      tradesWrap.innerHTML = html;
-    }
-
-    drawChart(state.equity_curve || []);
+    renderStrategy('u', uState, uCtrl);
+    renderStrategy('m', mState, mCtrl);
+    drawCombinedChart(uState.equity_curve || [], mState.equity_curve || []);
   } catch (err) {
-    document.getElementById('status').textContent = 'Unavailable';
+    document.getElementById('u-status').textContent = 'Unavailable';
+    document.getElementById('m-status').textContent = 'Unavailable';
     console.error(err);
   }
 }
 
-function drawChart(points) {
+function renderStrategy(prefix, state, control) {
+  const trades = state.trades || [];
+  const positions = state.positions || [];
+  const wins = trades.filter(t => Number(t.net_usd) > 0);
+  const winRate = trades.length ? (wins.length / trades.length * 100) : 0;
+  const unrealized = positions.reduce((sum, p) => sum + Number(p.unrealized_usd || 0), 0);
+
+  document.getElementById(prefix + '-status').innerHTML = control.halted
+    ? '<span class="status halted">HALTED</span>'
+    : '<span class="status running">RUNNING</span>';
+  document.getElementById(prefix + '-equity').textContent = money(state.equity);
+  document.getElementById(prefix + '-unrealized').textContent = money(unrealized);
+  document.getElementById(prefix + '-unrealized').className = 'value ' + (unrealized >= 0 ? 'good' : 'bad');
+  document.getElementById(prefix + '-holding').textContent = positions.length
+    ? positions.map(p => `${p.direction} @ ${Number(p.entry_price).toFixed(2)}`).join(', ')
+    : 'None';
+
+  // Detail block
+  const wrap = document.getElementById(prefix + '-wrap');
+  const cash = money(state.cash);
+  const realized = money(state.realized_pnl);
+  const last = fmtIST(state.last_update);
+
+  let html = '<table><tbody>';
+  html += `<tr><td>Balance</td><td class="value">${money(state.equity)}</td></tr>`;
+  html += `<tr><td>Cash</td><td class="value">${cash}</td></tr>`;
+  html += `<tr><td>Unrealized P&L</td><td class="value ${unrealized >= 0 ? 'good' : 'bad'}">${money(unrealized)}</td></tr>`;
+  html += `<tr><td>Realized P&L</td><td class="value ${Number(state.realized_pnl) >= 0 ? 'good' : 'bad'}">${realized}</td></tr>`;
+  html += `<tr><td>Trades</td><td>${trades.length}</td></tr>`;
+  html += `<tr><td>Win rate</td><td>${winRate.toFixed(1)}%</td></tr>`;
+  html += `<tr><td>Status</td><td>${control.halted ? 'HALTED' : 'RUNNING'}</td></tr>`;
+  html += `<tr><td>Last update</td><td style="font-size:13px">${last}</td></tr>`;
+  html += '</tbody></table>';
+
+  // Open positions
+  if (positions.length) {
+    html += '<h3 style="margin:16px 0 6px">Open Position</h3><table><thead><tr><th>Direction</th><th>Entry</th><th>Stop</th><th>Target</th><th>Last</th><th>Unrealized</th><th>Opened</th></tr></thead><tbody>';
+    for (const p of positions) {
+      html += `<tr>
+        <td>${p.direction}</td>
+        <td>${Number(p.entry_price).toFixed(2)}</td>
+        <td>${Number(p.stop_price).toFixed(2)}</td>
+        <td>${Number(p.target_price).toFixed(2)}</td>
+        <td>${Number(p.last_price).toFixed(2)}</td>
+        <td>${points(p.unrealized_points)} (${money(p.unrealized_usd)})</td>
+        <td>${fmtIST(p.opened_at)}</td>
+      </tr>`;
+    }
+    html += '</tbody></table>';
+  }
+
+  // Closed trades
+  if (trades.length) {
+    html += '<h3 style="margin:16px 0 6px">Closed Trades (last 10)</h3><table><thead><tr><th>Closed</th><th>Direction</th><th>Entry</th><th>Exit</th><th>Gross</th><th>Net</th><th>Net $</th><th>Reason</th></tr></thead><tbody>';
+    for (const t of [...trades].reverse().slice(0, 10)) {
+      html += `<tr>
+        <td>${fmtIST(t.closed_at)}</td>
+        <td>${t.direction}</td>
+        <td>${Number(t.entry_price).toFixed(2)}</td>
+        <td>${Number(t.exit_price).toFixed(2)}</td>
+        <td>${points(t.gross_points)}</td>
+        <td>${points(t.net_points)}</td>
+        <td class="${Number(t.net_usd) >= 0 ? 'good' : 'bad'}">${money(t.net_usd)}</td>
+        <td>${t.reason}</td>
+      </tr>`;
+    }
+    html += '</tbody></table>';
+  }
+
+  wrap.innerHTML = html;
+}
+
+function drawCombinedChart(uPoints, mPoints) {
   const canvas = document.getElementById('chart');
   const ctx = canvas.getContext('2d');
   const dpr = window.devicePixelRatio || 1;
@@ -180,29 +219,56 @@ function drawChart(points) {
   canvas.height = rect.height * dpr;
   ctx.scale(dpr, dpr);
   ctx.clearRect(0, 0, rect.width, rect.height);
-  if (points.length < 2) {
+
+  const all = [...(uPoints || []), ...(mPoints || [])];
+  if (all.length < 2) {
     ctx.fillStyle = '#9fb0d6';
     ctx.font = '14px system-ui';
     ctx.fillText('Not enough equity points yet.', 16, rect.height / 2);
     return;
   }
-  const vals = points.map(p => Number(p.equity));
-  const min = Math.min(...vals), max = Math.max(...vals);
-  const pad = 16;
-  const w = rect.width - pad * 2, h = rect.height - pad * 2;
-  ctx.strokeStyle = '#7aa2ff';
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  vals.forEach((v, i) => {
-    const x = pad + (i / (vals.length - 1)) * w;
-    const y = pad + (1 - (v - min) / Math.max(max - min, 1)) * h;
-    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-  });
-  ctx.stroke();
+
+  // Use the longer series as the x-axis backbone
+  const base = uPoints.length >= mPoints.length ? uPoints : mPoints;
+  const other = uPoints.length >= mPoints.length ? mPoints : uPoints;
+  const baseVals = base.map(p => Number(p.equity));
+  const min = Math.min(...baseVals);
+  const max = Math.max(...baseVals);
+  const pad = 40;
+  const w = rect.width - pad * 2;
+  const h = rect.height - pad * 2;
+
+  // Draw both series
+  for (const { points: pts, color, label } of [
+    { points: uPoints, color: '#7aa2ff', label: 'UltimateORB' },
+    { points: mPoints, color: '#3ddc97', label: 'Multi-Filter ORB' }
+  ]) {
+    if (!pts || pts.length < 2) continue;
+    const vals = pts.map(p => Number(p.equity));
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    vals.forEach((v, i) => {
+      // Map by relative position within each series
+      const x = pad + (i / Math.max(pts.length - 1, 1)) * w;
+      const y = pad + (1 - (v - min) / Math.max(max - min, 1)) * h;
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+
+    // Label at end
+    const lastV = vals[vals.length - 1];
+    const lastX = pad + w;
+    const lastY = pad + (1 - (lastV - min) / Math.max(max - min, 1)) * h;
+    ctx.fillStyle = color;
+    ctx.font = '11px system-ui';
+    ctx.fillText(label + ' ' + money(lastV), lastX + 4, lastY + 4);
+  }
+
   ctx.fillStyle = '#9fb0d6';
   ctx.font = '12px system-ui';
-  ctx.fillText('min ' + money(min), pad, rect.height - 4);
-  ctx.fillText('max ' + money(max), rect.width - 90, pad + 12);
+  ctx.fillText('min ' + money(min), pad, rect.height - 6);
+  ctx.fillText('max ' + money(max), rect.width - 120, pad + 14);
 }
 
 load();
