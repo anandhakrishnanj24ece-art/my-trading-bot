@@ -1,0 +1,16 @@
+{
+  "capital": 10000.0,
+  "cash": 10000.0,
+  "equity": 10000.0,
+  "realized_pnl": 0.0,
+  "positions": [],
+  "trades": [],
+  "equity_curve": [
+    {
+      "timestamp": "2026-11-10T13:53:09.369726+00:00",
+      "equity": 10000.0
+    }
+  ],
+  "last_update": null,
+  "last_price": null
+}
