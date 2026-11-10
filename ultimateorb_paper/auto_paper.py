@@ -28,14 +28,14 @@ import yfinance as yf
 from .paper_engine import PaperEngine
 
 CT = ZoneInfo("America/Chicago")
-BAR_MINUTES = 15
+BAR_MINUTES = 5
 
 
 def _load_nq() -> pd.DataFrame:
     raw = yf.download(
         "NQ=F",
         period="3d",
-        interval="15m",
+        interval="5m",
         auto_adjust=False,
         progress=False,
         prepost=False,

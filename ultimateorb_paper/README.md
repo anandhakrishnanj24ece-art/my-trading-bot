@@ -29,7 +29,7 @@ The server binds to loopback only. It refuses non-loopback hosts because it has 
 
 `.github/workflows/ultimateorb_paper_runner.yml` runs the paper proxy every 6 minutes (GitHub may delay scheduled runs).
 
-It uses **NQ=F 15-minute bars**, converts the price to MNQ dollars at **$2/point**, and:
+It uses **NQ=F 5-minute bars**, converts the price to MNQ dollars at **$2/point**, and:
 
 - builds the opening range from the first 30 minutes of the US cash session (08:30–09:00 CT);
 - goes long on a close above the range, short on a close below it;
