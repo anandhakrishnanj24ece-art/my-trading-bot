@@ -1,0 +1,2 @@
+id,direction,entry_price,exit_price,target_price,stop_price,contracts,opened_at,closed_at,gross_points,commission_points,net_points,net_usd,reason
+8b87b87d312a,long,28039.5,28029.5,28046.1,28029.5,1,2026-11-10T09:00:00-06:00,2026-11-10T09:05:00-06:00,-10.0,0.95,-10.95,-21.9,stop
