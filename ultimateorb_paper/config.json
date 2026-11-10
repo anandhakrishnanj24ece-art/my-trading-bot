@@ -1,0 +1,12 @@
+{
+  "mode": "paper",
+  "strategy": "UltimateORB 6.6/10 paper proxy",
+  "target_points": 6.6,
+  "stop_points": 10.0,
+  "commission_points": 0.95,
+  "point_value_usd": 2.0,
+  "contracts": 1,
+  "starting_capital": 10000.0,
+  "max_open_positions": 1,
+  "allow_live_orders": false
+}

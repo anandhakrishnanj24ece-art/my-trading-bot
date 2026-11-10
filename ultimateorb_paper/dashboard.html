@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>UltimateORB — Paper Mode</title>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --panel: #121922;
+      --panel-2: #182230;
+      --line: #263445;
+      --text: #e6edf5;
+      --muted: #8fa3b8;
+      --green: #2ec27e;
+      --red: #ef4444;
+      --amber: #f59e0b;
+      --blue: #60a5fa;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 20px; }
+    header { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+    h1 { margin: 0; font-size: 24px; letter-spacing: -0.02em; }
+    .badge { border: 1px solid var(--amber); color: var(--amber); padding: 6px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+    .sub { color: var(--muted); font-size: 13px; margin-top: 6px; }
+    .grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 16px; }
+    @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+    .card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
+    .card h2 { margin: 0 0 12px; font-size: 14px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+    .status-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--green); box-shadow: 0 0 12px var(--green); }
+    .dot.halted { background: var(--red); box-shadow: 0 0 12px var(--red); }
+    .status-text { font-size: 20px; font-weight: 800; }
+    .halt-btn {
+      width: 100%; border: 0; border-radius: 12px; padding: 18px; font-size: 20px;
+      font-weight: 900; letter-spacing: 0.02em; cursor: pointer; color: #fff; background: var(--red);
+      box-shadow: 0 8px 24px rgba(239,68,68,.25); margin: 12px 0 8px;
+    }
+    .halt-btn:hover { filter: brightness(1.07); }
+    .resume-btn {
+      width: 100%; border: 1px solid var(--green); border-radius: 12px; padding: 12px;
+      font-size: 14px; font-weight: 800; cursor: pointer; color: var(--green); background: transparent;
+    }
+    .resume-btn:disabled, .halt-btn:disabled { opacity: .35; cursor: not-allowed; }
+    .stats { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; }
+    .stat { background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; padding: 12px; }
+    .stat .k { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; }
+    .stat .v { font-size: 20px; font-weight: 800; margin-top: 4px; }
+    .stat .v.green { color: var(--green); }
+    .stat .v.red { color: var(--red); }
+    .stat .v.amber { color: var(--amber); }
+    .form { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; }
+    .form .full { grid-column: 1 / -1; }
+    label { display: block; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 5px; }
+    input, select {
+      width: 100%; background: #0e141c; color: var(--text); border: 1px solid var(--line);
+      border-radius: 8px; padding: 10px; font-size: 14px;
+    }
+    button.action {
+      background: var(--blue); color: #061018; border: 0; border-radius: 8px; padding: 11px 14px;
+      font-weight: 800; cursor: pointer;
+    }
+    button.action.secondary { background: var(--panel-2); color: var(--text); border: 1px solid var(--line); }
+    button.action:disabled { opacity: .35; cursor: not-allowed; }
+    .banner { border: 1px solid var(--red); background: rgba(239,68,68,.1); color: #ffd7d7; border-radius: 10px; padding: 12px; margin-bottom: 16px; display: none; }
+    .banner.show { display: block; }
+    .warn { color: var(--muted); font-size: 12px; line-height: 1.5; margin-top: 12px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+    th { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; }
+    .scroll { overflow-x: auto; }
+    .empty { color: var(--muted); font-size: 13px; padding: 12px 0; }
+    .pos { color: var(--green); }
+    .neg { color: var(--red); }
+    .mono { font-variant-numeric: tabular-nums; }
+    .toast { position: fixed; bottom: 18px; right: 18px; background: var(--panel-2); border: 1px solid var(--line); padding: 12px 14px; border-radius: 10px; font-size: 13px; display: none; max-width: 360px; }
+    .toast.show { display: block; }
+    .pill { display: inline-block; padding: 3px 8px; border-radius: 999px; background: var(--panel-2); border: 1px solid var(--line); font-size: 11px; color: var(--muted); }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>UltimateORB <span class="pill">paper ledger</span></h1>
+      <div class="sub">Target 6.6 pts · Stop 10.0 pts · 1 MNQ · No broker connection · No live orders</div>
+    </div>
+    <div class="badge">PAPER MODE — NO LIVE ORDERS</div>
+  </header>
+
+  <div id="haltBanner" class="banner">
+    <strong>TRADING HALTED.</strong> New paper entries are blocked. Marking and closing an existing paper position are still allowed.
+    <span id="haltReason"></span>
+  </div>
+
+  <div class="grid">
+    <div>
+      <div class="card">
+        <h2>Control</h2>
+        <div class="status-row">
+          <span id="statusDot" class="dot"></span>
+          <span id="statusText" class="status-text">RUNNING</span>
+          <span id="lastUpdate" class="pill">—</span>
+        </div>
+        <button id="haltBtn" class="halt-btn" onclick="haltTrading()">HALT PAPER TRADING</button>
+        <button id="resumeBtn" class="resume-btn" onclick="resumeTrading()" disabled>Resume paper entries</button>
+        <div class="warn">
+          Halt is an entry kill switch. It writes <span class="mono">state/control.json</span> and the engine refuses new paper entries.
+          It does not and cannot cancel real orders because this app has no broker adapter.
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px;">
+        <h2>Paper account</h2>
+        <div class="stats">
+          <div class="stat"><div class="k">Equity</div><div id="equity" class="v mono">—</div></div>
+          <div class="stat"><div class="k">Net P&amp;L</div><div id="pnl" class="v mono">—</div></div>
+          <div class="stat"><div class="k">Win rate</div><div id="winRate" class="v mono">—</div></div>
+          <div class="stat"><div class="k">Profit factor</div><div id="pf" class="v mono">—</div></div>
+          <div class="stat"><div class="k">Closed trades</div><div id="tradeCount" class="v mono">—</div></div>
+          <div class="stat"><div class="k">Max DD</div><div id="maxDd" class="v mono">—</div></div>
+        </div>
+        <div id="positionBox" class="warn"></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card">
+        <h2>Manual paper entry</h2>
+        <div class="form">
+          <div>
+            <label>Direction</label>
+            <select id="direction"><option value="long">Long</option><option value="short">Short</option></select>
+          </div>
+          <div>
+            <label>Entry price</label>
+            <input id="entryPrice" type="number" step="0.25" placeholder="28000.00">
+          </div>
+          <div class="full">
+            <button id="openBtn" class="action" onclick="openTrade()">Open paper trade</button>
+          </div>
+        </div>
+        <div class="warn">This is a manual ledger. It does not generate UltimateORB signals by itself.</div>
+      </div>
+
+      <div class="card" style="margin-top:16px;">
+        <h2>Mark bar / close</h2>
+        <div class="form">
+          <div><label>High</label><input id="barHigh" type="number" step="0.25"></div>
+          <div><label>Low</label><input id="barLow" type="number" step="0.25"></div>
+          <div class="full"><label>Close</label><input id="barClose" type="number" step="0.25"></div>
+          <div class="full"><button class="action secondary" onclick="markBar()">Mark paper bar</button></div>
+          <div class="full"><button class="action secondary" onclick="closeTrade()">Close at last close</button></div>
+        </div>
+        <div class="warn">Same-bar target + stop touch is filled at the stop (conservative).</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px;">
+    <h2>Closed paper trades</h2>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Closed</th><th>Side</th><th>Entry</th><th>Exit</th><th>Pts</th><th>USD</th><th>Reason</th></tr></thead>
+        <tbody id="tradesBody"><tr><td colspan="7" class="empty">No closed paper trades yet.</td></tr></tbody>
+      </table>
+    </div>
+    <div class="warn">
+      Paper-only research ledger. Not financial advice. No live order path, no API keys, no withdrawal permissions.
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+  let lastState = null;
+
+  function money(value) {
+    const n = Number(value || 0);
+    return (n < 0 ? '-$' : '$') + Math.abs(n).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+  }
+  function pct(value) {
+    return Number(value || 0).toFixed(2) + '%';
+  }
+  function cls(value) {
+    return Number(value || 0) >= 0 ? 'green' : 'red';
+  }
+  function esc(value) {
+    return String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function toast(message) {
+    const el = document.getElementById('toast');
+    el.textContent = message;
+    el.classList.add('show');
+    clearTimeout(el._timer);
+    el._timer = setTimeout(() => el.classList.remove('show'), 3200);
+  }
+  async function post(path, body = {}) {
+    const response = await fetch(path, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)});
+    const data = await response.json().catch(() => ({error: 'invalid response'}));
+    if (!response.ok || data.ok === false) throw new Error(data.error || ('HTTP ' + response.status));
+    return data;
+  }
+  async function loadState() {
+    const response = await fetch('/api/state', {cache: 'no-store'});
+    if (!response.ok) throw new Error('state fetch failed');
+    lastState = await response.json();
+    render(lastState);
+  }
+  function render(s) {
+    const halted = Boolean(s.control.halted);
+    const stats = s.stats;
+    document.getElementById('statusDot').className = 'dot' + (halted ? ' halted' : '');
+    document.getElementById('statusText').textContent = halted ? 'HALTED' : 'RUNNING';
+    document.getElementById('statusText').style.color = halted ? 'var(--red)' : 'var(--green)';
+    document.getElementById('lastUpdate').textContent = s.state.last_update ? new Date(s.state.last_update).toLocaleString() : 'no update';
+    document.getElementById('haltBanner').classList.toggle('show', halted);
+    document.getElementById('haltReason').textContent = halted && s.control.reason ? ' (' + s.control.reason + ')' : '';
+    document.getElementById('haltBtn').disabled = halted;
+    document.getElementById('resumeBtn').disabled = !halted;
+    document.getElementById('openBtn').disabled = halted || stats.open_positions > 0;
+
+    const equity = document.getElementById('equity');
+    equity.textContent = money(stats.equity);
+    const pnl = document.getElementById('pnl');
+    pnl.textContent = money(stats.realized_pnl);
+    pnl.className = 'v mono ' + cls(stats.realized_pnl);
+    document.getElementById('winRate').textContent = stats.trades ? pct(stats.win_rate_pct) : '—';
+    document.getElementById('pf').textContent = stats.profit_factor == null ? '—' : Number(stats.profit_factor).toFixed(2);
+    document.getElementById('tradeCount').textContent = stats.trades;
+    document.getElementById('maxDd').textContent = pct(stats.max_drawdown_pct);
+
+    const posBox = document.getElementById('positionBox');
+    if (s.state.positions.length) {
+      const p = s.state.positions[0];
+      posBox.innerHTML = `<strong>Open ${esc(p.direction)}</strong> · entry ${esc(p.entry_price)} · target ${esc(p.target_price)} · stop ${esc(p.stop_price)} · uPnL ${money(p.unrealized_usd)}`;
+    } else {
+      posBox.textContent = 'No open paper position.';
+    }
+
+    const body = document.getElementById('tradesBody');
+    if (!s.state.trades.length) {
+      body.innerHTML = '<tr><td colspan="7" class="empty">No closed paper trades yet.</td></tr>';
+    } else {
+      body.innerHTML = s.state.trades.slice().reverse().slice(0, 100).map(t => `
+        <tr>
+          <td>${esc(new Date(t.closed_at).toLocaleString())}</td>
+          <td>${esc(t.direction)}</td>
+          <td class="mono">${esc(t.entry_price)}</td>
+          <td class="mono">${esc(t.exit_price)}</td>
+          <td class="mono ${cls(t.net_points)}">${Number(t.net_points).toFixed(2)}</td>
+          <td class="mono ${cls(t.net_usd)}">${money(t.net_usd)}</td>
+          <td>${esc(t.reason)}</td>
+        </tr>`).join('');
+    }
+  }
+  async function haltTrading() {
+    if (!confirm('Halt all new paper entries? Existing paper positions can still be marked/closed.')) return;
+    try { await post('/api/halt', {reason: 'Manual dashboard halt'}); toast('Paper entries halted.'); await loadState(); }
+    catch (e) { toast('Halt failed: ' + e.message); }
+  }
+  async function resumeTrading() {
+    if (!confirm('Resume new paper entries?')) return;
+    try { await post('/api/resume'); toast('Paper entries resumed.'); await loadState(); }
+    catch (e) { toast('Resume failed: ' + e.message); }
+  }
+  async function openTrade() {
+    const price = Number(document.getElementById('entryPrice').value);
+    if (!price || price <= 0) { toast('Enter a valid entry price.'); return; }
+    try {
+      await post('/api/open', {direction: document.getElementById('direction').value, price});
+      document.getElementById('entryPrice').value = '';
+      toast('Paper trade opened.');
+      await loadState();
+    } catch (e) { toast('Open failed: ' + e.message); }
+  }
+  async function markBar() {
+    const high = Number(document.getElementById('barHigh').value);
+    const low = Number(document.getElementById('barLow').value);
+    const close = Number(document.getElementById('barClose').value);
+    if (!high || !low || !close) { toast('Enter high, low, and close.'); return; }
+    try { await post('/api/mark', {high, low, close}); toast('Bar marked.'); await loadState(); }
+    catch (e) { toast('Mark failed: ' + e.message); }
+  }
+  async function closeTrade() {
+    const price = Number(document.getElementById('barClose').value);
+    if (!price || price <= 0) { toast('Enter a close price first.'); return; }
+    try { await post('/api/close', {price, reason: 'manual'}); toast('Paper trade closed.'); await loadState(); }
+    catch (e) { toast('Close failed: ' + e.message); }
+  }
+
+  loadState().catch(e => toast('Cannot load state: ' + e.message));
+  setInterval(() => loadState().catch(() => {}), 5000);
+</script>
+</body>
+</html>

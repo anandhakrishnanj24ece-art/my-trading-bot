@@ -1,0 +1,6 @@
+# Runtime paper ledger state (halt flag, account, trades)
+state/
+
+# Python caches
+__pycache__/
+*.py[cod]

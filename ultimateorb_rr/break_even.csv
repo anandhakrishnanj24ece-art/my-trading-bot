@@ -1,0 +1,13 @@
+kind,target_pts,stop_pts,break_even_win_pct,estimated_win_pct,win_buffer_pct
+tighten_stop,6.6,5.0,51.293,91.809,40.516
+tighten_stop,6.6,10.0,65.964,91.874,25.91
+tighten_stop,6.6,20.0,78.759,92.136,13.377
+tighten_stop,6.6,30.0,84.563,92.857,8.294
+tighten_stop,6.6,40.0,87.876,93.512,5.636
+tighten_stop,6.6,50.0,90.018,93.906,3.888
+tighten_stop,6.6,60.7,91.605,93.971,2.366
+widen_target_unestimable,8.0,60.7,89.738,,5.462
+widen_target_unestimable,10.0,60.7,87.199,,8.001
+widen_target_unestimable,12.0,60.7,84.801,,10.399
+widen_target_unestimable,14.0,60.7,82.53,,12.67
+widen_target_unestimable,20.0,60.7,76.394,,18.806

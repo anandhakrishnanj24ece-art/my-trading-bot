@@ -34,6 +34,22 @@ python nosharashi_1/update_history_md.py
 The dashboard shows all four strategies, a union of monitored assets, and the
 last strategy comparison cards from `dashboard_data.json`.
 
+## UltimateORB paper ledger (separate, not deployed)
+
+`ultimateorb_paper/` is a **separate paper-only ledger** for the UltimateORB
+6.6/10 research setting. It is not one of the four deployed strategies and has
+no broker adapter, API keys, or live order path.
+
+```bash
+python -m ultimateorb_paper.app
+```
+
+Open <http://127.0.0.1:8787>. The dashboard has a **HALT** button that blocks
+new paper entries by writing `ultimateorb_paper/state/control.json`; marking
+and closing an existing paper position remain possible. The server binds to
+loopback only. See [`ultimateorb_paper/README.md`](ultimateorb_paper/README.md)
+for the CLI and safety notes.
+
 ## Tests
 
 The live runners have synthetic-data regression tests. They use temporary state
