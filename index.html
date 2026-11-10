@@ -93,6 +93,11 @@
     <canvas id="chart" class="chart"></canvas>
   </div>
 
+  <div class="section">
+    <h2>Live Activity — Both Strategies</h2>
+    <div id="activityWrap"><div class="empty">Loading activity…</div></div>
+  </div>
+
   <div class="section links">
     <a href="https://github.com/anandhakrishnanj24ece-art/my-trading-bot/actions/workflows/ultimateorb_paper_runner.yml">UltimateORB runner</a>
     <a href="https://github.com/anandhakrishnanj24ece-art/my-trading-bot/actions/workflows/multifilter_orb_runner.yml">Multi-Filter ORB runner</a>
@@ -131,6 +136,7 @@ async function load() {
     renderStrategy('u', uState, uCtrl);
     renderStrategy('m', mState, mCtrl);
     drawCombinedChart(uState.equity_curve || [], mState.equity_curve || []);
+    renderActivity(uState, uCtrl, mState, mCtrl);
   } catch (err) {
     document.getElementById('u-status').textContent = 'Unavailable';
     document.getElementById('m-status').textContent = 'Unavailable';
@@ -207,6 +213,91 @@ function renderStrategy(prefix, state, control) {
     html += '</tbody></table>';
   }
 
+  wrap.innerHTML = html;
+}
+
+function renderActivity(uState, uCtrl, mState, mCtrl) {
+  const events = [];
+
+  // UltimateORB trades
+  for (const t of uState.trades || []) {
+    events.push({
+      time: t.closed_at || t.entry_time,
+      strategy: 'UltimateORB',
+      type: t.exit_price ? 'EXIT' : 'ENTRY',
+      direction: t.direction,
+      entry: Number(t.entry_price || 0),
+      exit: t.exit_price ? Number(t.exit_price) : null,
+      net: t.net_usd != null ? Number(t.net_usd) : null,
+      reason: t.reason || '',
+    });
+  }
+  // UltimateORB open positions (entry events without close)
+  for (const p of uState.positions || []) {
+    events.push({
+      time: p.opened_at,
+      strategy: 'UltimateORB',
+      type: 'OPEN',
+      direction: p.direction,
+      entry: Number(p.entry_price || 0),
+      exit: null,
+      net: null,
+      reason: 'open',
+    });
+  }
+
+  // Multi-Filter ORB trades
+  for (const t of mState.trades || []) {
+    events.push({
+      time: t.closed_at || t.entry_time,
+      strategy: 'Multi-Filter ORB',
+      type: t.exit_price ? 'EXIT' : 'ENTRY',
+      direction: t.direction,
+      entry: Number(t.entry_price || 0),
+      exit: t.exit_price ? Number(t.exit_price) : null,
+      net: t.net_usd != null ? Number(t.net_usd) : null,
+      reason: t.reason || '',
+    });
+  }
+  // Multi-Filter ORB open positions
+  for (const p of mState.positions || []) {
+    events.push({
+      time: p.opened_at,
+      strategy: 'Multi-Filter ORB',
+      type: 'OPEN',
+      direction: p.direction,
+      entry: Number(p.entry_price || 0),
+      exit: null,
+      net: null,
+      reason: 'open',
+    });
+  }
+
+  // Sort newest first
+  events.sort((a, b) => new Date(b.time) - new Date(a.time));
+  events = events.slice(0, 20);
+
+  const wrap = document.getElementById('activityWrap');
+  if (events.length === 0) {
+    wrap.innerHTML = '<div class="empty">No activity yet.</div>';
+    return;
+  }
+
+  let html = '<table><thead><tr><th>Time (IST)</th><th>Strategy</th><th>Type</th><th>Direction</th><th>Entry</th><th>Exit</th><th>Net $</th><th>Reason</th></tr></thead><tbody>';
+  for (const e of events) {
+    const netClass = e.net != null ? (e.net >= 0 ? 'good' : 'bad') : 'neutral';
+    html += `<tr>
+      <td>${fmtIST(e.time)}</td>
+      <td>${e.strategy}</td>
+      <td>${e.type}</td>
+      <td>${e.direction}</td>
+      <td>${Number(e.entry).toFixed(2)}</td>
+      <td>${e.exit != null ? Number(e.exit).toFixed(2) : '—'}</td>
+      <td class="${netClass}">${e.net != null ? money(e.net) : '—'}</td>
+      <td>${e.reason}</td>
+    </tr>`;
+  }
+  html += '</tbody></table>';
   wrap.innerHTML = html;
 }
 
