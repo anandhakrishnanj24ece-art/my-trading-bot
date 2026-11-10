@@ -3,6 +3,11 @@ name: UltimateORB paper proxy runner
 on:
   schedule:
     - cron: '*/6 * * * *' # Paper proxy only. GitHub may delay scheduled runs.
+  push:
+    paths:
+      - "ultimateorb_paper/**"
+      - ".github/workflows/ultimateorb_paper_runner.yml"
+      - "requirements.txt"
   workflow_dispatch:
 
 permissions:
