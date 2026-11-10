@@ -34,7 +34,7 @@
 <body>
 <div class="wrap">
   <h1>UltimateORB Paper Monitor</h1>
-  <div class="sub">Paper-only. NQ futures proxy, 6.6 / 10.0 points, 1 MNQ. Auto-refreshes every 60 seconds.</div>
+  <div class="sub">Paper-only. NQ futures proxy, 6.6 / 10.0 points, 1 MNQ. Auto-refreshes every 60 seconds. Times shown in IST.</div>
 
   <div class="grid">
     <div class="card"><div class="label">Status</div><div class="value" id="status">Loading…</div></div>
@@ -79,6 +79,8 @@ const controlUrl = './ultimateorb_paper/state/control.json';
 
 function money(x) { return '$' + Number(x).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}); }
 function points(x) { return Number(x).toFixed(1) + ' pts'; }
+const istOpts = { timeZone: 'Asia/Kolkata', year: 'numeric', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+function fmtIST(x) { return new Date(x).toLocaleString('en-IN', istOpts) + ' IST'; }
 
 async function load() {
   try {
@@ -103,7 +105,7 @@ async function load() {
     document.getElementById('trades').textContent = trades.length;
     document.getElementById('winrate').textContent = winRate.toFixed(1) + '%';
     document.getElementById('openCount').textContent = (state.positions || []).length;
-    document.getElementById('updated').textContent = state.last_update ? new Date(state.last_update).toLocaleString() : '—';
+    document.getElementById('updated').textContent = state.last_update ? fmtIST(state.last_update) : '—';
 
     const pnlEl = document.getElementById('pnl');
     pnlEl.className = 'value ' + ((state.realized_pnl ?? 0) >= 0 ? 'good' : 'bad');
@@ -122,7 +124,7 @@ async function load() {
           <td>${Number(p.stop_price).toFixed(2)}</td>
           <td>${Number(p.last_price).toFixed(2)}</td>
           <td>${points(p.unrealized_points)} (${money(p.unrealized_usd)})</td>
-          <td>${new Date(p.opened_at).toLocaleString()}</td>
+          <td>${fmtIST(p.opened_at)}</td>
         </tr>`;
       }
       html += '</tbody></table>';
@@ -137,7 +139,7 @@ async function load() {
       let html = '<table><thead><tr><th>Closed</th><th>Direction</th><th>Entry</th><th>Exit</th><th>Gross</th><th>Net</th><th>Net $</th><th>Reason</th></tr></thead><tbody>';
       for (const t of [...trades].reverse().slice(0, 30)) {
         html += `<tr>
-          <td>${new Date(t.closed_at).toLocaleString()}</td>
+          <td>${fmtIST(t.closed_at)}</td>
           <td>${t.direction}</td>
           <td>${Number(t.entry_price).toFixed(2)}</td>
           <td>${Number(t.exit_price).toFixed(2)}</td>
