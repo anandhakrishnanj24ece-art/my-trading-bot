@@ -38,12 +38,13 @@
 
   <div class="grid">
     <div class="card"><div class="label">Status</div><div class="value" id="status">Loading…</div></div>
-    <div class="card"><div class="label">Equity</div><div class="value" id="equity">—</div></div>
+    <div class="card"><div class="label">Balance</div><div class="value" id="equity">—</div></div>
+    <div class="card"><div class="label">Unrealized P&L</div><div class="value" id="unrealized">—</div></div>
+    <div class="card"><div class="label">Position holding</div><div class="value" id="holding" style="font-size:18px">—</div></div>
     <div class="card"><div class="label">Cash</div><div class="value" id="cash">—</div></div>
     <div class="card"><div class="label">Realized P&L</div><div class="value" id="pnl">—</div></div>
     <div class="card"><div class="label">Trades</div><div class="value" id="trades">—</div></div>
     <div class="card"><div class="label">Win rate</div><div class="value" id="winrate">—</div></div>
-    <div class="card"><div class="label">Open positions</div><div class="value" id="openCount">—</div></div>
     <div class="card"><div class="label">Last update</div><div class="value" id="updated" style="font-size:15px">—</div></div>
   </div>
 
@@ -93,8 +94,10 @@ async function load() {
     const control = cRes.ok ? await cRes.json() : { halted: false };
 
     const trades = state.trades || [];
+    const positions = state.positions || [];
     const wins = trades.filter(t => Number(t.net_usd) > 0);
     const winRate = trades.length ? (wins.length / trades.length * 100) : 0;
+    const unrealized = positions.reduce((sum, p) => sum + Number(p.unrealized_usd || 0), 0);
 
     document.getElementById('status').innerHTML = control.halted
       ? '<span class="status halted">HALTED</span>'
@@ -104,8 +107,17 @@ async function load() {
     document.getElementById('pnl').textContent = money(state.realized_pnl ?? 0);
     document.getElementById('trades').textContent = trades.length;
     document.getElementById('winrate').textContent = winRate.toFixed(1) + '%';
-    document.getElementById('openCount').textContent = (state.positions || []).length;
     document.getElementById('updated').textContent = state.last_update ? fmtIST(state.last_update) : '—';
+
+    const unrealEl = document.getElementById('unrealized');
+    unrealEl.textContent = money(unrealized);
+    unrealEl.className = 'value ' + (unrealized >= 0 ? 'good' : 'bad');
+
+    const holdingEl = document.getElementById('holding');
+    holdingEl.textContent = positions.length
+      ? positions.map(p => `${p.direction} @ ${Number(p.entry_price).toFixed(2)}`).join(', ')
+      : 'None';
+    holdingEl.className = 'value ' + (positions.length ? 'good' : '');
 
     const pnlEl = document.getElementById('pnl');
     pnlEl.className = 'value ' + ((state.realized_pnl ?? 0) >= 0 ? 'good' : 'bad');
