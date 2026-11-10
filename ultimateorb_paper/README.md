@@ -25,9 +25,9 @@ Open <http://127.0.0.1:8787>.
 
 The server binds to loopback only. It refuses non-loopback hosts because it has no authentication.
 
-## GitHub 6-minute paper runner
+## GitHub paper session runner
 
-`.github/workflows/ultimateorb_paper_runner.yml` runs the paper proxy every 6 minutes (GitHub may delay scheduled runs).
+`.github/workflows/ultimateorb_paper_runner.yml` starts near **08:55 CT** and loops every 6 minutes until **14:45 CT**. It does not depend on GitHub firing a cron every 6 minutes.
 
 It uses **NQ=F 5-minute bars**, converts the price to MNQ dollars at **$2/point**, and:
 
@@ -35,7 +35,7 @@ It uses **NQ=F 5-minute bars**, converts the price to MNQ dollars at **$2/point*
 - goes long on a close above the range, short on a close below it;
 - uses the **6.6-point target / 10-point stop**, 1 MNQ;
 - allows at most one paper trade per session;
-- exits at the 15:00 CT session close;
+- exits at the **14:45 CT** paper-session close;
 - writes only local paper JSON/CSV state, then commits that state back to the repo.
 
 This is a **proxy**, not the original UltimateORB strategy. The original entry rules and dated trade CSV are still missing.
@@ -83,13 +83,14 @@ It does **not** cancel real orders. There is no real order path in this folder.
 - `config.json` — paper settings.
 - `paper_engine.py` — ledger, barriers, halt guard, stats.
 - `paper_runner.py` — CLI.
-- `auto_paper.py` — scheduled 6-minute paper proxy.
+- `auto_paper.py` — one paper-proxy decision tick.
+- `session_tick.py` — one tick of the GitHub session loop.
 - `app.py` — local dashboard server.
 - `dashboard.html` — halt button and paper account UI.
 - `state/control.json` — halt flag (force-added by the scheduled workflow).
 - `state/paper_state.json` — account and trades (force-added by the scheduled workflow).
 - `state/paper_trades.csv` — closed-trade export (force-added by the scheduled workflow).
-- `.github/workflows/ultimateorb_paper_runner.yml` — 6-minute paper runner.
+- `.github/workflows/ultimateorb_paper_runner.yml` — session loop runner.
 - `.github/workflows/ultimateorb_halt.yml` — GitHub halt/resume switch.
 
 ## Tests

@@ -29,6 +29,7 @@ from .paper_engine import PaperEngine
 
 CT = ZoneInfo("America/Chicago")
 BAR_MINUTES = 5
+SESSION_CLOSE = time(14, 45)
 
 
 def _load_nq() -> pd.DataFrame:
@@ -116,7 +117,7 @@ def _decision(engine: PaperEngine, now: datetime, dry_run: bool) -> dict:
             )
             if not engine.state["positions"]:
                 break
-        if engine.state["positions"] and now.time() >= time(15, 0):
+        if engine.state["positions"] and now.time() >= SESSION_CLOSE:
             closed = engine.close_manual(
                 latest_close,
                 reason="session close",
@@ -134,7 +135,7 @@ def _decision(engine: PaperEngine, now: datetime, dry_run: bool) -> dict:
         result["reason"] = "halted: new entries blocked"
         return result
 
-    if not (time(9, 0) <= now.time() <= time(14, 45)):
+    if not (time(9, 0) <= now.time() <= time(14, 40)):
         result["reason"] = "outside entry window"
         return result
 

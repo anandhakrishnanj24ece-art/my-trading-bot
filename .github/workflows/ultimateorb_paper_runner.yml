@@ -1,8 +1,11 @@
-name: UltimateORB paper proxy runner
+name: UltimateORB paper session runner
 
 on:
+  # 13:55 UTC = 08:55 CDT; 14:55 UTC = 08:55 CST.
+  # Each job loops every 6 minutes until the paper session closes.
   schedule:
-    - cron: '*/6 * * * *' # Paper proxy only. GitHub may delay scheduled runs.
+    - cron: '55 13 * * 1-5'
+    - cron: '55 14 * * 1-5'
   push:
     paths:
       - "ultimateorb_paper/**"
@@ -13,15 +16,15 @@ on:
 permissions:
   contents: write
 
-# Serialize with the existing paper workflows so state commits never race.
+# One session loop at a time. A second scheduled/DST run waits, then exits.
 concurrency:
-  group: paper-trading-state
+  group: ultimateorb-paper-loop
   cancel-in-progress: false
 
 jobs:
-  paper-runner:
+  paper-session:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 360
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -34,16 +37,26 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run UltimateORB paper proxy
+      - name: Run paper session loop
         run: |
-          export PYTHONPATH=$(pwd)
-          python -m ultimateorb_paper.auto_paper
-
-      - name: Commit & push paper state
-        run: |
+          set -u
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add -f ultimateorb_paper/state
-          git commit -m "Auto-update UltimateORB paper state [skip ci]" || echo "No UltimateORB change to commit"
-          git pull --rebase --autostash origin main
-          git push
+          export PYTHONPATH=$(pwd)
+
+          while true; do
+            set +e
+            python -m ultimateorb_paper.session_tick
+            status=$?
+            set -e
+
+            git add -f ultimateorb_paper/state
+            git commit -m "Auto-update UltimateORB paper state [skip ci]" || true
+            git pull --rebase --autostash origin main || true
+            git push || true
+
+            if [ "$status" -ne 0 ]; then
+              break
+            fi
+            sleep 360
+          done

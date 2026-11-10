@@ -18,7 +18,7 @@ venv/
 config.json
 .claude/settings.local.json
 
-# Data caches and generated research artefacts
+# Data caches and generated artefacts
 *.pkl
 *.pickle
 *.parquet
@@ -27,14 +27,6 @@ config.json
 *.sqlite
 *.sqlite3
 *.log
-
-# Local paper-trading artefacts (the deployed strategies use paper_state_*.json)
-paper_account.json
-paper_account_1.json
-paper_state_extreme.json
-paper_state_uncorrelated.json
-paper_trade_log.csv
-trade_log.csv
 
 # OS / editor noise
 .DS_Store
