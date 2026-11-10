@@ -46,7 +46,7 @@ The runner still respects the halt flag. An existing position can be marked and 
 
 Run **Actions → UltimateORB paper halt switch → Run workflow** and choose `halt` or `resume`.
 
-The local dashboard button and the CLI still write the same `state/control.json`.
+The local dashboard button and the CLI still write the same `state/control.json`. A local halt only affects the GitHub runner after that change is committed and pushed.
 
 ## CLI
 
