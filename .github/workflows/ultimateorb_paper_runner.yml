@@ -1,0 +1,44 @@
+name: UltimateORB paper proxy runner
+
+on:
+  schedule:
+    - cron: '*/6 * * * *' # Paper proxy only. GitHub may delay scheduled runs.
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# Serialize with the existing paper workflows so state commits never race.
+concurrency:
+  group: paper-trading-state
+  cancel-in-progress: false
+
+jobs:
+  paper-runner:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run UltimateORB paper proxy
+        run: |
+          export PYTHONPATH=$(pwd)
+          python -m ultimateorb_paper.auto_paper
+
+      - name: Commit & push paper state
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f ultimateorb_paper/state
+          git commit -m "Auto-update UltimateORB paper state [skip ci]" || echo "No UltimateORB change to commit"
+          git pull --rebase --autostash origin main
+          git push

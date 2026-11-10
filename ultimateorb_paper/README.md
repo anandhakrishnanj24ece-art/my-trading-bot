@@ -25,6 +25,29 @@ Open <http://127.0.0.1:8787>.
 
 The server binds to loopback only. It refuses non-loopback hosts because it has no authentication.
 
+## GitHub 6-minute paper runner
+
+`.github/workflows/ultimateorb_paper_runner.yml` runs the paper proxy every 6 minutes (GitHub may delay scheduled runs).
+
+It uses **NQ=F 15-minute bars**, converts the price to MNQ dollars at **$2/point**, and:
+
+- builds the opening range from the first 30 minutes of the US cash session (08:30–09:00 CT);
+- goes long on a close above the range, short on a close below it;
+- uses the **6.6-point target / 10-point stop**, 1 MNQ;
+- allows at most one paper trade per session;
+- exits at the 15:00 CT session close;
+- writes only local paper JSON/CSV state, then commits that state back to the repo.
+
+This is a **proxy**, not the original UltimateORB strategy. The original entry rules and dated trade CSV are still missing.
+
+The runner still respects the halt flag. An existing position can be marked and closed while halted; new entries are blocked.
+
+### Halt from GitHub
+
+Run **Actions → UltimateORB paper halt switch → Run workflow** and choose `halt` or `resume`.
+
+The local dashboard button and the CLI still write the same `state/control.json`.
+
 ## CLI
 
 ```bash
@@ -51,20 +74,23 @@ It does **not** cancel real orders. There is no real order path in this folder.
 
 ## What this is not
 
-- Not an automated UltimateORB signal generator. The original entry rules and trade CSV are still missing. Entries are manual or fed by an external signal source.
+- Not the original UltimateORB signal generator. The original entry rules and trade CSV are still missing. The scheduled runner is a simple opening-range-breakout proxy, not a replication.
 - Not a broker integration.
-- Not a GitHub Pages app. A static page cannot persist a server-side halt flag. Run the local server or deploy the Python app to a private host with authentication.
+- Not a GitHub Pages app. A static page cannot persist a server-side halt flag. Run the local server, use the GitHub halt workflow, or deploy the Python app to a private host with authentication.
 
 ## Files
 
 - `config.json` — paper settings.
 - `paper_engine.py` — ledger, barriers, halt guard, stats.
 - `paper_runner.py` — CLI.
+- `auto_paper.py` — scheduled 6-minute paper proxy.
 - `app.py` — local dashboard server.
 - `dashboard.html` — halt button and paper account UI.
-- `state/control.json` — halt flag (created at runtime, gitignored).
-- `state/paper_state.json` — account and trades (created at runtime, gitignored).
-- `state/paper_trades.csv` — closed-trade export (created at runtime, gitignored).
+- `state/control.json` — halt flag (force-added by the scheduled workflow).
+- `state/paper_state.json` — account and trades (force-added by the scheduled workflow).
+- `state/paper_trades.csv` — closed-trade export (force-added by the scheduled workflow).
+- `.github/workflows/ultimateorb_paper_runner.yml` — 6-minute paper runner.
+- `.github/workflows/ultimateorb_halt.yml` — GitHub halt/resume switch.
 
 ## Tests
 
