@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>UltimateORB Paper Monitor</title>
+<style>
+  :root { color-scheme: dark; }
+  body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background: #0b1020; color: #e8edf7; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 24px; }
+  h1 { margin: 0 0 4px; font-size: 28px; }
+  .sub { color: #9fb0d6; margin-bottom: 20px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .card { background: #151c33; border: 1px solid #263156; border-radius: 14px; padding: 14px; }
+  .label { color: #9fb0d6; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+  .value { font-size: 24px; font-weight: 700; margin-top: 6px; }
+  .good { color: #3ddc97; }
+  .bad { color: #ff6b6b; }
+  .warn { color: #ffd166; }
+  table { width: 100%; border-collapse: collapse; background: #151c33; border-radius: 14px; overflow: hidden; }
+  th, td { padding: 10px 12px; border-bottom: 1px solid #263156; text-align: left; font-size: 13px; }
+  th { color: #9fb0d6; font-weight: 600; }
+  tr:last-child td { border-bottom: 0; }
+  .section { margin-top: 20px; }
+  .status { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+  .status.running { background: #1f3b2d; color: #3ddc97; }
+  .status.halted { background: #3b2424; color: #ff6b6b; }
+  .links a { color: #7aa2ff; text-decoration: none; margin-right: 14px; }
+  .note { color: #9fb0d6; font-size: 13px; line-height: 1.5; }
+  .chart { width: 100%; height: 180px; background: #10172b; border: 1px solid #263156; border-radius: 14px; }
+  .empty { color: #9fb0d6; padding: 18px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>UltimateORB Paper Monitor</h1>
+  <div class="sub">Paper-only. NQ futures proxy, 6.6 / 10.0 points, 1 MNQ. Auto-refreshes every 60 seconds.</div>
+
+  <div class="grid">
+    <div class="card"><div class="label">Status</div><div class="value" id="status">Loading…</div></div>
+    <div class="card"><div class="label">Equity</div><div class="value" id="equity">—</div></div>
+    <div class="card"><div class="label">Cash</div><div class="value" id="cash">—</div></div>
+    <div class="card"><div class="label">Realized P&L</div><div class="value" id="pnl">—</div></div>
+    <div class="card"><div class="label">Trades</div><div class="value" id="trades">—</div></div>
+    <div class="card"><div class="label">Win rate</div><div class="value" id="winrate">—</div></div>
+    <div class="card"><div class="label">Open positions</div><div class="value" id="openCount">—</div></div>
+    <div class="card"><div class="label">Last update</div><div class="value" id="updated" style="font-size:15px">—</div></div>
+  </div>
+
+  <div class="section">
+    <h2>Open position</h2>
+    <div id="openWrap"><div class="empty">No open position.</div></div>
+  </div>
+
+  <div class="section">
+    <h2>Equity curve</h2>
+    <canvas id="chart" class="chart"></canvas>
+  </div>
+
+  <div class="section">
+    <h2>Closed trades</h2>
+    <div id="tradesWrap"><div class="empty">No closed trades.</div></div>
+  </div>
+
+  <div class="section links">
+    <a href="https://github.com/anandhakrishnanj24ece-art/my-trading-bot/actions/workflows/ultimateorb_paper_runner.yml">Session runner</a>
+    <a href="https://github.com/anandhakrishnanj24ece-art/my-trading-bot/actions/workflows/ultimateorb_halt.yml">Halt switch</a>
+    <a href="https://github.com/anandhakrishnanj24ece-art/my-trading-bot/blob/main/ultimateorb_paper/state/paper_state.json">Raw state</a>
+  </div>
+
+  <p class="note">
+    This is a paper-only proxy. The original UltimateORB rules and dated trade CSV are still missing.
+    Halt blocks new entries but still allows marking and closing an open paper position.
+  </p>
+</div>
+<script>
+const stateUrl = './ultimateorb_paper/state/paper_state.json';
+const controlUrl = './ultimateorb_paper/state/control.json';
+
+function money(x) { return '$' + Number(x).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}); }
+function points(x) { return Number(x).toFixed(1) + ' pts'; }
+
+async function load() {
+  try {
+    const [sRes, cRes] = await Promise.all([
+      fetch(stateUrl + '?t=' + Date.now()),
+      fetch(controlUrl + '?t=' + Date.now())
+    ]);
+    if (!sRes.ok) throw new Error('state unavailable');
+    const state = await sRes.json();
+    const control = cRes.ok ? await cRes.json() : { halted: false };
+
+    const trades = state.trades || [];
+    const wins = trades.filter(t => Number(t.net_usd) > 0);
+    const winRate = trades.length ? (wins.length / trades.length * 100) : 0;
+
+    document.getElementById('status').innerHTML = control.halted
+      ? '<span class="status halted">HALTED</span>'
+      : '<span class="status running">RUNNING</span>';
+    document.getElementById('equity').textContent = money(state.equity ?? 0);
+    document.getElementById('cash').textContent = money(state.cash ?? 0);
+    document.getElementById('pnl').textContent = money(state.realized_pnl ?? 0);
+    document.getElementById('trades').textContent = trades.length;
+    document.getElementById('winrate').textContent = winRate.toFixed(1) + '%';
+    document.getElementById('openCount').textContent = (state.positions || []).length;
+    document.getElementById('updated').textContent = state.last_update ? new Date(state.last_update).toLocaleString() : '—';
+
+    const pnlEl = document.getElementById('pnl');
+    pnlEl.className = 'value ' + ((state.realized_pnl ?? 0) >= 0 ? 'good' : 'bad');
+
+    // Open positions
+    const openWrap = document.getElementById('openWrap');
+    if ((state.positions || []).length === 0) {
+      openWrap.innerHTML = '<div class="empty">No open position.</div>';
+    } else {
+      let html = '<table><thead><tr><th>Direction</th><th>Entry</th><th>Target</th><th>Stop</th><th>Last</th><th>Unrealized</th><th>Opened</th></tr></thead><tbody>';
+      for (const p of state.positions) {
+        html += `<tr>
+          <td>${p.direction}</td>
+          <td>${Number(p.entry_price).toFixed(2)}</td>
+          <td>${Number(p.target_price).toFixed(2)}</td>
+          <td>${Number(p.stop_price).toFixed(2)}</td>
+          <td>${Number(p.last_price).toFixed(2)}</td>
+          <td>${points(p.unrealized_points)} (${money(p.unrealized_usd)})</td>
+          <td>${new Date(p.opened_at).toLocaleString()}</td>
+        </tr>`;
+      }
+      html += '</tbody></table>';
+      openWrap.innerHTML = html;
+    }
+
+    // Closed trades
+    const tradesWrap = document.getElementById('tradesWrap');
+    if (trades.length === 0) {
+      tradesWrap.innerHTML = '<div class="empty">No closed trades.</div>';
+    } else {
+      let html = '<table><thead><tr><th>Closed</th><th>Direction</th><th>Entry</th><th>Exit</th><th>Gross</th><th>Net</th><th>Net $</th><th>Reason</th></tr></thead><tbody>';
+      for (const t of [...trades].reverse().slice(0, 30)) {
+        html += `<tr>
+          <td>${new Date(t.closed_at).toLocaleString()}</td>
+          <td>${t.direction}</td>
+          <td>${Number(t.entry_price).toFixed(2)}</td>
+          <td>${Number(t.exit_price).toFixed(2)}</td>
+          <td>${points(t.gross_points)}</td>
+          <td>${points(t.net_points)}</td>
+          <td class="${Number(t.net_usd) >= 0 ? 'good' : 'bad'}">${money(t.net_usd)}</td>
+          <td>${t.reason}</td>
+        </tr>`;
+      }
+      html += '</tbody></table>';
+      tradesWrap.innerHTML = html;
+    }
+
+    drawChart(state.equity_curve || []);
+  } catch (err) {
+    document.getElementById('status').textContent = 'Unavailable';
+    console.error(err);
+  }
+}
+
+function drawChart(points) {
+  const canvas = document.getElementById('chart');
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, rect.width, rect.height);
+  if (points.length < 2) {
+    ctx.fillStyle = '#9fb0d6';
+    ctx.font = '14px system-ui';
+    ctx.fillText('Not enough equity points yet.', 16, rect.height / 2);
+    return;
+  }
+  const vals = points.map(p => Number(p.equity));
+  const min = Math.min(...vals), max = Math.max(...vals);
+  const pad = 16;
+  const w = rect.width - pad * 2, h = rect.height - pad * 2;
+  ctx.strokeStyle = '#7aa2ff';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  vals.forEach((v, i) => {
+    const x = pad + (i / (vals.length - 1)) * w;
+    const y = pad + (1 - (v - min) / Math.max(max - min, 1)) * h;
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  });
+  ctx.stroke();
+  ctx.fillStyle = '#9fb0d6';
+  ctx.font = '12px system-ui';
+  ctx.fillText('min ' + money(min), pad, rect.height - 4);
+  ctx.fillText('max ' + money(max), rect.width - 90, pad + 12);
+}
+
+load();
+setInterval(load, 60000);
+window.addEventListener('resize', () => {
+  const s = document.getElementById('chart');
+  if (s) load();
+});
+</script>
+</body>
+</html>

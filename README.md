@@ -42,6 +42,13 @@ Run **Actions → UltimateORB paper halt switch → Run workflow** and choose
 Halt blocks new paper entries. It does **not** prevent marking or closing an open
 paper position. The local dashboard button and CLI use the same control file.
 
+## Web monitor
+
+GitHub Pages serves `index.html` from this repository. It reads the committed
+paper state and refreshes every 60 seconds:
+
+`https://anandhakrishnanj24ece-art.github.io/my-trading-bot/`
+
 ## Local dashboard
 
 ```bash
