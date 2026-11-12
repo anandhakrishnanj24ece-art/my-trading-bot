@@ -1,9 +1,39 @@
-# UltimateORB — Paper Trading
+# Paper Trading — UltimateORB, Multi-Filter ORB, FVG Duo
 
 **Paper-only. No broker adapter, no API keys, no live order path.**
 
-This repository now contains only the UltimateORB paper proxy and its supporting
-GitHub Actions.
+This repository contains paper proxies and their supporting GitHub Actions.
+
+## FVG Duo paper runner
+
+`fvg_duo_paper/` is a paper-only port of the video-derived FVG Duo rules:
+
+- **Nasdaq-100 CFD** (`USATECH.IDX/USD`), Dukascopy 1-minute feed resampled to
+  5-minute candles, New York time. Free NQ futures feeds are delayed ~10 minutes,
+  which would make the 09:40/09:50 Opening Drive untradeable. This is the same
+  Nasdaq-100 feed used in the five-year validation, not NQ futures.
+- **Opening Drive:** 10-minute FVG at 09:40/09:50, 1.5% stop, exit 16:00
+- **Trend FVG:** 15-minute bullish FVG, EMA50 > EMA100, middle range >= 1.5 x
+  ATR14, stop under the first candle low, 3R target, flat 16:00
+- one position at a time; OD overrides Trend that day
+- **1 CFD unit** ($1/point), $50,000 starting paper capital, $1/side all-in cost
+
+It has **no broker adapter and no live-order path**. The GitHub workflow
+`fvg_duo_paper_runner.yml` runs every five minutes during the US session and
+commits `fvg_duo_paper/state/`.
+
+Paper fills use the latest public price at the tick; the $1/side cost is all-in
+spread and slippage. A signal older than 5.5 minutes is logged as missed, never
+backfilled. Stop and target checks use completed 5-minute bars; the 15:55 exit
+uses the latest price.
+Run **Actions → FVG Duo paper halt switch** to block new entries.
+
+> **Evidence caveat:** the frozen rules passed a five-year Nasdaq test, but the
+> out-of-sample test on S&P 500, Dow, and Russell 2000 did **not** confirm a
+> transferable edge. This is a paper monitoring deployment, not a validated
+> live strategy.
+
+## Other paper strategies
 
 The original UltimateORB rules and dated trade CSV are still missing. The
 scheduled runner is therefore an **opening-range-breakout proxy**, not an exact

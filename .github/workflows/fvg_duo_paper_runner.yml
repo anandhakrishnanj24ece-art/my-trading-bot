@@ -1,0 +1,52 @@
+name: FVG Duo Paper Runner
+
+# Paper-only. Public NQ=F 5m candles, local paper ledger, no broker adapter.
+on:
+  # Every five minutes across both US DST windows. The runner itself exits
+  # quickly outside 09:30-16:00 New York.
+  schedule:
+    - cron: '*/5 13-21 * * 1-5'
+  push:
+    paths:
+      - "fvg_duo_paper/**"
+      - ".github/workflows/fvg_duo_paper_runner.yml"
+      - "requirements.txt"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# Serialize state commits with the other paper runners.
+concurrency:
+  group: paper-trading-state
+  cancel-in-progress: false
+
+jobs:
+  fvg-duo-tick:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run FVG Duo paper tick
+        run: |
+          export PYTHONPATH=$(pwd)
+          python -m fvg_duo_paper.runner
+
+      - name: Commit & push paper state
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f fvg_duo_paper/state
+          git commit -m "Auto-update FVG Duo paper state [skip ci]" || echo "No FVG Duo change to commit"
+          git pull --rebase --autostash origin main
+          git push

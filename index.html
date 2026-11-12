@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Paper Trading Monitor — UltimateORB + Multi-Filter ORB</title>
+<title>Paper Trading Monitor — UltimateORB + Multi-Filter ORB + FVG Duo</title>
 <style>
   :root { color-scheme: dark; }
   body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background: #0b1020; color: #e8edf7; }
@@ -14,6 +14,7 @@
   .card { background: #151c33; border: 1px solid #263156; border-radius: 14px; padding: 14px; }
   .card.strat-a { border-left: 4px solid #7aa2ff; }
   .card.strat-b { border-left: 4px solid #3ddc97; }
+  .card.strat-c { border-left: 4px solid #f2a33a; }
   .label { color: #9fb0d6; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
   .value { font-size: 22px; font-weight: 700; margin-top: 6px; }
   .good { color: #3ddc97; }
@@ -35,13 +36,14 @@
   .dot { width: 10px; height: 10px; border-radius: 50%; }
   .dot.a { background: #7aa2ff; box-shadow: 0 0 8px #7aa2ff; }
   .dot.b { background: #3ddc97; box-shadow: 0 0 8px #3ddc97; }
+  .dot.c { background: #f2a33a; box-shadow: 0 0 8px #f2a33a; }
   h2 { margin: 0 0 8px; font-size: 18px; }
 </style>
 </head>
 <body>
 <div class="wrap">
   <h1>Paper Trading Monitor</h1>
-  <div class="sub">UltimateORB + Multi-Filter ORB — Paper only. Auto-refreshes every 60 seconds. Times in IST.</div>
+  <div class="sub">UltimateORB + Multi-Filter ORB + FVG Duo — Paper only. Auto-refreshes every 60 seconds. Times in IST.</div>
 
   <div class="grid">
     <div class="card strat-a">
@@ -76,6 +78,22 @@
       <div class="label">Multi-Filter ORB — Position</div>
       <div class="value" id="m-holding" style="font-size:16px">—</div>
     </div>
+    <div class="card strat-c">
+      <div class="label">FVG Duo — Status</div>
+      <div class="value" id="f-status">Loading…</div>
+    </div>
+    <div class="card strat-c">
+      <div class="label">FVG Duo — Balance</div>
+      <div class="value" id="f-equity">—</div>
+    </div>
+    <div class="card strat-c">
+      <div class="label">FVG Duo — Unrealized P&L</div>
+      <div class="value" id="f-unrealized">—</div>
+    </div>
+    <div class="card strat-c">
+      <div class="label">FVG Duo — Position</div>
+      <div class="value" id="f-holding" style="font-size:16px">—</div>
+    </div>
   </div>
 
   <div class="section">
@@ -89,25 +107,33 @@
   </div>
 
   <div class="section">
-    <h2>Combined Equity Curve</h2>
+    <div class="strat-head"><span class="dot c"></span><h2>FVG Duo — Paper (Opening Drive + Trend FVG, Nasdaq-100 CFD)</h2></div>
+    <div id="f-wrap"><div class="empty">Loading…</div></div>
+  </div>
+
+  <div class="section">
+    <h2>Combined Return (%)</h2>
     <canvas id="chart" class="chart"></canvas>
   </div>
 
   <div class="section">
-    <h2>Live Activity — Both Strategies</h2>
+    <h2>Live Activity — All Strategies</h2>
     <div id="activityWrap"><div class="empty">Loading activity…</div></div>
   </div>
 
   <div class="section links">
     <a href="https://github.com/anandhakrishnanj24ece-art/my-trading-bot/actions/workflows/ultimateorb_paper_runner.yml">UltimateORB runner</a>
     <a href="https://github.com/anandhakrishnanj24ece-art/my-trading-bot/actions/workflows/multifilter_orb_runner.yml">Multi-Filter ORB runner</a>
+    <a href="https://github.com/anandhakrishnanj24ece-art/my-trading-bot/actions/workflows/fvg_duo_paper_runner.yml">FVG Duo runner</a>
     <a href="https://github.com/anandhakrishnanj24ece-art/my-trading-bot/actions/workflows/ultimateorb_halt.yml">Halt switch</a>
+    <a href="https://github.com/anandhakrishnanj24ece-art/my-trading-bot/actions/workflows/fvg_duo_halt.yml">FVG Duo halt</a>
     <a href="https://github.com/anandhakrishnanj24ece-art/my-trading-bot/blob/main/ultimateorb_paper/state/paper_state.json">UltimateORB state</a>
     <a href="https://github.com/anandhakrishnanj24ece-art/my-trading-bot/blob/main/multifilter_orb_paper/state/paper_state.json">Multi-Filter state</a>
+    <a href="https://github.com/anandhakrishnanj24ece-art/my-trading-bot/blob/main/fvg_duo_paper/state/paper_state.json">FVG Duo state</a>
   </div>
 
   <p class="note">
-    Both are <b>paper-only</b> proxies. No broker adapter, no API keys, no live orders. The original UltimateORB rules and dated trade CSV are still missing; the Multi-Filter ORB is an independent Python port of a Pine Script strategy.
+    All three are <b>paper-only</b> proxies. No broker adapter, no API keys, no live orders. FVG Duo is an exact port of the video-derived Opening Drive + Trend FVG rules, run on the Dukascopy Nasdaq-100 CFD feed (not NQ futures). The cross-instrument OOS test did <b>not</b> validate the edge on S&amp;P, Dow, or Russell, so this is a monitoring deployment, not a validated live strategy.
   </p>
 </div>
 <script>
@@ -115,6 +141,8 @@ const U_STATE = './ultimateorb_paper/state/paper_state.json';
 const U_CONTROL = './ultimateorb_paper/state/control.json';
 const M_STATE = './multifilter_orb_paper/state/paper_state.json';
 const M_CONTROL = './multifilter_orb_paper/state/control.json';
+const F_STATE = './fvg_duo_paper/state/paper_state.json';
+const F_CONTROL = './fvg_duo_paper/state/control.json';
 
 function money(x) { return '$' + Number(x || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}); }
 function points(x) { return Number(x || 0).toFixed(1) + ' pts'; }
@@ -129,17 +157,24 @@ async function loadJson(url) {
 
 async function load() {
   try {
-    const [uState, uCtrl, mState, mCtrl] = await Promise.all([
-      loadJson(U_STATE), loadJson(U_CONTROL), loadJson(M_STATE), loadJson(M_CONTROL)
+    const [uState, uCtrl, mState, mCtrl, fState, fCtrl] = await Promise.all([
+      loadJson(U_STATE), loadJson(U_CONTROL), loadJson(M_STATE), loadJson(M_CONTROL),
+      loadJson(F_STATE), loadJson(F_CONTROL)
     ]);
 
     renderStrategy('u', uState, uCtrl);
     renderStrategy('m', mState, mCtrl);
-    drawCombinedChart(uState.equity_curve || [], mState.equity_curve || []);
-    renderActivity(uState, uCtrl, mState, mCtrl);
+    renderStrategy('f', fState, fCtrl);
+    drawCombinedChart([
+      { label: 'UltimateORB', color: '#7aa2ff', points: uState.equity_curve || [], capital: uState.capital || 10000 },
+      { label: 'Multi-Filter ORB', color: '#3ddc97', points: mState.equity_curve || [], capital: mState.capital || 10000 },
+      { label: 'FVG Duo', color: '#f2a33a', points: fState.equity_curve || [], capital: fState.capital || 50000 }
+    ]);
+    renderActivity(uState, uCtrl, mState, mCtrl, fState, fCtrl);
   } catch (err) {
     document.getElementById('u-status').textContent = 'Unavailable';
     document.getElementById('m-status').textContent = 'Unavailable';
+    document.getElementById('f-status').textContent = 'Unavailable';
     console.error(err);
   }
 }
@@ -216,8 +251,8 @@ function renderStrategy(prefix, state, control) {
   wrap.innerHTML = html;
 }
 
-function renderActivity(uState, uCtrl, mState, mCtrl) {
-  const events = [];
+function renderActivity(uState, uCtrl, mState, mCtrl, fState, fCtrl) {
+  let events = [];
 
   // UltimateORB trades
   for (const t of uState.trades || []) {
@@ -273,6 +308,33 @@ function renderActivity(uState, uCtrl, mState, mCtrl) {
     });
   }
 
+  // FVG Duo trades
+  for (const t of fState.trades || []) {
+    events.push({
+      time: t.closed_at || t.entry_time,
+      strategy: 'FVG Duo',
+      type: t.exit_price ? 'EXIT' : 'ENTRY',
+      direction: t.direction,
+      entry: Number(t.entry_price || 0),
+      exit: t.exit_price ? Number(t.exit_price) : null,
+      net: t.net_usd != null ? Number(t.net_usd) : null,
+      reason: t.reason || '',
+    });
+  }
+  // FVG Duo open positions
+  for (const p of fState.positions || []) {
+    events.push({
+      time: p.entry_time || p.opened_at,
+      strategy: 'FVG Duo',
+      type: 'OPEN',
+      direction: p.direction,
+      entry: Number(p.entry_price || 0),
+      exit: null,
+      net: null,
+      reason: p.source ? p.source + ' open' : 'open',
+    });
+  }
+
   // Sort newest first
   events.sort((a, b) => new Date(b.time) - new Date(a.time));
   events = events.slice(0, 20);
@@ -301,7 +363,7 @@ function renderActivity(uState, uCtrl, mState, mCtrl) {
   wrap.innerHTML = html;
 }
 
-function drawCombinedChart(uPoints, mPoints) {
+function drawCombinedChart(series) {
   const canvas = document.getElementById('chart');
   const ctx = canvas.getContext('2d');
   const dpr = window.devicePixelRatio || 1;
@@ -311,7 +373,8 @@ function drawCombinedChart(uPoints, mPoints) {
   ctx.scale(dpr, dpr);
   ctx.clearRect(0, 0, rect.width, rect.height);
 
-  const all = [...(uPoints || []), ...(mPoints || [])];
+  const ret = (pts, capital) => (pts || []).map(p => (Number(p.equity) / Number(capital || 10000)) - 1);
+  const all = series.flatMap(s => ret(s.points, s.capital));
   if (all.length < 2) {
     ctx.fillStyle = '#9fb0d6';
     ctx.font = '14px system-ui';
@@ -319,47 +382,37 @@ function drawCombinedChart(uPoints, mPoints) {
     return;
   }
 
-  // Use the longer series as the x-axis backbone
-  const base = uPoints.length >= mPoints.length ? uPoints : mPoints;
-  const other = uPoints.length >= mPoints.length ? mPoints : uPoints;
-  const baseVals = base.map(p => Number(p.equity));
-  const min = Math.min(...baseVals);
-  const max = Math.max(...baseVals);
-  const pad = 40;
-  const w = rect.width - pad * 2;
+  const min = Math.min(...all, 0);
+  const max = Math.max(...all, 0);
+  const pad = 44;
+  const w = rect.width - pad * 2 - 110;
   const h = rect.height - pad * 2;
 
-  // Draw both series
-  for (const { points: pts, color, label } of [
-    { points: uPoints, color: '#7aa2ff', label: 'UltimateORB' },
-    { points: mPoints, color: '#3ddc97', label: 'Multi-Filter ORB' }
-  ]) {
-    if (!pts || pts.length < 2) continue;
-    const vals = pts.map(p => Number(p.equity));
-    ctx.strokeStyle = color;
+  for (const s of series) {
+    const vals = ret(s.points, s.capital);
+    if (vals.length < 2) continue;
+    ctx.strokeStyle = s.color;
     ctx.lineWidth = 2;
     ctx.beginPath();
     vals.forEach((v, i) => {
-      // Map by relative position within each series
-      const x = pad + (i / Math.max(pts.length - 1, 1)) * w;
-      const y = pad + (1 - (v - min) / Math.max(max - min, 1)) * h;
+      const x = pad + (i / Math.max(vals.length - 1, 1)) * w;
+      const y = pad + (1 - (v - min) / Math.max(max - min, 1e-9)) * h;
       if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
     });
     ctx.stroke();
 
-    // Label at end
     const lastV = vals[vals.length - 1];
     const lastX = pad + w;
-    const lastY = pad + (1 - (lastV - min) / Math.max(max - min, 1)) * h;
-    ctx.fillStyle = color;
+    const lastY = pad + (1 - (lastV - min) / Math.max(max - min, 1e-9)) * h;
+    ctx.fillStyle = s.color;
     ctx.font = '11px system-ui';
-    ctx.fillText(label + ' ' + money(lastV), lastX + 4, lastY + 4);
+    ctx.fillText(s.label + ' ' + (lastV * 100).toFixed(2) + '%', lastX + 6, lastY + 4);
   }
 
   ctx.fillStyle = '#9fb0d6';
   ctx.font = '12px system-ui';
-  ctx.fillText('min ' + money(min), pad, rect.height - 6);
-  ctx.fillText('max ' + money(max), rect.width - 120, pad + 14);
+  ctx.fillText('min ' + (min * 100).toFixed(2) + '%', pad, rect.height - 6);
+  ctx.fillText('max ' + (max * 100).toFixed(2) + '%', rect.width - 120, pad + 14);
 }
 
 load();

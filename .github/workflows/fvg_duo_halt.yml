@@ -1,0 +1,61 @@
+name: FVG Duo paper halt switch
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "halt blocks new paper entries; resume allows them again"
+        required: true
+        default: halt
+        type: choice
+        options:
+          - halt
+          - resume
+
+permissions:
+  contents: write
+
+concurrency:
+  group: paper-trading-state
+  cancel-in-progress: false
+
+jobs:
+  set-halt:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Update halt flag
+        env:
+          ACTION: ${{ inputs.action }}
+        run: |
+          export PYTHONPATH=$(pwd)
+          python - <<'PY'
+          import json, os
+          from datetime import datetime
+          from pathlib import Path
+          p = Path("fvg_duo_paper/state/control.json")
+          current = json.loads(p.read_text()) if p.exists() else {}
+          action = os.environ["ACTION"]
+          current.update({
+              "halted": action == "halt",
+              "reason": "" if action == "resume" else "manual halt",
+              "updated_at": datetime.now().astimezone().isoformat(),
+          })
+          p.write_text(json.dumps(current, indent=2) + "\n")
+          PY
+
+      - name: Commit & push halt flag
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f fvg_duo_paper/state/control.json
+          git commit -m "FVG Duo paper halt=${{ inputs.action }} [skip ci]" || echo "No halt flag change"
+          git pull --rebase --autostash origin main
+          git push
