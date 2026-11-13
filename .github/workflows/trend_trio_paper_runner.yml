@@ -1,0 +1,52 @@
+name: Trend Trio Paper Runner
+
+# Paper-only. Dukascopy USATECH 1m feed -> 2m/4m/5m/15m/1h signals.
+# No broker adapter, API keys, or live orders.
+on:
+  # UMA is an any-hour setup, so sample around the clock on weekdays.
+  schedule:
+    - cron: '*/5 * * * 1-5'
+  push:
+    paths:
+      - "trend_trio_paper/**"
+      - ".github/workflows/trend_trio_paper_runner.yml"
+      - "requirements.txt"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# Serialize state commits with the other paper runners.
+concurrency:
+  group: paper-trading-state
+  cancel-in-progress: false
+
+jobs:
+  trend-trio-tick:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run Trend Trio paper tick
+        run: |
+          export PYTHONPATH=$(pwd)
+          python -m trend_trio_paper.runner
+
+      - name: Commit & push paper state
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f trend_trio_paper/state
+          git commit -m "Auto-update Trend Trio paper state [skip ci]" || echo "No Trend Trio change to commit"
+          git pull --rebase --autostash origin main
+          git push

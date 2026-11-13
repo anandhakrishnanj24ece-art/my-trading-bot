@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Paper Trading Monitor — UltimateORB + Multi-Filter ORB + FVG Duo</title>
+<title>Paper Trading Monitor — UltimateORB + Multi-Filter ORB + FVG Duo + Trend Trio</title>
 <style>
   :root { color-scheme: dark; }
   body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background: #0b1020; color: #e8edf7; }
@@ -15,6 +15,7 @@
   .card.strat-a { border-left: 4px solid #7aa2ff; }
   .card.strat-b { border-left: 4px solid #3ddc97; }
   .card.strat-c { border-left: 4px solid #f2a33a; }
+  .card.strat-d { border-left: 4px solid #c084fc; }
   .label { color: #9fb0d6; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
   .value { font-size: 22px; font-weight: 700; margin-top: 6px; }
   .good { color: #3ddc97; }
@@ -37,13 +38,14 @@
   .dot.a { background: #7aa2ff; box-shadow: 0 0 8px #7aa2ff; }
   .dot.b { background: #3ddc97; box-shadow: 0 0 8px #3ddc97; }
   .dot.c { background: #f2a33a; box-shadow: 0 0 8px #f2a33a; }
+  .dot.d { background: #c084fc; box-shadow: 0 0 8px #c084fc; }
   h2 { margin: 0 0 8px; font-size: 18px; }
 </style>
 </head>
 <body>
 <div class="wrap">
   <h1>Paper Trading Monitor</h1>
-  <div class="sub">UltimateORB + Multi-Filter ORB + FVG Duo — Paper only. Auto-refreshes every 60 seconds. Times in IST.</div>
+  <div class="sub">UltimateORB + Multi-Filter ORB + FVG Duo + Trend Trio — Paper only. Auto-refreshes every 60 seconds. Times in IST.</div>
 
   <div class="grid">
     <div class="card strat-a">
@@ -94,6 +96,22 @@
       <div class="label">FVG Duo — Position</div>
       <div class="value" id="f-holding" style="font-size:16px">—</div>
     </div>
+    <div class="card strat-d">
+      <div class="label">Trend Trio — Status</div>
+      <div class="value" id="t-status">Loading…</div>
+    </div>
+    <div class="card strat-d">
+      <div class="label">Trend Trio — Balance</div>
+      <div class="value" id="t-equity">—</div>
+    </div>
+    <div class="card strat-d">
+      <div class="label">Trend Trio — Unrealized P&L</div>
+      <div class="value" id="t-unrealized">—</div>
+    </div>
+    <div class="card strat-d">
+      <div class="label">Trend Trio — Position</div>
+      <div class="value" id="t-holding" style="font-size:16px">—</div>
+    </div>
   </div>
 
   <div class="section">
@@ -112,6 +130,11 @@
   </div>
 
   <div class="section">
+    <div class="strat-head"><span class="dot d"></span><h2>Trend Trio — Paper (SuperTrend + Ultimate MA + AlphaTrend, video-derived proxy)</h2></div>
+    <div id="t-wrap"><div class="empty">Loading…</div></div>
+  </div>
+
+  <div class="section">
     <h2>Combined Return (%)</h2>
     <canvas id="chart" class="chart"></canvas>
   </div>
@@ -125,15 +148,18 @@
     <a href="https://github.com/anandhakrishnanj24ece-art/my-trading-bot/actions/workflows/ultimateorb_paper_runner.yml">UltimateORB runner</a>
     <a href="https://github.com/anandhakrishnanj24ece-art/my-trading-bot/actions/workflows/multifilter_orb_runner.yml">Multi-Filter ORB runner</a>
     <a href="https://github.com/anandhakrishnanj24ece-art/my-trading-bot/actions/workflows/fvg_duo_paper_runner.yml">FVG Duo runner</a>
+    <a href="https://github.com/anandhakrishnanj24ece-art/my-trading-bot/actions/workflows/trend_trio_paper_runner.yml">Trend Trio runner</a>
     <a href="https://github.com/anandhakrishnanj24ece-art/my-trading-bot/actions/workflows/ultimateorb_halt.yml">Halt switch</a>
     <a href="https://github.com/anandhakrishnanj24ece-art/my-trading-bot/actions/workflows/fvg_duo_halt.yml">FVG Duo halt</a>
+    <a href="https://github.com/anandhakrishnanj24ece-art/my-trading-bot/actions/workflows/trend_trio_halt.yml">Trend Trio halt</a>
     <a href="https://github.com/anandhakrishnanj24ece-art/my-trading-bot/blob/main/ultimateorb_paper/state/paper_state.json">UltimateORB state</a>
     <a href="https://github.com/anandhakrishnanj24ece-art/my-trading-bot/blob/main/multifilter_orb_paper/state/paper_state.json">Multi-Filter state</a>
     <a href="https://github.com/anandhakrishnanj24ece-art/my-trading-bot/blob/main/fvg_duo_paper/state/paper_state.json">FVG Duo state</a>
+    <a href="https://github.com/anandhakrishnanj24ece-art/my-trading-bot/blob/main/trend_trio_paper/state/paper_state.json">Trend Trio state</a>
   </div>
 
   <p class="note">
-    All three are <b>paper-only</b> proxies. No broker adapter, no API keys, no live orders. FVG Duo is an exact port of the video-derived Opening Drive + Trend FVG rules, run on the Dukascopy Nasdaq-100 CFD feed (not NQ futures). The cross-instrument OOS test did <b>not</b> validate the edge on S&amp;P, Dow, or Russell, so this is a monitoring deployment, not a validated live strategy.
+    All four are <b>paper-only</b> proxies. No broker adapter, no API keys, no live orders. FVG Duo is an exact port of the video-derived Opening Drive + Trend FVG rules, run on the Dukascopy Nasdaq-100 CFD feed (not NQ futures). The cross-instrument OOS test did <b>not</b> validate the edge on S&amp;P, Dow, or Russell, so this is a monitoring deployment, not a validated live strategy. Trend Trio is a video-derived <b>proxy</b> for the free SuperTrend / Ultimate MA / AlphaTrend rules; the video does not disclose every input, so open-source defaults are used. A 3-year NQ 1m proxy test was only PF 1.05 (net +$6.9k at 1 MNQ-equivalent, 12.8% max drawdown), so it is observation-only and not a validated edge.
   </p>
 </div>
 <script>
@@ -143,9 +169,12 @@ const M_STATE = './multifilter_orb_paper/state/paper_state.json';
 const M_CONTROL = './multifilter_orb_paper/state/control.json';
 const F_STATE = './fvg_duo_paper/state/paper_state.json';
 const F_CONTROL = './fvg_duo_paper/state/control.json';
+const T_STATE = './trend_trio_paper/state/paper_state.json';
+const T_CONTROL = './trend_trio_paper/state/control.json';
 
 function money(x) { return '$' + Number(x || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}); }
 function points(x) { return Number(x || 0).toFixed(1) + ' pts'; }
+function numOrDash(x, digits = 2) { return x == null ? '—' : Number(x).toFixed(digits); }
 const istOpts = { timeZone: 'Asia/Kolkata', year: 'numeric', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
 function fmtIST(x) { return x ? new Date(x).toLocaleString('en-IN', istOpts) + ' IST' : '—'; }
 
@@ -157,24 +186,27 @@ async function loadJson(url) {
 
 async function load() {
   try {
-    const [uState, uCtrl, mState, mCtrl, fState, fCtrl] = await Promise.all([
+    const [uState, uCtrl, mState, mCtrl, fState, fCtrl, tState, tCtrl] = await Promise.all([
       loadJson(U_STATE), loadJson(U_CONTROL), loadJson(M_STATE), loadJson(M_CONTROL),
-      loadJson(F_STATE), loadJson(F_CONTROL)
+      loadJson(F_STATE), loadJson(F_CONTROL), loadJson(T_STATE), loadJson(T_CONTROL)
     ]);
 
     renderStrategy('u', uState, uCtrl);
     renderStrategy('m', mState, mCtrl);
     renderStrategy('f', fState, fCtrl);
+    renderStrategy('t', tState, tCtrl);
     drawCombinedChart([
       { label: 'UltimateORB', color: '#7aa2ff', points: uState.equity_curve || [], capital: uState.capital || 10000 },
       { label: 'Multi-Filter ORB', color: '#3ddc97', points: mState.equity_curve || [], capital: mState.capital || 10000 },
-      { label: 'FVG Duo', color: '#f2a33a', points: fState.equity_curve || [], capital: fState.capital || 50000 }
+      { label: 'FVG Duo', color: '#f2a33a', points: fState.equity_curve || [], capital: fState.capital || 50000 },
+      { label: 'Trend Trio', color: '#c084fc', points: tState.equity_curve || [], capital: tState.capital || 50000 }
     ]);
-    renderActivity(uState, uCtrl, mState, mCtrl, fState, fCtrl);
+    renderActivity(uState, uCtrl, mState, mCtrl, fState, fCtrl, tState, tCtrl);
   } catch (err) {
     document.getElementById('u-status').textContent = 'Unavailable';
     document.getElementById('m-status').textContent = 'Unavailable';
     document.getElementById('f-status').textContent = 'Unavailable';
+    document.getElementById('t-status').textContent = 'Unavailable';
     console.error(err);
   }
 }
@@ -220,11 +252,11 @@ function renderStrategy(prefix, state, control) {
       html += `<tr>
         <td>${p.direction}</td>
         <td>${Number(p.entry_price).toFixed(2)}</td>
-        <td>${Number(p.stop_price).toFixed(2)}</td>
-        <td>${Number(p.target_price).toFixed(2)}</td>
+        <td>${numOrDash(p.stop_price)}</td>
+        <td>${numOrDash(p.target_price)}</td>
         <td>${Number(p.last_price).toFixed(2)}</td>
         <td>${points(p.unrealized_points)} (${money(p.unrealized_usd)})</td>
-        <td>${fmtIST(p.opened_at)}</td>
+        <td>${fmtIST(p.entry_time || p.opened_at)}</td>
       </tr>`;
     }
     html += '</tbody></table>';
@@ -251,7 +283,7 @@ function renderStrategy(prefix, state, control) {
   wrap.innerHTML = html;
 }
 
-function renderActivity(uState, uCtrl, mState, mCtrl, fState, fCtrl) {
+function renderActivity(uState, uCtrl, mState, mCtrl, fState, fCtrl, tState, tCtrl) {
   let events = [];
 
   // UltimateORB trades
@@ -332,6 +364,33 @@ function renderActivity(uState, uCtrl, mState, mCtrl, fState, fCtrl) {
       exit: null,
       net: null,
       reason: p.source ? p.source + ' open' : 'open',
+    });
+  }
+
+  // Trend Trio trades
+  for (const t of tState.trades || []) {
+    events.push({
+      time: t.closed_at || t.entry_time,
+      strategy: 'Trend Trio',
+      type: t.exit_price ? 'EXIT' : 'ENTRY',
+      direction: t.direction,
+      entry: Number(t.entry_price || 0),
+      exit: t.exit_price ? Number(t.exit_price) : null,
+      net: t.net_usd != null ? Number(t.net_usd) : null,
+      reason: (t.source ? t.source + ' · ' : '') + (t.reason || ''),
+    });
+  }
+  // Trend Trio open positions
+  for (const p of tState.positions || []) {
+    events.push({
+      time: p.entry_time || p.opened_at,
+      strategy: 'Trend Trio',
+      type: 'OPEN',
+      direction: p.direction,
+      entry: Number(p.entry_price || 0),
+      exit: null,
+      net: null,
+      reason: (p.source ? p.source + ' · ' : '') + (p.source_detail || 'open'),
     });
   }
 
