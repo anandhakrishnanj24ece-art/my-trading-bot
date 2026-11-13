@@ -9,7 +9,9 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from trend_trio_paper.paper_engine import PaperEngine
+from trend_trio_paper.paper_engine import (
+    CONTRACT_LABEL, FEE_PER_SIDE, POINT_VALUE, PaperEngine,
+)
 from trend_trio_paper.signals import (
     TZ, Entry, Exit, adx, alpha_trend, build_entries, build_exits,
     chandelier_exit, completed_1m, scan_entry, supertrend, ultimate_ma,
@@ -96,6 +98,12 @@ class SignalTests(unittest.TestCase):
 
 
 class EngineTests(unittest.TestCase):
+    def test_deployed_model_is_a(self):
+        """Lock the deployed paper model: 1 MNQ-equivalent, $2/pt, $2/side."""
+        self.assertEqual(POINT_VALUE, 2.0)
+        self.assertEqual(FEE_PER_SIDE, 2.0)
+        self.assertIn("MNQ", CONTRACT_LABEL)
+
     def _bars(self):
         return make_bars(30, start="2026-11-13 09:30")
 

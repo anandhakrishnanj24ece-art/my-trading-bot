@@ -36,7 +36,11 @@ Run **Actions → FVG Duo paper halt switch** to block new entries.
 ## Trend Trio paper runner
 
 `trend_trio_paper/` is a paper-only **proxy** for the video-derived Trend Trio
-rules (`https://youtu.be/7gx3OPJYazQ`):
+rules (`https://youtu.be/7gx3OPJYazQ`).
+
+**Deployed model: A** — 1 MNQ-equivalent on the Nasdaq-100 CFD, `$2/point`,
+`$2/side`, Dukascopy 1-minute feed. The full-NQ `$20/point` result is a research
+reference only and is **not** the deployed configuration.
 
 - **Data:** Dukascopy `USATECH.IDX/USD` Nasdaq-100 CFD 1-minute feed, 30 calendar
   days loaded so the 1-hour EMA200 has enough completed bars.
