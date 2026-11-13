@@ -1,6 +1,6 @@
 name: FVG Duo Paper Runner
 
-# Paper-only. Public NQ=F 5m candles, local paper ledger, no broker adapter.
+# Paper-only. Dukascopy USATECH 1m feed -> 5m bars, local ledger, no broker adapter.
 on:
   # Every five minutes across both US DST windows. The runner itself exits
   # quickly outside 09:30-16:00 New York.
