@@ -5,7 +5,12 @@
   "realized_pnl": 0.0,
   "positions": [],
   "trades": [],
-  "equity_curve": [],
+  "equity_curve": [
+    {
+      "timestamp": "2026-11-13T12:23:13.786135+00:00",
+      "equity": 50000.0
+    }
+  ],
   "last_update": null,
   "last_price": null,
   "last_decision": null,
