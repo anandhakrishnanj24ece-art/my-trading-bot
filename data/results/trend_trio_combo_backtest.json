@@ -1,0 +1,189 @@
+{
+  "paper_only": true,
+  "assumptions": {
+    "period": "2023-01-03 -> 2025-12-11",
+    "starting_capital_usd": 50000.0,
+    "point_value_usd": 2.0,
+    "contract": "1 MNQ-equivalent",
+    "trend_trio_fee_per_side_usd": 2.0,
+    "fvg_fee_per_side_usd": 2.0,
+    "fvg_entry_slippage_points": 0.25,
+    "ultimate_orb_commission_points": 0.95,
+    "combination": "one position at a time; base wins exact-time ties; overlapping signals skipped",
+    "trend_trio_rules": "exactly the deployed paper runner rules"
+  },
+  "results": {
+    "fvg_duo": {
+      "base": {
+        "label": "FVG Duo only",
+        "trades": 492,
+        "gross_usd": 11802.62,
+        "net_usd": 9834.62,
+        "return_pct": 19.67,
+        "win_rate_pct": 51.42,
+        "profit_factor": 1.1986,
+        "max_drawdown_usd": 3367.38,
+        "max_drawdown_pct": 6.43,
+        "avg_trade_usd": 19.99
+      },
+      "trend_trio": {
+        "label": "Trend Trio only",
+        "trades": 3148,
+        "gross_usd": 20070.06,
+        "net_usd": 7478.06,
+        "return_pct": 14.96,
+        "win_rate_pct": 38.79,
+        "profit_factor": 1.0519,
+        "max_drawdown_usd": 7209.92,
+        "max_drawdown_pct": 12.27,
+        "avg_trade_usd": 2.38
+      },
+      "combined": {
+        "label": "FVG Duo + Trend Trio",
+        "trades": 3066,
+        "gross_usd": 22002.9,
+        "net_usd": 9738.9,
+        "return_pct": 19.48,
+        "win_rate_pct": 39.01,
+        "profit_factor": 1.0676,
+        "max_drawdown_usd": 5734.21,
+        "max_drawdown_pct": 9.79,
+        "avg_trade_usd": 3.18
+      },
+      "filter_open": {
+        "label": "FVG Duo, Trend open agrees",
+        "trades": 385,
+        "gross_usd": 7833.72,
+        "net_usd": 6293.72,
+        "return_pct": 12.59,
+        "win_rate_pct": 50.91,
+        "profit_factor": 1.1678,
+        "max_drawdown_usd": 4086.74,
+        "max_drawdown_pct": 7.01,
+        "avg_trade_usd": 16.35
+      },
+      "filter_last": {
+        "label": "FVG Duo, latest Trend agrees",
+        "trades": 416,
+        "gross_usd": 9445.91,
+        "net_usd": 7781.91,
+        "return_pct": 15.56,
+        "win_rate_pct": 51.2,
+        "profit_factor": 1.191,
+        "max_drawdown_usd": 3764.24,
+        "max_drawdown_pct": 6.29,
+        "avg_trade_usd": 18.71
+      },
+      "skipped_overlaps": 574,
+      "by_year": {
+        "2023": {
+          "trades": 1053,
+          "gross_usd": 7216.14,
+          "net_usd": 3004.14,
+          "return_pct": 6.01,
+          "profit_factor": 1.0801
+        },
+        "2024": {
+          "trades": 1030,
+          "gross_usd": 5231.26,
+          "net_usd": 1111.26,
+          "return_pct": 2.22,
+          "profit_factor": 1.0231
+        },
+        "2025": {
+          "trades": 983,
+          "gross_usd": 9555.5,
+          "net_usd": 5623.5,
+          "return_pct": 11.25,
+          "profit_factor": 1.0964
+        }
+      }
+    },
+    "ultimate_orb": {
+      "base": {
+        "label": "UltimateORB only",
+        "trades": 745,
+        "gross_usd": -4906.8,
+        "net_usd": -6322.3,
+        "return_pct": -12.64,
+        "win_rate_pct": 40.4,
+        "profit_factor": 0.3498,
+        "max_drawdown_usd": 6335.0,
+        "max_drawdown_pct": 12.67,
+        "avg_trade_usd": -8.49
+      },
+      "trend_trio": {
+        "label": "Trend Trio only",
+        "trades": 3148,
+        "gross_usd": 20070.06,
+        "net_usd": 7478.06,
+        "return_pct": 14.96,
+        "win_rate_pct": 38.79,
+        "profit_factor": 1.0519,
+        "max_drawdown_usd": 7209.92,
+        "max_drawdown_pct": 12.27,
+        "avg_trade_usd": 2.38
+      },
+      "combined": {
+        "label": "UltimateORB + Trend Trio",
+        "trades": 3302,
+        "gross_usd": 17659.66,
+        "net_usd": 4882.16,
+        "return_pct": 9.76,
+        "win_rate_pct": 38.58,
+        "profit_factor": 1.0338,
+        "max_drawdown_usd": 7749.02,
+        "max_drawdown_pct": 13.52,
+        "avg_trade_usd": 1.48
+      },
+      "filter_open": {
+        "label": "UltimateORB, Trend open agrees",
+        "trades": 431,
+        "gross_usd": -2710.4,
+        "net_usd": -3529.3,
+        "return_pct": -7.06,
+        "win_rate_pct": 41.3,
+        "profit_factor": 0.363,
+        "max_drawdown_usd": 3541.3,
+        "max_drawdown_pct": 7.09,
+        "avg_trade_usd": -8.19
+      },
+      "filter_last": {
+        "label": "UltimateORB, latest Trend agrees",
+        "trades": 489,
+        "gross_usd": -3106.8,
+        "net_usd": -4035.9,
+        "return_pct": -8.07,
+        "win_rate_pct": 41.1,
+        "profit_factor": 0.3601,
+        "max_drawdown_usd": 4047.9,
+        "max_drawdown_pct": 8.1,
+        "avg_trade_usd": -8.25
+      },
+      "skipped_overlaps": 591,
+      "by_year": {
+        "2023": {
+          "trades": 1120,
+          "gross_usd": 6096.98,
+          "net_usd": 1761.88,
+          "return_pct": 3.52,
+          "profit_factor": 1.0473
+        },
+        "2024": {
+          "trades": 1119,
+          "gross_usd": 7554.5,
+          "net_usd": 3217.1,
+          "return_pct": 6.43,
+          "profit_factor": 1.0683
+        },
+        "2025": {
+          "trades": 1063,
+          "gross_usd": 4008.18,
+          "net_usd": -96.82,
+          "return_pct": -0.19,
+          "profit_factor": 0.9984
+        }
+      }
+    }
+  }
+}

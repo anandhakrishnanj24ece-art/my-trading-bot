@@ -77,6 +77,26 @@ verified duplicate.
 > (PF 0.67). The video's 16-year result is not reproduced. This is
 > observation-only, not a validated live strategy.
 
+### Combination test
+
+`run_trend_trio_combo.py` adds Trend Trio as a second entry stream inside a
+single $50,000 account (one position at a time), and separately tests it as a
+directional filter. Period: 2023-01-03 → 2025-12-11, NQ 1-minute data, totals
+over the period, not annualized. Costs: `$2/point`, `$2/side`; FVG Duo also
+pays 0.25 point entry slippage; UltimateORB proxy pays 0.95 points round turn.
+
+| Base | Base only | + Trend Trio stream | Trend Trio filter | Trend only |
+|---|---:|---:|---:|---:|
+| FVG Duo | **+19.67%** (PF 1.20) | +19.48% (PF 1.07) | +15.56% (PF 1.19) | +14.96% (PF 1.05) |
+| UltimateORB proxy | **−12.64%** (PF 0.35) | +9.76% (PF 1.03) | −8.07% (PF 0.36) | +14.96% (PF 1.05) |
+
+Adding Trend Trio as an extra stream starves the base strategy: only 105 of 492
+FVG Duo entries and 205 of 745 UltimateORB entries still get the single
+position slot. It slightly lowers FVG Duo's return and raises its drawdown, and
+the UltimateORB “improvement” is only Trend Trio offsetting a negative base
+proxy. The directional filter also reduces FVG Duo's return. There is no
+evidence here to promote the combination.
+
 Run **Actions → Trend Trio paper halt switch** to block new entries. The runner
 schedules every five minutes around the clock on weekdays because the UMA setup
 is an any-hour setup.
