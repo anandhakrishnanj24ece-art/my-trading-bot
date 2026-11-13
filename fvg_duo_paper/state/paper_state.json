@@ -11,9 +11,11 @@
       "equity": 50000.0
     }
   ],
-  "last_update": null,
+  "last_update": "2026-11-13T20:18:06.174763+00:00",
   "last_price": null,
-  "last_decision": null,
-  "last_reason": null,
-  "od_days": []
+  "last_decision": "skip",
+  "last_reason": "OD signal 09:40 missed by 338.1 min",
+  "od_days": [
+    "2026-11-13"
+  ]
 }
