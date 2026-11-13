@@ -97,6 +97,27 @@ the UltimateORB “improvement” is only Trend Trio offsetting a negative base
 proxy. The directional filter also reduces FVG Duo's return. There is no
 evidence here to promote the combination.
 
+### Crypto orderflow filter test
+
+`run_trend_trio_orderflow.py` tests Trend Trio as a **directional confirmation
+filter** on the crypto LVN-FVG orderflow strategy (`multi_tf_strategy.py`). The
+base rules are the robust 10m configuration: 2R target, 2.5 x 10m-ATR minimum
+stop, 0.5% risk, 5 bps fee + 1 bp slippage per side. Period: 2025-11-11 ->
+2026-10-31, equal-weight ETH/SOL/XRP, $10,000 per symbol; totals over the
+period, not annualized.
+
+| Hierarchy | Base | Trend active filter | Trend latest filter |
+|---|---:|---:|---:|
+| 1D -> 12H -> 8H -> 4H -> 2H -> 1H -> 30m | **+6.04%** (PF 1.13) | +0.37% (PF 1.02) | +4.95% (PF 1.15) |
+| 1D -> 12H -> 8H -> 4H -> 2H -> 1H | **+7.93%** (PF 1.23) | −1.69% (PF 0.90) | +3.40% (PF 1.14) |
+| 1D -> 12H -> 8H -> 4H -> 2H -> 1H, 24/7 Trend | +7.93% (PF 1.23) | +3.16% (PF 1.12) | +5.40% (PF 1.19) |
+
+The filter is not robust: the 24/7 latest variant helps ETH (+12.12%) but only
+adds +1.72% on SOL and +2.34% on XRP, and the aggregate still trails the
+unfiltered base. The active filter cuts too many trades. 3M/1M are not included
+because the one-year crypto dataset has only 4/12 bars at those timeframes, far
+too few for the rolling volume profile.
+
 Run **Actions → Trend Trio paper halt switch** to block new entries. The runner
 schedules every five minutes around the clock on weekdays because the UMA setup
 is an any-hour setup.

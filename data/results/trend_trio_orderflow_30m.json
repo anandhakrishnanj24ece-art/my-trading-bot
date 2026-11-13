@@ -1,0 +1,250 @@
+{
+  "paper_only": true,
+  "assumptions": {
+    "period": "2025-11-11 -> 2026-10-31",
+    "symbols": [
+      "ETHUSDT",
+      "SOLUSDT",
+      "XRPUSDT"
+    ],
+    "base": "multi_tf_strategy.py LVN-FVG orderflow",
+    "hierarchy": [
+      "1d",
+      "12h",
+      "8h",
+      "4h",
+      "2h",
+      "1h",
+      "30m"
+    ],
+    "ltf": "10m",
+    "trend_trio": "deployed rules, direction-only, NY session windows",
+    "sizing": "$10,000 per symbol, 0.5% risk, 5 bps fee + 1 bp slip/side",
+    "note": "3M/1M are not available in the one-year crypto dataset; the test starts at 1D."
+  },
+  "symbols": {
+    "ETHUSDT": {
+      "symbol": "ETHUSDT",
+      "trend_trio_trades": 1553,
+      "base": {
+        "label": "Base orderflow",
+        "trades": 147,
+        "gross": 1488.35,
+        "fees": 850.9,
+        "net": 637.45,
+        "return_pct": 6.37,
+        "win_rate_pct": 44.9,
+        "profit_factor": 1.1609,
+        "avg_r": 0.201,
+        "max_dd_pct": 5.33
+      },
+      "filter_active": {
+        "label": "Base + Trend Trio active",
+        "trades": 57,
+        "gross": 152.45,
+        "fees": 316.29,
+        "net": -163.84,
+        "return_pct": -1.64,
+        "win_rate_pct": 35.09,
+        "profit_factor": 0.8995,
+        "avg_r": 0.06,
+        "max_dd_pct": 6.84
+      },
+      "filter_latest": {
+        "label": "Base + Trend Trio latest",
+        "trades": 97,
+        "gross": 1180.71,
+        "fees": 498.64,
+        "net": 682.06,
+        "return_pct": 6.82,
+        "win_rate_pct": 44.33,
+        "profit_factor": 1.2981,
+        "avg_r": 0.244,
+        "max_dd_pct": 4.75
+      },
+      "base_funnel": {
+        "bars": 43281,
+        "active_htf": 37698,
+        "retest": 2965,
+        "nested_live": 200,
+        "div_retest": 14,
+        "confirm": 161,
+        "valid_sltp": 161,
+        "entries": 147,
+        "fp_ok": 33,
+        "wall_block": 14
+      },
+      "filtered_funnel": {
+        "bars": 46017,
+        "active_htf": 41947,
+        "retest": 4467,
+        "nested_live": 1527,
+        "div_retest": 105,
+        "confirm": 1317,
+        "valid_sltp": 1317,
+        "entries": 97,
+        "fp_ok": 138,
+        "wall_block": 19
+      }
+    },
+    "SOLUSDT": {
+      "symbol": "SOLUSDT",
+      "trend_trio_trades": 1535,
+      "base": {
+        "label": "Base orderflow",
+        "trades": 181,
+        "gross": 1455.31,
+        "fees": 1034.69,
+        "net": 420.62,
+        "return_pct": 4.21,
+        "win_rate_pct": 44.2,
+        "profit_factor": 1.0811,
+        "avg_r": 0.161,
+        "max_dd_pct": 7.06
+      },
+      "filter_active": {
+        "label": "Base + Trend Trio active",
+        "trades": 83,
+        "gross": 516.71,
+        "fees": 409.39,
+        "net": 107.31,
+        "return_pct": 1.07,
+        "win_rate_pct": 45.78,
+        "profit_factor": 1.0474,
+        "avg_r": 0.128,
+        "max_dd_pct": 7.72
+      },
+      "filter_latest": {
+        "label": "Base + Trend Trio latest",
+        "trades": 127,
+        "gross": 1668.34,
+        "fees": 676.89,
+        "net": 991.45,
+        "return_pct": 9.91,
+        "win_rate_pct": 47.24,
+        "profit_factor": 1.2893,
+        "avg_r": 0.254,
+        "max_dd_pct": 7.21
+      },
+      "base_funnel": {
+        "bars": 42577,
+        "active_htf": 34685,
+        "retest": 787,
+        "nested_live": 255,
+        "div_retest": 22,
+        "confirm": 182,
+        "valid_sltp": 182,
+        "entries": 181,
+        "fp_ok": 43,
+        "wall_block": 1
+      },
+      "filtered_funnel": {
+        "bars": 45254,
+        "active_htf": 39416,
+        "retest": 1974,
+        "nested_live": 1350,
+        "div_retest": 116,
+        "confirm": 1115,
+        "valid_sltp": 1115,
+        "entries": 127,
+        "fp_ok": 182,
+        "wall_block": 9
+      }
+    },
+    "XRPUSDT": {
+      "symbol": "XRPUSDT",
+      "trend_trio_trades": 1436,
+      "base": {
+        "label": "Base orderflow",
+        "trades": 187,
+        "gross": 1692.2,
+        "fees": 938.6,
+        "net": 753.59,
+        "return_pct": 7.54,
+        "win_rate_pct": 45.99,
+        "profit_factor": 1.1447,
+        "avg_r": 0.179,
+        "max_dd_pct": 4.43
+      },
+      "filter_active": {
+        "label": "Base + Trend Trio active",
+        "trades": 73,
+        "gross": 537.52,
+        "fees": 369.52,
+        "net": 168.0,
+        "return_pct": 1.68,
+        "win_rate_pct": 45.21,
+        "profit_factor": 1.0853,
+        "avg_r": 0.148,
+        "max_dd_pct": 8.09
+      },
+      "filter_latest": {
+        "label": "Base + Trend Trio latest",
+        "trades": 150,
+        "gross": 670.97,
+        "fees": 860.57,
+        "net": -189.6,
+        "return_pct": -1.9,
+        "win_rate_pct": 43.33,
+        "profit_factor": 0.9569,
+        "avg_r": 0.091,
+        "max_dd_pct": 13.72
+      },
+      "base_funnel": {
+        "bars": 42080,
+        "active_htf": 39600,
+        "retest": 1426,
+        "nested_live": 252,
+        "div_retest": 21,
+        "confirm": 187,
+        "valid_sltp": 187,
+        "entries": 187,
+        "fp_ok": 42
+      },
+      "filtered_funnel": {
+        "bars": 43605,
+        "active_htf": 40292,
+        "retest": 2685,
+        "nested_live": 1559,
+        "div_retest": 133,
+        "confirm": 1239,
+        "valid_sltp": 1239,
+        "entries": 150,
+        "fp_ok": 180,
+        "wall_block": 2
+      }
+    }
+  },
+  "aggregate": {
+    "base": {
+      "trades": 515,
+      "gross": 4635.86,
+      "fees": 2824.19,
+      "net": 1811.66,
+      "return_pct": 6.04,
+      "avg_symbol_return_pct": 6.04,
+      "profit_factor": 1.1262,
+      "worst_symbol_dd_pct": 7.06
+    },
+    "filter_active": {
+      "trades": 213,
+      "gross": 1206.68,
+      "fees": 1095.2,
+      "net": 111.47,
+      "return_pct": 0.37,
+      "avg_symbol_return_pct": 0.37,
+      "profit_factor": 1.019,
+      "worst_symbol_dd_pct": 8.09
+    },
+    "filter_latest": {
+      "trades": 374,
+      "gross": 3520.02,
+      "fees": 2036.1,
+      "net": 1483.91,
+      "return_pct": 4.95,
+      "avg_symbol_return_pct": 4.94,
+      "profit_factor": 1.1468,
+      "worst_symbol_dd_pct": 13.72
+    }
+  }
+}
