@@ -3,7 +3,22 @@
   "cash": 9956.9,
   "equity": 9956.9,
   "realized_pnl": -43.1,
-  "positions": [],
+  "positions": [
+    {
+      "id": "218f950ff8aa",
+      "direction": "short",
+      "entry_price": 26984.5,
+      "target_price": 26977.9,
+      "stop_price": 26994.5,
+      "target_points": 6.6,
+      "stop_points": 10.0,
+      "contracts": 1,
+      "opened_at": "2026-11-17T12:40:00-06:00",
+      "last_price": 26984.5,
+      "unrealized_points": 0.0,
+      "unrealized_usd": 0.0
+    }
+  ],
   "trades": [
     {
       "id": "8b87b87d312a",
@@ -112,7 +127,7 @@
       "equity": 9956.9
     }
   ],
-  "last_update": "2026-11-16T20:01:32.600422+00:00",
-  "last_price": 27298.0,
-  "last_entry_session": "2026-11-16"
+  "last_update": "2026-11-17T18:51:10.910506+00:00",
+  "last_price": 26984.5,
+  "last_entry_session": "2026-11-17"
 }
