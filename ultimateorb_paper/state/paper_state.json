@@ -1,24 +1,9 @@
 {
   "capital": 10000.0,
-  "cash": 9956.9,
-  "equity": 9956.9,
-  "realized_pnl": -43.1,
-  "positions": [
-    {
-      "id": "218f950ff8aa",
-      "direction": "short",
-      "entry_price": 26984.5,
-      "target_price": 26977.9,
-      "stop_price": 26994.5,
-      "target_points": 6.6,
-      "stop_points": 10.0,
-      "contracts": 1,
-      "opened_at": "2026-11-17T12:40:00-06:00",
-      "last_price": 26984.5,
-      "unrealized_points": 0.0,
-      "unrealized_usd": 0.0
-    }
-  ],
+  "cash": 9968.2,
+  "equity": 9968.2,
+  "realized_pnl": -31.8,
+  "positions": [],
   "trades": [
     {
       "id": "8b87b87d312a",
@@ -99,6 +84,22 @@
       "net_points": -10.95,
       "net_usd": -21.9,
       "reason": "stop"
+    },
+    {
+      "id": "218f950ff8aa",
+      "direction": "short",
+      "entry_price": 26984.5,
+      "exit_price": 26977.9,
+      "target_price": 26977.9,
+      "stop_price": 26994.5,
+      "contracts": 1,
+      "opened_at": "2026-11-17T12:40:00-06:00",
+      "closed_at": "2026-11-17T12:45:00-06:00",
+      "gross_points": 6.6,
+      "commission_points": 0.95,
+      "net_points": 5.65,
+      "net_usd": 11.3,
+      "reason": "target"
     }
   ],
   "equity_curve": [
@@ -125,9 +126,13 @@
     {
       "timestamp": "2026-11-16T20:01:32.600432+00:00",
       "equity": 9956.9
+    },
+    {
+      "timestamp": "2026-11-17T18:57:13.090254+00:00",
+      "equity": 9968.2
     }
   ],
-  "last_update": "2026-11-17T18:51:10.910506+00:00",
-  "last_price": 26984.5,
+  "last_update": "2026-11-17T18:57:13.090246+00:00",
+  "last_price": 26964.75,
   "last_entry_session": "2026-11-17"
 }
