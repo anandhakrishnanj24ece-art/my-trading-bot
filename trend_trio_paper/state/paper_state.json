@@ -3,7 +3,26 @@
   "cash": 50000.0,
   "equity": 50000.0,
   "realized_pnl": 0.0,
-  "positions": [],
+  "positions": [
+    {
+      "direction": "long",
+      "direction_sign": 1,
+      "entry_price": 26759.675,
+      "stop_price": null,
+      "target_price": null,
+      "risk_points": 0.0,
+      "contracts": 1,
+      "contract": "USATECH.IDX/USD (MNQ-equivalent)",
+      "source": "uma",
+      "source_detail": "Ultimate MA 4m turns green / EMA38>62",
+      "entry_time": "2026-11-24T04:05:00+00:00",
+      "signal_time": "2026-11-24T04:04:00+00:00",
+      "last_check_time": "2026-11-24T04:06:00+00:00",
+      "last_price": 26759.675,
+      "unrealized_points": 0.0,
+      "unrealized_usd": 0.0
+    }
+  ],
   "trades": [],
   "equity_curve": [
     {
@@ -11,9 +30,9 @@
       "equity": 50000.0
     }
   ],
-  "last_update": null,
-  "last_price": null,
-  "last_decision": null,
-  "last_reason": null,
+  "last_update": "2026-11-24T04:06:29.768193+00:00",
+  "last_price": 26759.675,
+  "last_decision": "open",
+  "last_reason": "uma long signal 23:04",
   "last_exit_time": null
 }
