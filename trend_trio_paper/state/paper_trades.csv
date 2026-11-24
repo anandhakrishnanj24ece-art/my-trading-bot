@@ -1,0 +1,2 @@
+strategy,source,direction,entry_time,signal_time,closed_at,entry_price,exit_price,stop_price,target_price,gross_points,net_points,gross_usd,net_usd,r_gross,r_net,reason
+Trend Trio,uma,long,2026-11-24T04:05:00+00:00,2026-11-24T04:04:00+00:00,2026-11-24T07:28:00+00:00,26759.675,26743.619,,,-16.056,-18.056,-32.11,-36.11,,,Chandelier 4m turns down

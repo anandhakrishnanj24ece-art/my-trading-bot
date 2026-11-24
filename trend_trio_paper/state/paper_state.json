@@ -1,38 +1,43 @@
 {
   "capital": 50000.0,
-  "cash": 50000.0,
-  "equity": 50000.0,
-  "realized_pnl": 0.0,
-  "positions": [
+  "cash": 49963.89,
+  "equity": 49963.89,
+  "realized_pnl": -36.11,
+  "positions": [],
+  "trades": [
     {
-      "direction": "long",
-      "direction_sign": 1,
-      "entry_price": 26759.675,
-      "stop_price": null,
-      "target_price": null,
-      "risk_points": 0.0,
-      "contracts": 1,
-      "contract": "USATECH.IDX/USD (MNQ-equivalent)",
+      "strategy": "Trend Trio",
       "source": "uma",
-      "source_detail": "Ultimate MA 4m turns green / EMA38>62",
+      "direction": "long",
       "entry_time": "2026-11-24T04:05:00+00:00",
       "signal_time": "2026-11-24T04:04:00+00:00",
-      "last_check_time": "2026-11-24T04:06:00+00:00",
-      "last_price": 26759.675,
-      "unrealized_points": 0.0,
-      "unrealized_usd": 0.0
+      "closed_at": "2026-11-24T07:28:00+00:00",
+      "entry_price": 26759.675,
+      "exit_price": 26743.619,
+      "stop_price": null,
+      "target_price": null,
+      "gross_points": -16.056,
+      "net_points": -18.056,
+      "gross_usd": -32.11,
+      "net_usd": -36.11,
+      "r_gross": null,
+      "r_net": null,
+      "reason": "Chandelier 4m turns down"
     }
   ],
-  "trades": [],
   "equity_curve": [
     {
       "timestamp": "2026-11-13T12:23:13.786135+00:00",
       "equity": 50000.0
+    },
+    {
+      "timestamp": "2026-11-24T07:28:00+00:00",
+      "equity": 49963.89
     }
   ],
-  "last_update": "2026-11-24T04:06:29.768193+00:00",
-  "last_price": 26759.675,
-  "last_decision": "open",
-  "last_reason": "uma long signal 23:04",
-  "last_exit_time": null
+  "last_update": "2026-11-24T14:49:23.867666+00:00",
+  "last_price": 26743.619,
+  "last_decision": "exit",
+  "last_reason": "Chandelier 4m turns down",
+  "last_exit_time": "2026-11-24T07:28:00+00:00"
 }
