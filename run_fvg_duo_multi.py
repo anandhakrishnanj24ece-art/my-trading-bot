@@ -26,7 +26,9 @@ from fvg_duo_backtest import resample, atr_rma, fvg
 
 TZ = "America/New_York"
 OD_STOP = 0.015
-RR = 3.0
+# FVG_RR moves the Trend target (3R is the video rule); OD has no target.
+RR = float(os.environ.get("FVG_RR", "3.0"))
+OUT_NAME = os.environ.get("FVG_OUT", "fvg_duo_multiyear_trades.csv")
 
 NQ_CSV = r"D:\diamondhead_data\Dataset_NQ_1min_2022_2025.csv"
 DUKA = os.path.join("data", "NASDAQ_DUKA_5y", "bars_5m.parquet")
@@ -312,8 +314,7 @@ def main():
                 all_trades.append(df)
 
     if all_trades:
-        pd.concat(all_trades).to_csv(
-            os.path.join(OUT, "fvg_duo_multiyear_trades.csv"), index=False)
+        pd.concat(all_trades).to_csv(os.path.join(OUT, OUT_NAME), index=False)
 
     # recent 60d feed: confirm the refactor reproduces the earlier result
     recent = load_5m(RECENT)

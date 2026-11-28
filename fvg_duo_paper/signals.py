@@ -12,7 +12,8 @@ Trend FVG
   * 15-minute bullish FVG, EMA50 > EMA100.
   * Middle candle range >= 1.5 x ATR14.
   * Long only; entry at the next 5-minute open, 09:30-15:30.
-  * Stop one tick below the first FVG candle low; target 3R.
+  * Stop one tick below the first FVG candle low; target 0.625R (paper book;
+    the video rule is 3R — see RR below).
 
 This module is pure signal logic. It has no broker, order, or network code.
 """
@@ -27,7 +28,13 @@ import pandas as pd
 TZ = "America/New_York"
 TICK = 0.01  # USATECH CFD tick; NQ research used 0.25
 OD_STOP = 0.015
-RR = 3.0
+#: Trend target.  0.625R is the Maven-eval optimum found by the risk sweep:
+#: on the deployed NDX CFD feed at 2% risk it is 93.7% pass / 5.8% fail /
+#: ~16 business-day median (4% target, 10% static floor, $2 round-trip).
+#: The 88.4% figure is the stacked NDX+NQ backtest, not a deployable stream;
+#: 96.5% / 6 bd is a 2% target, not the 4% Maven target.
+#: History: 3R is the video rule, 2.5R was the previous paper pick.
+RR = 0.625
 
 
 def normalize_5m(raw: pd.DataFrame) -> pd.DataFrame:
@@ -105,8 +112,11 @@ def resample_complete(df5: pd.DataFrame, minutes: int) -> pd.DataFrame:
     expected = max(int(minutes // 5), 1)
     x = x[(x.index + pd.Timedelta(minutes=minutes) <= last_end)
           & (x["n_bars"] >= expected)]
-    x["ny"] = x.index.tz_convert(TZ)
-    x["hm"] = x["ny"].dt.strftime("%H:%M")
+    ny = x.index.tz_convert(TZ)
+    x["ny"] = ny
+    # Built by hand: Series.strftime formats every element through numpy and
+    # dominated the signal build on a multi-day lookback.
+    x["hm"] = [f"{h:02d}:{m:02d}" for h, m in zip(ny.hour, ny.minute)]
     return x
 
 
@@ -118,17 +128,26 @@ def atr_rma(df: pd.DataFrame, n: int = 14) -> pd.Series:
     return tr.ewm(alpha=1 / n, adjust=False, min_periods=n).mean()
 
 
-def fvg(df: pd.DataFrame, i: int):
-    """Return (kind, first_low, first_high, middle_range)."""
+def _fvg_at(highs: np.ndarray, lows: np.ndarray, i: int):
+    """Return (kind, first_low, first_high, middle_range) at row ``i``.
+
+    Array form of :func:`fvg`.  Row-wise ``df.iloc[i]`` on a mixed-dtype frame
+    is roughly a millisecond per row, which dominated the whole signal build.
+    """
     if i < 2:
         return None
-    first, mid, third = df.iloc[i - 2], df.iloc[i - 1], df.iloc[i]
-    mid_range = float(mid["high"] - mid["low"])
-    if third["low"] > first["high"]:
-        return ("bull", float(first["low"]), float(first["high"]), mid_range)
-    if third["high"] < first["low"]:
-        return ("bear", float(first["low"]), float(first["high"]), mid_range)
+    first_high, first_low = highs[i - 2], lows[i - 2]
+    mid_range = float(highs[i - 1] - lows[i - 1])
+    if lows[i] > first_high:
+        return ("bull", float(first_low), float(first_high), mid_range)
+    if highs[i] < first_low:
+        return ("bear", float(first_low), float(first_high), mid_range)
     return None
+
+
+def fvg(df: pd.DataFrame, i: int):
+    """Return (kind, first_low, first_high, middle_range)."""
+    return _fvg_at(df["high"].to_numpy(), df["low"].to_numpy(), i)
 
 
 def build_signals(df5: pd.DataFrame) -> Tuple[Dict[pd.Timestamp, int],
@@ -146,32 +165,41 @@ def build_signals(df5: pd.DataFrame) -> Tuple[Dict[pd.Timestamp, int],
     m15["ema100"] = m15["close"].ewm(span=100, adjust=False).mean()
     m15["atr"] = atr_rma(m15, 14)
 
+    # Minute-of-day of each bucket's New York clock time.  A 10m bucket that
+    # starts at 09:30 or 09:40 closes at 09:40 / 09:50, the only OD checks.
+    m10_mod = (m10["ny"].dt.hour * 60 + m10["ny"].dt.minute).to_numpy()
+    m10_hi = m10["high"].to_numpy(dtype=float)
+    m10_lo = m10["low"].to_numpy(dtype=float)
+    m10_idx = m10.index
     for i in range(2, len(m10)):
-        r = m10.iloc[i]
-        close_hm = (r["ny"] + pd.Timedelta(minutes=10)).strftime("%H:%M")
-        if close_hm not in ("09:40", "09:50"):
+        if m10_mod[i] not in (570, 580):
             continue
-        g = fvg(m10, i)
+        g = _fvg_at(m10_hi, m10_lo, i)
         if g:
-            od[m10.index[i] + pd.Timedelta(minutes=10)] = (
+            od[m10_idx[i] + pd.Timedelta(minutes=10)] = (
                 1 if g[0] == "bull" else -1
             )
 
+    # Trend signals only from buckets closing 09:30-15:30, i.e. starting
+    # 09:15-15:15 (555-915 minutes past midnight, New York).
+    m15_mod = (m15["ny"].dt.hour * 60 + m15["ny"].dt.minute).to_numpy()
+    m15_bull = (m15["ema50"] > m15["ema100"]).to_numpy()
+    m15_atr = m15["atr"].to_numpy(dtype=float)
+    m15_hi = m15["high"].to_numpy(dtype=float)
+    m15_lo = m15["low"].to_numpy(dtype=float)
+    m15_idx = m15.index
     for i in range(2, len(m15)):
-        r = m15.iloc[i]
-        close_hm = (r["ny"] + pd.Timedelta(minutes=15)).strftime("%H:%M")
-        if not ("09:30" <= close_hm <= "15:30"):
+        if not (555 <= m15_mod[i] <= 915) or not m15_bull[i]:
             continue
-        if not (r["ema50"] > r["ema100"]):
-            continue
-        g = fvg(m15, i)
+        g = _fvg_at(m15_hi, m15_lo, i)
         if not g or g[0] != "bull":
             continue
-        if not np.isfinite(r["atr"]) or g[3] < 1.5 * r["atr"]:
+        atr = m15_atr[i]
+        if not np.isfinite(atr) or g[3] < 1.5 * atr:
             continue
         stop = g[1] - TICK
         if stop > 0:
-            trend[m15.index[i] + pd.Timedelta(minutes=15)] = (1, stop)
+            trend[m15_idx[i] + pd.Timedelta(minutes=15)] = (1, stop)
 
     return od, trend
 

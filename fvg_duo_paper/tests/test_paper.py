@@ -105,22 +105,59 @@ class EngineTests(unittest.TestCase):
         self.assertEqual(len(self.engine.state["trades"]), 0)
         self.assertEqual(len(self.engine.state["positions"]), 1)
 
-    def test_stop_exit_uses_entry_bar(self) -> None:
+    def test_entry_bar_extremes_do_not_exit(self) -> None:
         bars = self._flat_day()
         sig_ts = pd.Timestamp("2026-11-12 09:40",
                               tz="America/New_York").tz_convert("UTC")
         now1 = sig_ts + pd.Timedelta(seconds=30)
         self.engine.tick(now1, bars, signals=({sig_ts: 1}, {}))
-        entry = float(self.engine.state["positions"][0]["entry_price"])
         stop = float(self.engine.state["positions"][0]["stop_price"])
-        # Make the 09:40 bar trade through the stop.
+        # The 09:40 bar was still forming at the fill; its low can predate the
+        # entry price, so it must not be booked as a stop-out.
         bars.loc[sig_ts, "low"] = stop - 2.0
-        bars.loc[sig_ts, "high"] = entry + 1.0
-        now2 = sig_ts + pd.Timedelta(minutes=5, seconds=30)
-        result = self.engine.tick(now2, bars, signals=({sig_ts: 1}, {}))
+        result = self.engine.tick(sig_ts + pd.Timedelta(minutes=5, seconds=30),
+                                  bars, signals=({sig_ts: 1}, {}))
+        self.assertEqual(result["action"], "mark")
+        self.assertEqual(len(self.engine.state["positions"]), 1)
+        # The first bar that opens after the fill may stop the position out.
+        bars.loc[sig_ts + pd.Timedelta(minutes=5), "low"] = stop - 2.0
+        result = self.engine.tick(
+            sig_ts + pd.Timedelta(minutes=10, seconds=30), bars,
+            signals=({sig_ts: 1}, {}),
+        )
         self.assertEqual(result["action"], "exit")
         self.assertEqual(result["trade"]["reason"], "stop")
         self.assertEqual(len(self.engine.state["positions"]), 0)
+
+    def test_switch_od_resizes_risk_and_lots(self) -> None:
+        bars = frame("2026-11-12 09:30", 79, price=1000.0)
+        entry_ts = pd.Timestamp("2026-11-12 09:40",
+                                tz="America/New_York").tz_convert("UTC")
+        self.engine._open(1, 1000.0, 900.0, None, "trend", entry_ts, 100.0,
+                          signal_time=entry_ts)
+        # 2% of the 50k book over a 100-point stop.
+        self.assertAlmostEqual(
+            float(self.engine.state["positions"][0]["contracts"]), 10.0,
+            places=2,
+        )
+        sig_ts = pd.Timestamp("2026-11-12 09:45",
+                              tz="America/New_York").tz_convert("UTC")
+        now = pd.Timestamp("2026-11-12 09:50:00",
+                           tz="America/New_York").tz_convert("UTC")
+        result = self.engine.tick(now, bars, signals=({sig_ts: 1}, {}))
+        self.assertEqual(result["action"], "switch")
+        pos = self.engine.state["positions"][0]
+        expected_stop = round(1000.0 * (1 - 0.015), 4)
+        self.assertAlmostEqual(float(pos["stop_price"]), expected_stop,
+                               places=3)
+        self.assertAlmostEqual(float(pos["risk_points"]),
+                               round(1000.0 - expected_stop, 4), places=3)
+        # The moved stop shrinks the risk to ~15 points, which caps at 50 lots.
+        self.assertEqual(float(pos["contracts"]), 50.0)
+        self.assertEqual(pos["sizing_clamped"], "max_lots")
+        self.assertAlmostEqual(
+            50.0 * float(pos["risk_points"]), 750.0, places=2
+        )
 
     def test_eod_close(self) -> None:
         bars = self._flat_day()
@@ -143,6 +180,32 @@ class EngineTests(unittest.TestCase):
         result = self.engine.tick(now, bars, signals=({sig_ts: 1}, {}))
         self.assertEqual(result["action"], "none")
         self.assertEqual(len(self.engine.state["positions"]), 0)
+
+    def test_heartbeat_writes_asof_without_trading(self) -> None:
+        when = pd.Timestamp("2026-11-20 21:00:00", tz="UTC")
+        result = self.engine.heartbeat(now=when)
+        self.assertEqual(result["action"], "heartbeat")
+        self.assertEqual(self.engine.state["positions"], [])
+        self.assertEqual(self.engine.state["trades"], [])
+        self.assertEqual(self.engine.state["asof"], when.isoformat())
+        self.assertIsNotNone(self.engine.state["last_update"])
+        # A fresh engine reads the timestamp back from disk.
+        reloaded = PaperEngine(base_dir=Path(self.tmp.name),
+                               starting_capital=50_000)
+        self.assertEqual(reloaded.state["asof"], when.isoformat())
+
+    def test_post_close_tick_writes_asof(self) -> None:
+        bars = self._flat_day()
+        now = pd.Timestamp("2026-11-12 16:00:00",
+                           tz="America/New_York").tz_convert("UTC")
+        result = self.engine.tick(now, bars, signals=({}, {}))
+        self.assertEqual(result["action"], "none")
+        first = self.engine.state["asof"]
+        self.assertIsNotNone(first)
+        # A later quiet tick on the same date must not rewrite the timestamp
+        # and create a state commit every five minutes after the close.
+        self.engine.tick(now + pd.Timedelta(minutes=5), bars, signals=({}, {}))
+        self.assertEqual(self.engine.state["asof"], first)
 
 
 if __name__ == "__main__":
