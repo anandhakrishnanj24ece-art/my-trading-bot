@@ -17,5 +17,11 @@
   "last_reason": "OD signal 09:40 missed by 338.1 min",
   "od_days": [
     "2026-11-13"
-  ]
+  ],
+  "config": {
+    "rr": 0.625,
+    "risk_pct": 2.0,
+    "max_lots": 50.0,
+    "point_value": 1.0
+  }
 }
